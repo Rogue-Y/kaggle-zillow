@@ -129,10 +129,8 @@ def clean_geo_data(df):
     """
     pass;
 
-def drop_columns(df, isTrain):
+def drop_columns(df):
     """ Drop un-used columns
-        Params:
-            isTrain: if df is training dataset
         Returns:
             a copy of dataframe with un-used columns dropped
     """
@@ -144,10 +142,18 @@ def drop_columns(df, isTrain):
     'censustractandblock', 'regionidcounty', 'regionidcity',
     'regionidzip', 'regionidneighborhood']
     # Training data only columns
-    train_columns = ['transactiondate']
-    id_column = ['parcelid']
+    # train_columns = ['transactiondate']
+    # id_column = ['parcelid']
 
-    columns_to_drop = cat_columns + geo_columns + id_column
-    if isTrain:
-        columns_to_drop = columns_to_drop + train_columns
+    columns_to_drop = cat_columns + geo_columns
     return df.drop(columns_to_drop, axis=1)
+
+def drop_id_column(df):
+    return df.drop('parcelid', axis=1)
+
+def fillna(df, value=0):
+    """ Violently fill all nan as value, default to 0.
+        Returns:
+            a copy of df with nan filled as value.
+    """
+    return df.fillna(value)
