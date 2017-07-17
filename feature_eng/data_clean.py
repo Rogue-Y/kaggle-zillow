@@ -71,7 +71,7 @@ def clean_categorical_data(df):
 
     # propertycountylandusecode count 58313
     # Replace low frequency count as 'others', and encode the values with integers
-    land_use_desc_threshold = 500
+    land_use_desc_threshold = 10000
     lud_vc = df['propertyzoningdesc'].value_counts()
     land_use_desc = df['propertyzoningdesc'].mask(df['propertyzoningdesc'].map(lud_vc) < land_use_desc_threshold, 'others')
     land_use_desc = land_use_desc.astype('str')
@@ -122,8 +122,8 @@ def clean_boolean_data(df):
     # pooltypeid7 1 count 16697
     df['pooltypeid7'].fillna(0, inplace=True)
 
-    # taxdelinquencyflag Y count 1783
-    df['taxdelinquencyflag'] = df['taxdelinquencyflag'] == 'Y'
+    # # taxdelinquencyflag Y count 1783
+    # df['taxdelinquencyflag'] = df['taxdelinquencyflag'] == 'Y'
 
     # storytypeid (all 7, basically it's a isBasement flag)
     df['storytypeid'] = df['storytypeid'] == 7
