@@ -105,8 +105,9 @@ def get_train_test_sets():
 
     # Subset with transaction info
     df = train.merge(prop_df, how='left', on='parcelid')
+    df = feature_eng.convert_year_build_to_age(df)
+    df = data_clean.drop_low_ratio_columns(df)
     df = data_clean.clean_boolean_data(df)
-    df = data_clean.drop_columns(df)
     df = data_clean.drop_id_column(df)
     df = data_clean.fillna(df)
 

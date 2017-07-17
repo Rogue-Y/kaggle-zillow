@@ -2,9 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
-def fill_scalar(df, value):
-    return df.fillna(value)
-
 def remove_col(df, cols):
     return df.drop(cols, axis=1)
 
@@ -20,15 +17,24 @@ def cat2num(df):
 def test():
     print("hello, world!")
 
+def drop_low_ratio_columns(df):
+    """ Drop feature with low non-nan ratio
+        Returns:
+            A copy of df with some columns dropped
+    """
+    columns_to_drop = ['architecturalstyletypeid', 'basementsqft',
+        'buildingclasstypeid', 'decktypeid', 'typeconstructiontypeid',
+        'yardbuildingsqft26', 'taxdelinquencyflag', 'taxdelinquencyyear']
+    return df.drop(columns_to_drop, axis=1)
+
+
 def clean_categorical_data(df):
     """ Clean categorical data
         Returns:
             a copy of cleaned dataframe
         columns to drop:
-        ['airconditioningtypeid', 'architecturalstyletypeid',
-        'buildingclasstypeid', 'decktypeid', 'fips', 'heatingorsystemtypeid',
-        'propertycountylandusecode', 'propertyzoningdesc', 'storytypeid',
-        'typeconstructiontypeid']
+        ['airconditioningtypeid', 'fips', 'heatingorsystemtypeid',
+        'propertycountylandusecode', 'propertyzoningdesc']
     """
     # Preparation
     labelEncoder = LabelEncoder()
@@ -40,13 +46,13 @@ def clean_categorical_data(df):
     ac_dummies = pd.get_dummies(df['airconditioningtypeid'], prefix='airconditioningtypeid')
 
     # architecturalstyletypeid count 261
-    arch_style_dummies = pd.get_dummies(df['architecturalstyletypeid'], prefix='architecturalstyletypeid')
+    #arch_style_dummies = pd.get_dummies(df['architecturalstyletypeid'], prefix='architecturalstyletypeid')
 
     # buildingclasstypeid count 16
-    building_class_dummies = pd.get_dummies(df['buildingclasstypeid'], prefix='buildingclasstypeid')
+    #building_class_dummies = pd.get_dummies(df['buildingclasstypeid'], prefix='buildingclasstypeid')
 
     # decktypeid count 658
-    deck_type_dummies = pd.get_dummies(df['decktypeid'], prefix='decktypeid')
+    #deck_type_dummies = pd.get_dummies(df['decktypeid'], prefix='decktypeid')
 
     # fips count 90275
     fips_dummies = pd.get_dummies(df['fips'], prefix='fips')
@@ -56,7 +62,7 @@ def clean_categorical_data(df):
 
     # propertycountylandusecode count 90274
     # Replace low frequency count as 'others', and encode the values with integers
-    land_use_code_threshold = 100
+    land_use_code_threshold = 50000
     luc_vc = df['propertycountylandusecode'].value_counts()
     land_use_code = df['propertycountylandusecode'].mask(df['propertycountylandusecode'].map(luc_vc) < land_use_code_threshold, 'others')
     land_use_code = land_use_code.astype('str')
@@ -72,15 +78,19 @@ def clean_categorical_data(df):
     land_use_desc = labelEncoder.fit_transform(land_use_desc)
     land_use_desc_dummies = pd.get_dummies(land_use_desc, prefix='propertyzoningdesc')
 
-    # storytypeid count 43
-    story_type_dummies = pd.get_dummies(df['storytypeid'], prefix='storytypeid')
-
     # typeconstructiontypeid count 299
-    construct_mat_dummies = pd.get_dummies(df['typeconstructiontypeid'], prefix='typeconstructiontypeid')
+    #construct_mat_dummies = pd.get_dummies(df['typeconstructiontypeid'], prefix='typeconstructiontypeid')
 
-    df_lists = [df, ac_dummies, arch_style_dummies, building_class_dummies,
-        deck_type_dummies, fips_dummies, heating_dummies, land_use_code_dummies,
-        land_use_desc_dummies, story_type_dummies, construct_mat_dummies]
+    columns_to_drop = ['airconditioningtypeid', 'fips', 'heatingorsystemtypeid',
+        'propertycountylandusecode', 'propertyzoningdesc']
+
+    df.drop(columns_to_drop, axis=1, inplace=True)
+
+    df_lists = [df, ac_dummies, fips_dummies, heating_dummies,
+        land_use_code_dummies, land_use_desc_dummies]
+
+    # df_lists_low_ratio = [arch_style_dummies, building_class_dummies,
+    #     deck_type_dummies, construct_mat_dummies]
 
     return pd.concat(df_lists, axis=1)
 
@@ -115,6 +125,9 @@ def clean_boolean_data(df):
     # taxdelinquencyflag Y count 1783
     df['taxdelinquencyflag'] = df['taxdelinquencyflag'] == 'Y'
 
+    # storytypeid (all 7, basically it's a isBasement flag)
+    df['storytypeid'] = df['storytypeid'] == 7
+
     return df
 
 def clean_geo_data(df):
@@ -127,26 +140,29 @@ def clean_geo_data(df):
             'censustractandblock', 'regionidcounty', 'regionidcity',
             'regionidzip', 'regionidneighborhood']
     """
-    pass;
-
-def drop_columns(df):
-    """ Drop un-used columns
-        Returns:
-            a copy of dataframe with un-used columns dropped
-    """
-    cat_columns = ['airconditioningtypeid', 'architecturalstyletypeid',
-    'buildingclasstypeid', 'decktypeid', 'fips', 'heatingorsystemtypeid',
-    'propertycountylandusecode', 'propertyzoningdesc', 'storytypeid',
-    'typeconstructiontypeid']
     geo_columns = ['latitude', 'longitude', 'rawcensustractandblock',
     'censustractandblock', 'regionidcounty', 'regionidcity',
     'regionidzip', 'regionidneighborhood']
-    # Training data only columns
-    # train_columns = ['transactiondate']
-    # id_column = ['parcelid']
+    return df.drop(geo_columns, axis=1)
 
-    columns_to_drop = cat_columns + geo_columns
-    return df.drop(columns_to_drop, axis=1)
+# def drop_columns(df):
+#     """ Drop un-used columns
+#         Returns:
+#             a copy of dataframe with un-used columns dropped
+#     """
+#     cat_columns = ['airconditioningtypeid', 'architecturalstyletypeid',
+#     'buildingclasstypeid', 'decktypeid', 'fips', 'heatingorsystemtypeid',
+#     'propertycountylandusecode', 'propertyzoningdesc', 'storytypeid',
+#     'typeconstructiontypeid']
+#     geo_columns = ['latitude', 'longitude', 'rawcensustractandblock',
+#     'censustractandblock', 'regionidcounty', 'regionidcity',
+#     'regionidzip', 'regionidneighborhood']
+#     # Training data only columns
+#     # train_columns = ['transactiondate']
+#     # id_column = ['parcelid']
+#
+#     columns_to_drop = cat_columns + geo_columns
+#     return df.drop(columns_to_drop, axis=1)
 
 def drop_id_column(df):
     return df.drop('parcelid', axis=1)
