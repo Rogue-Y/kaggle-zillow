@@ -14,8 +14,8 @@ def cat2num(df):
     for c in df.dtypes[df.dtypes == object].index.values:
         df[c] = (df[c] == True)
 
-def test():
-    print("hello, world!")
+def test(param='world'):
+    print("hello, %s" %param)
 
 def drop_low_ratio_columns(df):
     """ Drop feature with low non-nan ratio

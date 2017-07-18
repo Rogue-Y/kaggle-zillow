@@ -1,0 +1,62 @@
+{"steps": [
+   [
+     {
+       "module": "feature_eng",
+       "method": "add_missing_value_count",
+       "params": {
+         "args": ["prop"],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
+       "method": "clean_categorical_data",
+       "params": {
+         "args": ["prop_df"],
+         "kwargs": {}
+       }
+     }
+   ],
+   [
+     {
+       "module": "feature_eng",
+       "method": "convert_year_build_to_age",
+       "params": {
+         "args": ["df"],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
+       "method": "drop_low_ratio_columns",
+       "params": {
+         "args": ["df"],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
+       "method": "clean_boolean_data",
+       "params": {
+         "args": ["df"],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
+       "method": "drop_id_column",
+       "params": {
+         "args": ["df"],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
+       "method": "fillna",
+       "params": {
+         "args": ["df"],
+         "kwargs": {}
+       }
+     }
+   ]
+  ]}
