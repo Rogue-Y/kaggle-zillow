@@ -14,7 +14,7 @@ def load_train_data():
         Returns:
             (train_df, properties_df, joined_df)
     """
-    train = pd.read_csv('data/train_2016.csv')
+    train = pd.read_csv('data/train_2016_v2.csv')
     prop = pd.read_csv('data/properties_2016.csv')
     # df = train.merge(prop, how='left', on='parcelid')
     return (train, prop)
