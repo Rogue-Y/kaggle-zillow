@@ -65,7 +65,14 @@
    {
      "module": "sklearn.ensemble",
      "model": "RandomForestRegressor",
-     "params": {"n_estimators": 10}
-   }
+     "params": {"n_estimators": 10},
+     "evparams": {"transform_target": true}
+   }/*,
+   {
+     "module": "lightgbm",
+     "model": "",
+     "params": {},
+     "evparams": {"transform_target": false}
+   }*/
  ]
 }

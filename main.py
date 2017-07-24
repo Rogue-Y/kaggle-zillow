@@ -79,7 +79,9 @@ for model in models:
     module = importlib.import_module(module_name)
     model_name = model['model']
     model_to_use = getattr(module, model_name)
+    print('Using model', model_name)
     params = model['params']
-    ev.fit(model_to_use(**params))
+    evparams = model['evparams']
+    ev.fit(model_to_use(**params), **evparams)
 
 # print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
