@@ -42,8 +42,7 @@ def get_features_target(df):
             (X, y)
     """
     # logerror is the target column
-    # transactiondate only available in training data
-    return (df.drop(['logerror','transactiondate'], axis=1), df['logerror'])
+    return (df.drop(['logerror'], axis=1), df['logerror'])
 
 def split_by_date(df, split_date = '2016-10-01'):
     """ Split the transaction data into two part, those before split_date as

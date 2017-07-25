@@ -7,26 +7,37 @@ import evaluator
 
 import json
 import importlib # import module dynamically
+import pandas as pd
 
 # Read config file
-steps_config_file = open("config/steps.json", "r")
+config_file = open("config/steps.json", "r")
 config = None
 try:
-    config = json.load(steps_config_file)
+    config = json.load(config_file)
 finally:
-    steps_config_file.close()
+    config_file.close()
 
 steps = config['steps']
 models = config['models']
+predict = False
+if 'predict' in config:
+    predict = config['predict']
 
-# Global variables
-prop_df, df= None, None
+# Define global variables here
+# prop_df, df= None, None
 
 print('Loading data ...')
+#TODO(hzn): Add a copy of train or prop dataframe if needed.
 train, prop = utils.load_train_data()
 
 print('Cleaning data and feature engineering...')
+# Steps that must be done on the global data set.
 step0 = steps[0]
+# Steps that can be done on training set only, save time when we are not output
+# predict data.
+step1 = steps[1]
+if predict:
+    step0 = step0 + step1
 for method in step0:
     module_name = method['module']
     module = globals()[module_name]
@@ -41,31 +52,40 @@ for method in step0:
     for key, value_name in kwargs.items():
         value = globals()[value_name]
         params[key] = value
+    kwargs['df'] = prop
 
-    prop_df = method_to_call(*args, **kwargs)
+    prop = method_to_call(*args, **kwargs)
 
 # Subset with transaction info
-df = train.merge(prop_df, how='left', on='parcelid')
-step1 = steps[1]
-for method in step1:
-    module_name = method['module']
-    module = globals()[module_name]
-    method_name = method['method']
-    method_to_call = getattr(module, method_name)
+df = train.merge(prop, how='left', on='parcelid')
 
-    params = method['params']
-    args = params['args']
-    kwargs = params['kwargs']
+# Run some feature engineering jobs on trainning set only when not output
+# prediction result.
+if not predict:
+    for method in step1:
+        module_name = method['module']
+        module = globals()[module_name]
+        method_name = method['method']
+        method_to_call = getattr(module, method_name)
 
-    args = list(map(lambda x: globals()[x], args))
-    for key, value_name in kwargs.items():
-        value = globals()[value_name]
-        params[key] = value
+        params = method['params']
+        args = params['args']
+        kwargs = params['kwargs']
 
-    df = method_to_call(*args, **kwargs)
+        args = list(map(lambda x: globals()[x], args))
+        for key, value_name in kwargs.items():
+            value = globals()[value_name]
+            params[key] = value
+        kwargs['df'] = df
+
+        df = method_to_call(*args, **kwargs)
+
 
 print("Spliting data into training and testing...")
+# transaction date is needed to split train and test(by ourselves) here.
 train_df, test_df = utils.split_by_date(df)
+train_df = data_clean.drop_training_only_column(train_df)
+test_df = data_clean.drop_training_only_column(test_df)
 # 82249 rows
 X_train, y_train = utils.get_features_target(train_df)
 # 8562 rows
@@ -85,3 +105,18 @@ for model in models:
     ev.fit(model_to_use(**params), **evparams)
 
 # print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
+
+if predict:
+    print("Predicting and writing results...")
+    df_test, sample = utils.load_test_data()
+    df_test = df_test.merge(prop, on='parcelid', how='left')
+    df_test = data_clean.drop_id_column(df_test)
+    predictor = ev.predictors[0]
+    p_test = predictor['predictor'].predict(df_test)
+    transform_target = predictor['transform_target']
+    if transform_target:
+        p_test = ev.postprocess_target(p_test)
+    for c in sample.columns[sample.columns != 'ParcelId']:
+        sample[c] = p_test
+
+    sample.to_csv('lgb_starter.csv', index=False, float_format='%.4f')

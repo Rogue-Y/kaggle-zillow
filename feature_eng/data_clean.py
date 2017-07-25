@@ -167,6 +167,14 @@ def clean_geo_data(df):
 def drop_id_column(df):
     return df.drop('parcelid', axis=1)
 
+def drop_training_only_column(df):
+    """ Drop the columns that is only available in training data,
+        namely, parcelid and transactiondate
+        Returns:
+            a copy of dataframe with training only columns dropped.
+    """
+    return df.drop(['parcelid', 'transactiondate'], axis=1)
+
 def fillna(df, value=0):
     """ Violently fill all nan as value, default to 0.
         Returns:
