@@ -108,12 +108,19 @@ for model in models:
 
 if predict:
     print("Predicting and writing results...")
+    # load test set and output sample
     df_test, sample = utils.load_test_data()
+    # organize test set
     df_test = df_test.merge(prop, on='parcelid', how='left')
     df_test = data_clean.drop_id_column(df_test)
-    predictor = ev.predictors[0]
-    p_test = predictor['predictor'].predict(df_test)
-    transform_target = predictor['transform_target']
+    # Retrain predictor on the entire training set, then predict on test set
+    df = data_clean.drop_training_only_column(df)
+    X_df, y_df = utils.get_features_target(df)
+    predictor = ev.predictors[0]['predictor']
+    predictor.fit(X_df, y_df)
+    p_test = predictor.predict(df_test)
+    # Transform the distribution of the target if needed.
+    transform_target = ev.predictors[0]['transform_target']
     if transform_target:
         p_test = ev.postprocess_target(p_test)
     for c in sample.columns[sample.columns != 'ParcelId']:
