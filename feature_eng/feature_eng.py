@@ -46,3 +46,24 @@ def add_nearby_houses(df, threshold=5):
         df.loc[i, 'nearby_houses'] = nearby_houses_i
     df.to_csv('data/add_nearby_houses.csv', index=True)
     return df
+
+def add_bins(df, year_bin_num=10, tax_bin_num=10):
+    """ Put some features into bins.
+        Returns:
+            a copy of df with bins columns added.
+        Columns:
+            ['yearbuilt', 'taxamount']
+    """
+
+    # TODO(hzn): think about if use qcut on the whole data set will cause data
+    # leakage
+    # yearbuilt
+    year_bins = pd.qcut(df['yearbuilt'], year_bin_num, labels=False)
+    year_dummies = pd.get_dummies(year_bins, prefix="yearbuilt")
+
+    # taxamount
+    tax_bins = pd.qcut(df['taxamount'], tax_bin_num, labels=False)
+    tax_dummies = pd.get_dummies(tax_bins, prefix="taxamount")
+
+    df_list = [df, year_dummies, tax_dummies]
+    return pd.concat(df_list, axis=1)

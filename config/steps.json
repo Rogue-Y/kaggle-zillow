@@ -1,5 +1,5 @@
 {
-  "predict": true,
+  "predict": false,
   "steps": [
    [
      {
@@ -17,9 +17,15 @@
          "args": [],
          "kwargs": {}
        }
-     }
-   ],
-   [
+     },
+     {
+       "module": "data_clean",
+       "method": "clean_geo_data",
+       "params": {
+         "args": [],
+         "kwargs": {"lat_bin_num": 10, "lon_bin_num": 10}
+       }
+     },
      {
        "module": "feature_eng",
        "method": "convert_year_build_to_age",
@@ -29,16 +35,18 @@
        }
      },
      {
-       "module": "data_clean",
-       "method": "drop_low_ratio_columns",
+       "module": "feature_eng",
+       "method": "add_bins",
        "params": {
          "args": [],
-         "kwargs": {}
+         "kwargs": {"year_bin_num": 10, "tax_bin_num": 10}
        }
-     },
+     }
+   ],
+   [
      {
        "module": "data_clean",
-       "method": "clean_geo_data",
+       "method": "drop_low_ratio_columns",
        "params": {
          "args": [],
          "kwargs": {}
@@ -68,7 +76,7 @@
      "model": "RandomForestRegressor",
      "params": {"n_estimators": 10},
      "evparams": {"transform_target": true, "model_name": "Random Forest"},
-     "active": false
+     "active": true
    },
    {
      "module": "models.Lightgbm",

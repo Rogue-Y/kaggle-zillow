@@ -86,13 +86,13 @@ def clean_categorical_data(df):
 
     df.drop(columns_to_drop, axis=1, inplace=True)
 
-    df_lists = [df, ac_dummies, fips_dummies, heating_dummies,
+    df_list = [df, ac_dummies, fips_dummies, heating_dummies,
         land_use_code_dummies, land_use_desc_dummies]
 
     # df_lists_low_ratio = [arch_style_dummies, building_class_dummies,
     #     deck_type_dummies, construct_mat_dummies]
 
-    return pd.concat(df_lists, axis=1)
+    return pd.concat(df_list, axis=1)
 
 def clean_boolean_data(df):
     """ Fill boolean data (replace nan with False / 0), inplace change, do not
@@ -130,7 +130,7 @@ def clean_boolean_data(df):
 
     return df
 
-def clean_geo_data(df):
+def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
     """ Need to think about how to deal with geo data, do nothing here and
         drop the columns in column drop method for now.
         Returns:
@@ -143,7 +143,19 @@ def clean_geo_data(df):
     geo_columns = ['latitude', 'longitude', 'rawcensustractandblock',
     'censustractandblock', 'regionidcounty', 'regionidcity',
     'regionidzip', 'regionidneighborhood']
-    return df.drop(geo_columns, axis=1)
+
+    # put latitude and longitude into bins
+    lat_bins = pd.cut(df['latitude'], lat_bin_num, labels=False)
+    lat_bin_dummies = pd.get_dummies(lat_bins, prefix="lat_bin")
+    lon_bins = pd.cut(df['longitude'], lon_bin_num, labels=False)
+    lon_bin_dummies = pd.get_dummies(lon_bins, prefix="lon_bin")
+
+    # get dummies for 3 counties
+    county_dummies = pd.get_dummies(df['regionidcounty'], prefix='county')
+
+    df_list = [df.drop(geo_columns, axis=1), lat_bins, lon_bins, county_dummies]
+
+    return pd.concat(df_list, axis=1)
 
 # def drop_columns(df):
 #     """ Drop un-used columns

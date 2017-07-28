@@ -48,10 +48,10 @@ for method in step0:
     args = params['args']
     kwargs = params['kwargs']
 
-    args = list(map(lambda x: globals()[x], args))
-    for key, value_name in kwargs.items():
-        value = globals()[value_name]
-        params[key] = value
+    # args = list(map(lambda x: globals()[x], args))
+    # for key, value_name in kwargs.items():
+    #     value = globals()[value_name]
+    #     params[key] = value
     kwargs['df'] = prop
 
     prop = method_to_call(*args, **kwargs)
@@ -72,10 +72,10 @@ if not predict:
         args = params['args']
         kwargs = params['kwargs']
 
-        args = list(map(lambda x: globals()[x], args))
-        for key, value_name in kwargs.items():
-            value = globals()[value_name]
-            params[key] = value
+        # args = list(map(lambda x: globals()[x], args))
+        # for key, value_name in kwargs.items():
+        #     value = globals()[value_name]
+        #     params[key] = value
         kwargs['df'] = df
 
         df = method_to_call(*args, **kwargs)
