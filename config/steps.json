@@ -38,6 +38,14 @@
      },
      {
        "module": "data_clean",
+       "method": "clean_geo_data",
+       "params": {
+         "args": [],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
        "method": "clean_boolean_data",
        "params": {
          "args": [],
@@ -59,13 +67,14 @@
      "module": "sklearn.ensemble",
      "model": "RandomForestRegressor",
      "params": {"n_estimators": 10},
-     "evparams": {"transform_target": true, "model_name": "Random Forest"}
+     "evparams": {"transform_target": true, "model_name": "Random Forest"},
+     "active": false
    },
    {
      "module": "models.Lightgbm",
      "model": "Lightgbm",
      "params": {},
-     "evparams": {"transform_target": true, "model_name": "Lightgbm"}
+     "evparams": {"transform_target": false, "model_name": "Lightgbm"}
    }
  ]
 }

@@ -95,6 +95,10 @@ X_test, y_test = utils.get_features_target(test_df)
 ev = evaluator.Evaluator()
 ev.load_train_test((X_train, y_train, X_test, y_test))
 for model in models:
+    # skip models marked as not active, active is default to True
+    active = model['active'] if 'active' in model else True
+    if not active:
+        continue
     module_name = model['module']
     module = importlib.import_module(module_name)
     model_name = model['model']
