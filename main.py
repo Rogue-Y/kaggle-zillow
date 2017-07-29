@@ -39,6 +39,9 @@ step1 = steps[1]
 if predict:
     step0 = step0 + step1
 for method in step0:
+    active = method['active'] if 'active' in method else True
+    if not active:
+        continue
     module_name = method['module']
     module = globals()[module_name]
     method_name = method['method']
@@ -80,7 +83,7 @@ if not predict:
 
         df = method_to_call(*args, **kwargs)
 
-
+print("The shape of the dataframe: {0}\n".format(df.shape))
 print("Spliting data into training and testing...")
 # transaction date is needed to split train and test(by ourselves) here.
 train_df, test_df = utils.split_by_date(df)

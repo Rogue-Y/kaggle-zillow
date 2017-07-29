@@ -24,7 +24,8 @@
        "params": {
          "args": [],
          "kwargs": {"lat_bin_num": 10, "lon_bin_num": 10}
-       }
+       },
+       "active": false
      },
      {
        "module": "feature_eng",
@@ -67,6 +68,14 @@
          "args": [],
          "kwargs": {}
        }
+     },
+     {
+       "module": "feature_eng",
+       "method": "feature_crossing",
+       "params": {
+         "args": [],
+         "kwargs": {"cross_list": [["year_bin", "lon_bin"], ["tax_bin", "lon_bin"], ["tax_bin", "year_bin"]]}
+       }
      }
    ]
  ],
@@ -82,7 +91,8 @@
      "module": "models.Lightgbm",
      "model": "Lightgbm",
      "params": {},
-     "evparams": {"transform_target": false, "model_name": "Lightgbm"}
+     "evparams": {"transform_target": false, "model_name": "Lightgbm"},
+     "active": true
    }
  ]
 }

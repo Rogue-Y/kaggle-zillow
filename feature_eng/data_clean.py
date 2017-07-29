@@ -2,6 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
+import feature_eng.feature_eng as feature_eng
+
 def remove_col(df, cols):
     return df.drop(cols, axis=1)
 
@@ -153,9 +155,19 @@ def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
     # get dummies for 3 counties
     county_dummies = pd.get_dummies(df['regionidcounty'], prefix='county')
 
-    df_list = [df.drop(geo_columns, axis=1), lat_bins, lon_bins, county_dummies]
+    df_list = [df.drop(geo_columns, axis=1), lat_bin_dummies, lon_bin_dummies, county_dummies]
 
-    return pd.concat(df_list, axis=1)
+    df = pd.concat(df_list, axis=1)
+
+    # Cross latitude and longitude bins, and drop the single bins, as only
+    # latitude or longitude does not make much sense.
+    df = feature_eng.cross_features(df, 'lat_bin', 'lon_bin', '-');
+
+    lat_bin_cols = [col for col in df.columns if 'lat_bin' in col and '-' not in col]
+    lon_bin_cols = [col for col in df.columns if 'lon_bin' in col and '-' not in col]
+    df = df.drop(lat_bin_cols + lon_bin_cols, axis=1)
+    return df
+
 
 # def drop_columns(df):
 #     """ Drop un-used columns
