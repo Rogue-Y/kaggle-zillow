@@ -1,4 +1,5 @@
 {
+  "develop_mode": true,
   "predict": false,
   "steps": [
    [
@@ -24,8 +25,7 @@
        "params": {
          "args": [],
          "kwargs": {"lat_bin_num": 10, "lon_bin_num": 10}
-       },
-       "active": false
+       }
      },
      {
        "module": "feature_eng",
@@ -85,7 +85,7 @@
      "model": "RandomForestRegressor",
      "params": {"n_estimators": 10},
      "evparams": {"transform_target": true, "model_name": "Random Forest"},
-     "active": true
+     "active": false
    },
    {
      "module": "models.Lightgbm",
