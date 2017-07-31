@@ -24,6 +24,8 @@ def train(train, prop):
         config_file.close()
 
     steps = config['steps']
+    # preprocessing for training data
+    training_preprocess = config['training_preprocess']
     models = config['models']
     develop_mode = config['develop_mode'] if 'develop_mode' in config else True
     predict = config['predict'] if 'predict' in config else False
@@ -75,6 +77,9 @@ def train(train, prop):
     # prediction result.
     if not predict:
         for method in step1:
+            active = method['active'] if 'active' in method else True
+            if not active:
+                continue
             module_name = method['module']
             module = globals()[module_name]
             method_name = method['method']
@@ -93,9 +98,36 @@ def train(train, prop):
             df = method_to_call(*args, **kwargs)
 
     print("The shape of the dataframe: {0}\n".format(df.shape))
+    # for col in df.columns:
+    #     print(col)
+
     print("Spliting data into training and testing...")
     # transaction date is needed to split train and test(by ourselves) here.
     train_df, test_df = utils.split_by_date(df)
+
+    # preprocess training data
+    for method in training_preprocess:
+        active = method['active'] if 'active' in method else True
+        if not active:
+            continue
+        module_name = method['module']
+        module = globals()[module_name]
+        method_name = method['method']
+        method_to_call = getattr(module, method_name)
+
+        params = method['params']
+        args = params['args']
+        kwargs = params['kwargs']
+
+        # args = list(map(lambda x: globals()[x], args))
+        # for key, value_name in kwargs.items():
+        #     value = globals()[value_name]
+        #     params[key] = value
+        kwargs['df'] = train_df
+
+        train_df = method_to_call(*args, **kwargs)
+
+    # Drop columns that are only available in training data
     train_df = data_clean.drop_training_only_column(train_df)
     test_df = data_clean.drop_training_only_column(test_df)
     # 82249 rows
@@ -123,7 +155,13 @@ def train(train, prop):
         print('Using model', model_name)
         params = model['params']
         evparams = model['evparams']
-        ev.fit(model_to_use(**params), **evparams)
+        predictor = model_to_use(**params)
+        ev.fit(predictor, **evparams)
+        # print some attributes of the model
+        if "attributes" in model:
+            for attr in model["attributes"]:
+                attribute = getattr(predictor, attr)
+                print(attribute)
 
     # print(X_train.shape, y_train.shape, X_test.shape, y_test.shape)
 
@@ -148,6 +186,9 @@ def train(train, prop):
             sample[c] = p_test
 
         sample.to_csv('lgb_starter.csv', index=False, float_format='%.4f')
+
+    # Return useful information for notebook analysis use
+    return df, ev
 
 if __name__ == "__main__":
     data = main_script.load_train_data()

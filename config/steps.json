@@ -13,6 +13,22 @@
      },
      {
        "module": "data_clean",
+       "method": "drop_high_corr_columns",
+       "params": {
+         "args": [],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
+       "method": "drop_low_ratio_columns",
+       "params": {
+         "args": [],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "data_clean",
        "method": "clean_categorical_data",
        "params": {
          "args": [],
@@ -29,7 +45,7 @@
      },
      {
        "module": "feature_eng",
-       "method": "convert_year_build_to_age",
+       "method": "add_before_1900_column",
        "params": {
          "args": [],
          "kwargs": {}
@@ -40,19 +56,55 @@
        "method": "add_bins",
        "params": {
          "args": [],
-         "kwargs": {"year_bin_num": 10, "tax_bin_num": 10}
+         "kwargs": {
+           "column": "calculatedfinishedsquarefeet",
+           "quantile": true,
+           "bin_num": 4,
+           "one_hot_encode": true
+         }
+       }
+     },
+     {
+       "module": "feature_eng",
+       "method": "add_bins",
+       "params": {
+         "args": [],
+         "kwargs": {
+           "column": "structuretaxvaluedollarcnt",
+           "quantile": true,
+           "bin_num": 4,
+           "one_hot_encode": true
+         }
+       }
+     },
+     {
+       "module": "feature_eng",
+       "method": "add_bins",
+       "params": {
+         "args": [],
+         "kwargs": {
+           "column": "landtaxvaluedollarcnt",
+           "quantile": true,
+           "bin_num": 4,
+           "one_hot_encode": true
+         }
+       }
+     },
+     {
+       "module": "feature_eng",
+       "method": "add_bins",
+       "params": {
+         "args": [],
+         "kwargs": {
+           "column": "lotsizesquarefeet",
+           "quantile": true,
+           "bin_num": 4,
+           "one_hot_encode": true
+         }
        }
      }
    ],
    [
-     {
-       "module": "data_clean",
-       "method": "drop_low_ratio_columns",
-       "params": {
-         "args": [],
-         "kwargs": {}
-       }
-     },
      {
        "module": "data_clean",
        "method": "clean_boolean_data",
@@ -74,25 +126,37 @@
        "method": "feature_crossing",
        "params": {
          "args": [],
-         "kwargs": {"cross_list": [["year_bin", "lon_bin"], ["tax_bin", "lon_bin"], ["tax_bin", "year_bin"]]}
-       }
+         "kwargs": {"cross_list": [["yearbuilt_bin", "lon_bin"], ["taxamount_bin", "lon_bin"], ["taxamount_bin", "yearbuilt_bin"]]}
+       },
+       "active": false
      }
    ]
+ ],
+ "training_preprocess": [
+   {
+     "module": "data_clean",
+     "method": "remove_outliers",
+     "params": {
+       "args": [],
+       "kwargs": {"llimit": -0.5, "ulimit": 0.5}
+     },
+     "active": false
+   }
  ],
  "models": [
    {
      "module": "sklearn.ensemble",
      "model": "RandomForestRegressor",
-     "params": {"n_estimators": 10},
+     "params": {"n_estimators": 15, "min_samples_split": 50, "max_depth": 15, "random_state": 42},
      "evparams": {"transform_target": true, "model_name": "Random Forest"},
-     "active": false
+     "active": true
    },
    {
      "module": "models.Lightgbm",
      "model": "Lightgbm",
      "params": {},
      "evparams": {"transform_target": false, "model_name": "Lightgbm"},
-     "active": true
+     "active": false
    }
  ]
 }

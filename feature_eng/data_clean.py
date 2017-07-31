@@ -7,10 +7,13 @@ import feature_eng.feature_eng as feature_eng
 def remove_col(df, cols):
     return df.drop(cols, axis=1)
 
-def remove_outliers(df, lpercentile, upercentile):
-    ulimit = np.percentile(df.logerror.values, upercentile)
-    llimit = np.percentile(df.logerror.values, lpercentile)
+def remove_outliers(df, llimit, ulimit):
     return df[(df['logerror'] >= llimit) & (df['logerror'] <= ulimit)]
+
+# def remove_outliers(df, lpercentile, upercentile):
+#     ulimit = np.percentile(df.logerror.values, upercentile)
+#     llimit = np.percentile(df.logerror.values, lpercentile)
+#     return df[(df['logerror'] >= llimit) & (df['logerror'] <= ulimit)]
 
 def cat2num(df):
     for c in df.dtypes[df.dtypes == object].index.values:
@@ -20,15 +23,29 @@ def test(param='world'):
     print("hello, %s" %param)
 
 def drop_low_ratio_columns(df):
-    """ Drop feature with low non-nan ratio
+    """ Drop feature with low non-nan ratio,
+        current threshold is < 0.1 in properties dataframe.
+        Exceptions are boolean columns: fireplaceflag, hashottuborspa,
+        pooltypeid10, pooltypeid2, storytypeid
         Returns:
             A copy of df with some columns dropped
     """
     columns_to_drop = ['architecturalstyletypeid', 'basementsqft',
-        'buildingclasstypeid', 'decktypeid', 'typeconstructiontypeid',
-        'yardbuildingsqft26', 'taxdelinquencyflag', 'taxdelinquencyyear']
+        'buildingclasstypeid', 'decktypeid', 'finishedfloor1squarefeet',
+        'finishedsquarefeet6', 'finishedsquarefeet13', 'finishedsquarefeet15',
+        'finishedsquarefeet50', 'poolsizesum', 'typeconstructiontypeid',
+        'yardbuildingsqft17', 'yardbuildingsqft26', 'taxdelinquencyflag',
+        'taxdelinquencyyear']
     return df.drop(columns_to_drop, axis=1)
 
+def drop_high_corr_columns(df):
+    """ Drop columns with high correlation with other columns
+        Returns:
+            A copy of df with some high correlation columns dropped
+    """
+    columns_to_drop = ['taxamount', 'taxvaluedollarcnt', 'calculatedbathnbr',
+        'finishedsquarefeet12', 'fullbathcnt']
+    return df.drop(columns_to_drop, axis=1)
 
 def clean_categorical_data(df):
     """ Clean categorical data
@@ -62,6 +79,9 @@ def clean_categorical_data(df):
     # heatingorsystemtypeid count 56080
     heating_dummies = pd.get_dummies(df['heatingorsystemtypeid'], prefix='heatingorsystemtypeid')
 
+    # propertylandusetypeid
+    land_use_id_dummies = pd.get_dummies(df['propertylandusetypeid'], prefix='propertylandusetypeid')
+
     # propertycountylandusecode count 90274
     # Replace low frequency count as 'others', and encode the values with integers
     land_use_code_threshold = 50000
@@ -84,11 +104,11 @@ def clean_categorical_data(df):
     #construct_mat_dummies = pd.get_dummies(df['typeconstructiontypeid'], prefix='typeconstructiontypeid')
 
     columns_to_drop = ['airconditioningtypeid', 'fips', 'heatingorsystemtypeid',
-        'propertycountylandusecode', 'propertyzoningdesc']
+        'propertylandusetypeid', 'propertycountylandusecode', 'propertyzoningdesc']
 
     df.drop(columns_to_drop, axis=1, inplace=True)
 
-    df_list = [df, ac_dummies, fips_dummies, heating_dummies,
+    df_list = [df, ac_dummies, fips_dummies, heating_dummies, land_use_id_dummies,
         land_use_code_dummies, land_use_desc_dummies]
 
     # df_lists_low_ratio = [arch_style_dummies, building_class_dummies,
@@ -155,7 +175,7 @@ def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
     # get dummies for 3 counties
     county_dummies = pd.get_dummies(df['regionidcounty'], prefix='county')
 
-    df_list = [df.drop(geo_columns, axis=1), lat_bin_dummies, lon_bin_dummies, county_dummies]
+    df_list = [df, lat_bin_dummies, lon_bin_dummies, county_dummies]
 
     df = pd.concat(df_list, axis=1)
 

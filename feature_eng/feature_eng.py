@@ -11,6 +11,10 @@ def convert_year_build_to_age(df):
     df['yearbuilt'] = 2017 - df['yearbuilt']
     return df
 
+def add_before_1900_column(df):
+    df['is_before_1900'] = df['yearbuilt'] <= 1900
+    return df
+
 # def get_distance(p1, p2):
 #     """ This use a rough calculation of distance, will overestimate the distance
 #         for latitude around 30 degree
@@ -47,26 +51,44 @@ def convert_year_build_to_age(df):
 #     df.to_csv('data/add_nearby_houses.csv', index=True)
 #     return df
 
-def add_bins(df, year_bin_num=10, tax_bin_num=10):
+def add_bins(df, column, quantile=False, bin_num=10, one_hot_encode=True):
+    """ Put a features into bins based on value (use pd.cut) or
+        quantile (use pd.qcut), and optionally convert the bins into
+        one-hot encode columns.
+        Params:
+            column - column name
+            bin_num - could be integer(evenly cut), or an array indicate boundaries
+                (left exculded, right included),
+                note that when cut by quantile, those boundaries needs to be percentiles
+        Returns:
+            df (not necessarily a copy) with bins columns(optionally one-hot encoded) added.
+            bins column will be called column_bins
+            one-hot encoded bins columns are prefix with column_bin
+    """
+
+    # TODO(hzn): think about if use cut on the whole data set will cause data
+    # leakage
+    cut_to_use = pd.qcut if quantile else pd.cut
+    bins = cut_to_use(df[column], bin_num, labels=False) # labels = False marks bins as integers
+
+    if not one_hot_encode:
+        df[column+'_bins'] = bins
+        return df
+
+    bin_dummies = pd.get_dummies(bins, prefix=column+'_bin')
+    return pd.concat([df, bin_dummies], axis=1)
+
+def add_year_tax_bins(df, year_bin_num=10, tax_bin_num=10):
     """ Put some features into bins.
         Returns:
             a copy of df with bins columns added.
         Columns:
             ['yearbuilt', 'taxamount']
     """
+    df = add_bins(df, 'yearbuilt', True, year_bin_num, True)
+    df = add_bins(df, 'taxamount', True, tax_bin_num, True)
 
-    # TODO(hzn): think about if use qcut on the whole data set will cause data
-    # leakage
-    # yearbuilt
-    year_bins = pd.qcut(df['yearbuilt'], year_bin_num, labels=False)
-    year_dummies = pd.get_dummies(year_bins, prefix="year_bin")
-
-    # taxamount
-    tax_bins = pd.qcut(df['taxamount'], tax_bin_num, labels=False)
-    tax_dummies = pd.get_dummies(tax_bins, prefix="tax_bin")
-
-    df_list = [df, year_dummies, tax_dummies]
-    return pd.concat(df_list, axis=1)
+    return df
 
 # TODO(hzn): expand this method to more than 2 features if needed
 def cross_features(df, feature1, feature2, cross_notation='*'):
