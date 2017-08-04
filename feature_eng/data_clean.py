@@ -219,9 +219,10 @@ def drop_training_only_column(df):
     """
     return df.drop(['parcelid', 'transactiondate'], axis=1)
 
-def fillna(df, value=0):
-    """ Violently fill all nan as value, default to 0.
+def clean_strange_value(df, value=0):
+    """ Violently fill all nan and inf as value, default to 0.
         Returns:
-            a copy of df with nan filled as value.
+            a copy of df with nan and inf filled as value.
     """
+    df = df.replace([np.inf, -np.inf], np.nan)
     return df.fillna(value)

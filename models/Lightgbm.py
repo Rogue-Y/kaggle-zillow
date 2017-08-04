@@ -16,6 +16,7 @@ class Lightgbm():
             model_params['min_data'] = 500
             model_params['min_hessian'] = 1
             model_params['num_boost_round'] = 500
+            model_params['verbose'] = -1
         if data_params is None:
             data_params = {}
             data_params['test_size'] = 0.25

@@ -8,6 +8,10 @@ import evaluator
 import json
 import importlib # import module dynamically
 import pandas as pd
+import numpy as np
+import gc
+
+from sklearn.linear_model import LinearRegression
 
 def load_train_data():
     print('Loading data ...')
@@ -72,6 +76,7 @@ def train(train, prop):
 
     # Subset with transaction info
     df = train.merge(prop, how='left', on='parcelid')
+    del train; gc.collect()
 
     # Run some feature engineering jobs on trainning set only when not output
     # prediction result.
@@ -134,6 +139,7 @@ def train(train, prop):
     X_train, y_train = utils.get_features_target(train_df)
     # 8562 rows
     X_test, y_test = utils.get_features_target(test_df)
+    del train_df; del test_df; gc.collect()
 
     # Evaluate
     ev = evaluator.Evaluator()
@@ -171,24 +177,62 @@ def train(train, prop):
         df_test, sample = utils.load_test_data()
         # organize test set
         df_test = df_test.merge(prop, on='parcelid', how='left')
+        del prop; gc.collect()
         df_test = data_clean.drop_id_column(df_test)
         # Retrain predictor on the entire training set, then predict on test set
         df = data_clean.drop_training_only_column(df)
         X_df, y_df = utils.get_features_target(df)
-        predictor = ev.predictors[0]['predictor']
-        predictor.fit(X_df, y_df)
-        p_test = predictor.predict(df_test)
-        # Transform the distribution of the target if needed.
-        transform_target = ev.predictors[0]['transform_target']
-        if transform_target:
-            p_test = ev.postprocess_target(p_test)
+        del df; gc.collect()
+        # At this point, X_train, X_test, y_train, y_test is still stored in ev
+
+        # Ensembling
+        result = np.zeros(df_test.shape[0])
+        validate_result = None
+        total_weight = 0
+        # stacking_df = pd.DataFrame()
+        # result_df = pd.DataFrame()
+        for predictor_dict in ev.predictors:
+            predictor = predictor_dict['predictor']
+            predictor.fit(X_df, y_df)
+            # p_train = predictor.predict(X_df)
+            # TODO(hzn): investigate using the average of k-fold to replace this
+            # re-train
+            p_test = predictor.predict(df_test)
+            # Transform the distribution of the target if needed.
+            transform_target = predictor_dict['transform_target']
+            if transform_target:
+                # p_train = ev.postprocess_target(p_train)
+                p_test = ev.postprocess_target(p_test)
+            # # Add the predictions to dataframes for stacking
+            # model_name = predictor_dict['model_name']
+            # stacking_df[model_name] = p_train
+            # result_df[model_name] = p_test
+            weight = predictor_dict['weight']
+            total_weight += weight
+            result = np.add(result, weight * p_test)
+            # Ensemble validate result to get a sense of how the ensembling will
+            # work
+            p_validate = predictor_dict['y_test_predict']
+            if validate_result is None:
+                validate_result = weight * p_validate
+            else:
+                validate_result = np.add(validate_result, weight * p_validate)
+        if total_weight > 0:
+            result = result / total_weight
+            validate_result = validate_result / total_weight
+        print("Ensembling validate:", ev.mean_error(validate_result, ev.y_test_m))
+        # stacking_predictor = LinearRegression()
+        # stacking_predictor.fit(stacking_df, y_df)
+        # result = stacking_predictor.predict(result_df)
+
         for c in sample.columns[sample.columns != 'ParcelId']:
-            sample[c] = p_test
+            sample[c] = result
 
         sample.to_csv('lgb_starter.csv', index=False, float_format='%.4f')
+        print("Submission generated.")
 
     # Return useful information for notebook analysis use
-    return df, ev
+    # return df, ev
 
 if __name__ == "__main__":
     data = main_script.load_train_data()

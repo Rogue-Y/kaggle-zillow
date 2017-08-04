@@ -1,6 +1,6 @@
 {
   "develop_mode": true,
-  "predict": false,
+  "predict": true,
   "steps": [
    [
      {
@@ -17,11 +17,20 @@
        "params": {
          "args": [],
          "kwargs": {}
-       }
+       },
+       "active": false
      },
      {
        "module": "data_clean",
        "method": "drop_low_ratio_columns",
+       "params": {
+         "args": [],
+         "kwargs": {}
+       }
+     },
+     {
+       "module": "feature_eng",
+       "method": "add_features",
        "params": {
          "args": [],
          "kwargs": {}
@@ -41,7 +50,8 @@
        "params": {
          "args": [],
          "kwargs": {"lat_bin_num": 10, "lon_bin_num": 10}
-       }
+       },
+       "active": false
      },
      {
        "module": "feature_eng",
@@ -62,7 +72,8 @@
            "bin_num": 4,
            "one_hot_encode": true
          }
-       }
+       },
+       "active": false
      },
      {
        "module": "feature_eng",
@@ -75,7 +86,8 @@
            "bin_num": 4,
            "one_hot_encode": true
          }
-       }
+       },
+       "active": false
      },
      {
        "module": "feature_eng",
@@ -88,7 +100,8 @@
            "bin_num": 4,
            "one_hot_encode": true
          }
-       }
+       },
+       "active": false
      },
      {
        "module": "feature_eng",
@@ -101,7 +114,8 @@
            "bin_num": 4,
            "one_hot_encode": true
          }
-       }
+       },
+       "active": false
      }
    ],
    [
@@ -115,7 +129,7 @@
      },
      {
        "module": "data_clean",
-       "method": "fillna",
+       "method": "clean_strange_value",
        "params": {
          "args": [],
          "kwargs": {}
@@ -138,9 +152,9 @@
      "method": "remove_outliers",
      "params": {
        "args": [],
-       "kwargs": {"llimit": -0.5, "ulimit": 0.5}
+       "kwargs": {"llimit": -0.4, "ulimit": 0.4}
      },
-     "active": false
+     "active": true
    }
  ],
  "models": [
@@ -148,15 +162,22 @@
      "module": "sklearn.ensemble",
      "model": "RandomForestRegressor",
      "params": {"n_estimators": 15, "min_samples_split": 50, "max_depth": 15, "random_state": 42},
-     "evparams": {"transform_target": true, "model_name": "Random Forest"},
+     "evparams": {"transform_target": true, "model_name": "Random Forest", "weight": 2},
      "active": true
    },
    {
      "module": "models.Lightgbm",
      "model": "Lightgbm",
      "params": {},
-     "evparams": {"transform_target": false, "model_name": "Lightgbm"},
-     "active": false
+     "evparams": {"transform_target": false, "model_name": "Lightgbm", "weight": 5},
+     "active": true
+   },
+   {
+     "module": "sklearn.linear_model",
+     "model": "Lasso",
+     "params": {"alpha": 1, "fit_intercept": true, "normalize": true, "copy_X": true, "selection": "random", "random_state": 42},
+     "evparams": {"transform_target": true, "model_name": "LassoRegression", "weight": 1},
+     "active": true
    }
  ]
 }

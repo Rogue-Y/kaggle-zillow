@@ -15,6 +15,85 @@ def add_before_1900_column(df):
     df['is_before_1900'] = df['yearbuilt'] <= 1900
     return df
 
+# TODO(hzn): investigate data leakage in these new features
+def add_features(df):
+    # From https://www.kaggle.com/nikunjm88/creating-additional-features
+    #life of property
+    df['N-life'] = 2018 - df['yearbuilt']
+
+    #error in calculation of the finished living area of home
+    df['N-LivingAreaError'] = df['calculatedfinishedsquarefeet']/df['finishedsquarefeet12']
+
+    #proportion of living area
+    df['N-LivingAreaProp'] = df['calculatedfinishedsquarefeet']/df['lotsizesquarefeet']
+
+    #Amout of extra space
+    df['N-ExtraSpace'] = df['lotsizesquarefeet'] - df['calculatedfinishedsquarefeet']
+
+    #Total number of rooms
+    df['N-TotalRooms'] = df['bathroomcnt']*df['bedroomcnt']
+
+    #Average room size
+    df['N-AvRoomSize'] = df['calculatedfinishedsquarefeet']/df['roomcnt']
+
+    # Number of Extra rooms
+    df['N-ExtraRooms'] = df['roomcnt'] - df['N-TotalRooms']
+
+    #Ratio of the built structure value to land area
+    df['N-ValueProp'] = df['structuretaxvaluedollarcnt']/df['landtaxvaluedollarcnt']
+
+    #Does property have a garage, pool or hot tub and AC?
+    df['N-GarPoolAC'] = ((df['garagecarcnt']>0) & (df['pooltypeid10']>0) & (df['airconditioningtypeid']!=5))*1
+
+    df["N-location"] = df["latitude"] + df["longitude"]
+    df["N-location-2"] = df["latitude"]*df["longitude"]
+    df["N-location-2round"] = df["N-location-2"].round(-4)
+
+    df["N-latitude-round"] = df["latitude"].round(-4)
+    df["N-longitude-round"] = df["longitude"].round(-4)
+
+    # Tax related
+    #Ratio of tax of property over parcel
+    df['N-ValueRatio'] = df['taxvaluedollarcnt']/df['taxamount']
+
+    #TotalTaxScore
+    df['N-TaxScore'] = df['taxvaluedollarcnt']*df['taxamount']
+
+    # Geo
+    #Number of properties in the zip
+    zip_count = df['regionidzip'].value_counts().to_dict()
+    df['N-zip_count'] = df['regionidzip'].map(zip_count)
+
+    #Number of properties in the city
+    city_count = df['regionidcity'].value_counts().to_dict()
+    df['N-city_count'] = df['regionidcity'].map(city_count)
+
+    #Number of properties in the county
+    region_count = df['regionidcounty'].value_counts().to_dict()
+    df['N-county_count'] = df['regionidcounty'].map(city_count)
+
+    # others
+    #Indicator whether it has AC or not
+    df['N-ACInd'] = (df['airconditioningtypeid']!=5)*1
+
+    #Indicator whether it has Heating or not
+    df['N-HeatInd'] = (df['heatingorsystemtypeid']!=13)*1
+
+    #There's 25 different property uses - let's compress them down to 4 categories
+    #df['N-PropType'] = df.propertylandusetypeid.replace({31 : "Mixed", 46 : "Other", 47 : "Mixed", 246 : "Mixed", 247 : "Mixed", 248 : "Mixed", 260 : "Home", 261 : "Home", 262 : "Home", 263 : "Home", 264 : "Home", 265 : "Home", 266 : "Home", 267 : "Home", 268 : "Home", 269 : "Not Built", 270 : "Home", 271 : "Home", 273 : "Home", 274 : "Other", 275 : "Home", 276 : "Home", 279 : "Home", 290 : "Not Built", 291 : "Not Built" })
+    #polnomials of the variable
+    df["N-structuretaxvaluedollarcnt-2"] = df["structuretaxvaluedollarcnt"] ** 2
+    df["N-structuretaxvaluedollarcnt-3"] = df["structuretaxvaluedollarcnt"] ** 3
+
+    #Average structuretaxvaluedollarcnt by city
+    group = df.groupby('regionidcity')['structuretaxvaluedollarcnt'].aggregate('mean').to_dict()
+    df['N-Avg-structuretaxvaluedollarcnt'] = df['regionidcity'].map(group)
+
+    #Deviation away from average
+    df['N-Dev-structuretaxvaluedollarcnt'] = abs((df['structuretaxvaluedollarcnt'] - df['N-Avg-structuretaxvaluedollarcnt']))/df['N-Avg-structuretaxvaluedollarcnt']
+
+    return df
+
 # def get_distance(p1, p2):
 #     """ This use a rough calculation of distance, will overestimate the distance
 #         for latitude around 30 degree

@@ -32,7 +32,7 @@ class Evaluator:
     def postprocess_target(self, y_predict):
         return 0.0052088+0.0312206*np.tan(3.141593*y_predict)
 
-    def fit(self, predictor, transform_target=False, model_name=''):
+    def fit(self, predictor, transform_target=False, model_name='', weight=1):
         self.check_valid()
         y_train_m_trans = self.y_train_m
         if transform_target:
@@ -41,7 +41,6 @@ class Evaluator:
 
         print("Fitting from training data")
         predictor.fit(self.X_train_m, y_train_m_trans)
-        self.predictors.append({'predictor': predictor, 'transform_target': transform_target})
 
         print("Predicting")
         y_train_predict = predictor.predict(self.X_train_m)
@@ -54,6 +53,13 @@ class Evaluator:
         print(model_name)
         print("Training set", self.mean_error(y_train_predict, self.y_train_m))
         print("Testing set", self.mean_error(y_test_predict, self.y_test_m))
+        self.predictors.append({
+            'predictor': predictor,
+            'model_name':model_name,
+            'transform_target': transform_target,
+            'weight': weight,
+            'y_test_predict': y_test_predict})
+
 
     def mean_error(self, pred, truth):
         return np.mean(abs(pred - truth))
