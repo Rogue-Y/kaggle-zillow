@@ -1,5 +1,8 @@
 # kaggle-zillow
 
+May the Randomness be with us
+====================
+
 Data dictionary exploration: on Google sheet
 https://docs.google.com/spreadsheets/d/1_EHvgdIrkDVPs4p98cPQ26inMz349SIioesTD6B7oHw/edit#gid=1497391001
 
