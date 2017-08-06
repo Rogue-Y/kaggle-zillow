@@ -4,12 +4,13 @@ import feature_eng.data_clean as data_clean
 import feature_eng.feature_eng as feature_eng
 import evaluator
 
-import json
-import importlib # import module dynamically
 import pandas as pd
 import numpy as np
-
 from sklearn.linear_model import LinearRegression
+
+import json
+import importlib # import module dynamically
+import datetime
 
 def load_train_data():
     print('Loading data ...')
@@ -227,8 +228,8 @@ def train(X_train, y_train, X_test, y_test, prop, config):
 
         for c in sample.columns[sample.columns != 'ParcelId']:
             sample[c] = result
-
-        sample.to_csv('lgb_starter.csv', index=False, float_format='%.4f')
+        time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        sample.to_csv('data/Submission_%s.csv' %time, index=False, float_format='%.4f')
         print("Submission generated.")
 
     # Return useful information for notebook analysis use
