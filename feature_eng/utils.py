@@ -5,6 +5,8 @@ import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
+import json
+
 # utility functions
 def plot_score(y, y_hat):
     return (np.mean(abs(y-y_hat)))
@@ -12,24 +14,37 @@ def plot_score(y, y_hat):
 def load_train_data(data_folder='data/'):
     """ Load data and join transaction data with properties data.
         Returns:
-            (train_df, properties_df, joined_df)
+            (train_df, properties_df)
     """
     train = pd.read_csv(data_folder + 'train_2016_v2.csv')
     prop = pd.read_csv(data_folder + 'properties_2016.csv')
     # df = train.merge(prop, how='left', on='parcelid')
     return (train, prop)
 
-def load_test_data():
+def load_test_data(data_folder='data/'):
     """ Load data and join trasaction data with properties data.
         Returns:
             (joined_test_df, sample_submission_df)
     """
-    sample = pd.read_csv('data/sample_submission.csv')
+    sample = pd.read_csv(data_folder + 'sample_submission.csv')
     # sample submission use "ParcelId" instead of "parcelid"
     test = sample.rename(index=str, columns={'ParcelId': 'parcelid'})
     # drop the month columns in sample submission
     test = test.drop(['201610', '201611', '201612', '201710', '201711', '201712'], axis=1)
     return (test, sample)
+
+def load_config(config_file='config/steps.json'):
+    """ Read config file
+        Returns: config JSON object
+    """
+    config_file = open(config_file, "r")
+    config = None
+    try:
+        config = json.load(config_file)
+    finally:
+        config_file.close()
+    return config
+
 
 def train_valid_split(X, y, test_size):
     return train_test_split(X, y, test_size=test_size, random_state=42)

@@ -8,7 +8,6 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LinearRegression
 
-import json
 import importlib # import module dynamically
 import datetime
 
@@ -19,13 +18,10 @@ def load_train_data():
 
 def load_config():
     # Read config file
-    config_file = open("config/steps.json", "r")
-    config = None
-    try:
-        config = json.load(config_file)
-    finally:
-        config_file.close()
-    return config
+    print('Loading config ...')
+    # Note that we should not alter the config object (i.e. it should be read-only)
+    # for the auto change detection in main.py to work properly.
+    return utils.load_config()
 
 def process_data(train, prop, config):
     steps = config['steps']
