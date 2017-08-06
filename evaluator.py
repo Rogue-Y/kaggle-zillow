@@ -79,8 +79,8 @@ class Evaluator:
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         y_train_predict_series = pd.Series(y_train_predict, name="train_predict")
         y_test_predict_series = pd.Series(y_test_predict, name="test_predict")
-        pd.concat([self.X_train, self.y_train, y_train_predict_series, train_errors], axis=1).nlargest(error_output, "train_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
-        pd.concat([self.X_test, self.y_test, y_test_predict_series, test_errors], axis=1).nlargest(error_output, "test_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
+        pd.concat([self.X_train, self.y_train, y_train_predict_series, train_errors], axis=1).nlargest(error_output, "train_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
+        pd.concat([self.X_test, self.y_test, y_test_predict_series, test_errors], axis=1).nlargest(error_output, "test_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
         with open('data/error/%s_%s_params.txt' %(time, model_name), 'w') as params_output:
             params_output.write(model_name + '\n')
             params_output.write('transform_target: ' + str(transform_target) + '\n')
@@ -148,8 +148,8 @@ class Evaluator:
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         y_train_predict_series = pd.Series(y_train_predict, name="train_predict")
         y_test_predict_series = pd.Series(y_test_predict, name="test_predict")
-        pd.concat([self.X_train, self.y_train, y_train_predict_series, train_errors], axis=1).nlargest(error_output, "train_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
-        pd.concat([self.X_test, self.y_test, y_test_predict_series, test_errors], axis=1).nlargest(error_output, "test_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
+        pd.concat([self.X_train, self.y_train, y_train_predict_series, train_errors], axis=1).nlargest(error_output, "train_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
+        pd.concat([self.X_test, self.y_test, y_test_predict_series, test_errors], axis=1).nlargest(error_output, "test_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
         with open('data/error/%s_%s_params.txt' %(time, model_name), 'w') as params_output:
             params_output.write(model_name + '\n')
             params_output.write('transform_target: ' + str(transform_target) + '\n')
