@@ -2,14 +2,12 @@
 import feature_eng.utils as utils
 import feature_eng.data_clean as data_clean
 import feature_eng.feature_eng as feature_eng
-
 import evaluator
 
 import json
 import importlib # import module dynamically
 import pandas as pd
 import numpy as np
-import gc
 
 from sklearn.linear_model import LinearRegression
 
@@ -18,7 +16,7 @@ def load_train_data():
     #TODO(hzn): Add a copy of train or prop dataframe if needed.
     return utils.load_train_data()
 
-def train(train, prop):
+def load_config():
     # Read config file
     config_file = open("config/steps.json", "r")
     config = None
@@ -26,21 +24,13 @@ def train(train, prop):
         config = json.load(config_file)
     finally:
         config_file.close()
+    return config
 
+def process_data(train, prop, config):
     steps = config['steps']
     # preprocessing for training data
     training_preprocess = config['training_preprocess']
-    models = config['models']
-    develop_mode = config['develop_mode'] if 'develop_mode' in config else True
     predict = config['predict'] if 'predict' in config else False
-
-    if develop_mode:
-        # if in develop_mode, reload all our modules so the changes can be
-        # include dynamically.
-        importlib.reload(utils)
-        importlib.reload(data_clean)
-        importlib.reload(feature_eng)
-        importlib.reload(evaluator)
 
     # Define global variables here
     # prop_df, df= None, None
@@ -70,13 +60,11 @@ def train(train, prop):
         # for key, value_name in kwargs.items():
         #     value = globals()[value_name]
         #     params[key] = value
-        kwargs['df'] = prop
 
-        prop = method_to_call(*args, **kwargs)
+        prop = method_to_call(*args, **kwargs, df=prop)
 
     # Subset with transaction info
     df = train.merge(prop, how='left', on='parcelid')
-    del train; gc.collect()
 
     # Run some feature engineering jobs on trainning set only when not output
     # prediction result.
@@ -98,9 +86,8 @@ def train(train, prop):
             # for key, value_name in kwargs.items():
             #     value = globals()[value_name]
             #     params[key] = value
-            kwargs['df'] = df
 
-            df = method_to_call(*args, **kwargs)
+            df = method_to_call(*args, **kwargs, df=df)
 
     print("The shape of the dataframe: {0}\n".format(df.shape))
     # for col in df.columns:
@@ -128,9 +115,8 @@ def train(train, prop):
         # for key, value_name in kwargs.items():
         #     value = globals()[value_name]
         #     params[key] = value
-        kwargs['df'] = train_df
 
-        train_df = method_to_call(*args, **kwargs)
+        train_df = method_to_call(*args, **kwargs, df=train_df)
 
     # Drop columns that are only available in training data
     train_df = data_clean.drop_training_only_column(train_df)
@@ -139,8 +125,15 @@ def train(train, prop):
     X_train, y_train = utils.get_features_target(train_df)
     # 8562 rows
     X_test, y_test = utils.get_features_target(test_df)
-    del train_df; del test_df; gc.collect()
 
+    return (X_train, y_train, X_test, y_test, prop)
+
+def train(X_train, y_train, X_test, y_test, prop, config):
+    print("Training models...")
+    # Read relevant config
+    models = config['models']
+    develop_mode = config['develop_mode'] if 'develop_mode' in config else True
+    predict = config['predict'] if 'predict' in config else False
     # Evaluate
     ev = evaluator.Evaluator()
     ev.load_train_test((X_train, y_train, X_test, y_test))
@@ -159,10 +152,17 @@ def train(train, prop):
         model_name = model['model']
         model_to_use = getattr(module, model_name)
         print('Using model', model_name)
-        params = model['params']
         evparams = model['evparams']
+        params = model['params'] # should be the param space when grid search
         predictor = model_to_use(**params)
-        ev.fit(predictor, **evparams)
+        grid_search = model['grid_search'] if 'grid_search' in model else False
+        if grid_search:
+            grid_search_params = model['grid_search_params'] # params of GridSearchCV
+            param_space = model['param_space']
+            ev.grid_search(predictor, param_space, grid_search_params, **evparams)
+        else:
+            predictor = model_to_use(**params)
+            ev.fit(predictor, **evparams, predictor_params=params)
         # print some attributes of the model
         if "attributes" in model:
             for attr in model["attributes"]:
@@ -177,12 +177,9 @@ def train(train, prop):
         df_test, sample = utils.load_test_data()
         # organize test set
         df_test = df_test.merge(prop, on='parcelid', how='left')
-        del prop; gc.collect()
         df_test = data_clean.drop_id_column(df_test)
         # Retrain predictor on the entire training set, then predict on test set
-        df = data_clean.drop_training_only_column(df)
-        X_df, y_df = utils.get_features_target(df)
-        del df; gc.collect()
+        X_df, y_df = pd.concat([X_train, X_test]), pd.concat([y_train, y_test])
         # At this point, X_train, X_test, y_train, y_test is still stored in ev
 
         # Ensembling
@@ -193,6 +190,9 @@ def train(train, prop):
         # result_df = pd.DataFrame()
         for predictor_dict in ev.predictors:
             predictor = predictor_dict['predictor']
+            grid_search = predictor_dict['grid_search']
+            if grid_search:
+                predictor = predictor.best_estimator_
             predictor.fit(X_df, y_df)
             # p_train = predictor.predict(X_df)
             # TODO(hzn): investigate using the average of k-fold to replace this
@@ -220,7 +220,7 @@ def train(train, prop):
         if total_weight > 0:
             result = result / total_weight
             validate_result = validate_result / total_weight
-        print("Ensembling validate:", ev.mean_error(validate_result, ev.y_test_m))
+        print("Ensembling validate:", ev.mean_error(validate_result, ev.y_test))
         # stacking_predictor = LinearRegression()
         # stacking_predictor.fit(stacking_df, y_df)
         # result = stacking_predictor.predict(result_df)
@@ -236,4 +236,6 @@ def train(train, prop):
 
 if __name__ == "__main__":
     data = main_script.load_train_data()
-    main_script.train(*data)
+    config = main_script.load_config()
+    training_data = main_script.process_data(*data, config)
+    main_script.train(*training_data, config)

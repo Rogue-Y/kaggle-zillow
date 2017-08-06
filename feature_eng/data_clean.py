@@ -19,8 +19,9 @@ def cat2num(df):
     for c in df.dtypes[df.dtypes == object].index.values:
         df[c] = (df[c] == True)
 
-def test(param='world'):
+def test(df, param='world'):
     print("hello, %s" %param)
+    return df
 
 def drop_low_ratio_columns(df):
     """ Drop feature with low non-nan ratio,
@@ -47,10 +48,40 @@ def drop_high_corr_columns(df):
         'finishedsquarefeet12', 'fullbathcnt']
     return df.drop(columns_to_drop, axis=1)
 
-def clean_categorical_data(df):
-    """ Clean categorical data
+def encode_categorical_data(df):
+    """ Convert categorical data label to integers
         Returns:
-            a copy of cleaned dataframe
+            a encoded dataframe (not a copy)
+    """
+    labelEncoder = LabelEncoder()
+
+    # fips count 90275
+    df['fips'] = labelEncoder.fit_transform(df['fips'])
+
+    # heatingorsystemtypeid count 56080
+    df['heatingorsystemtypeid'] = labelEncoder.fit_transform(df['heatingorsystemtypeid'])
+
+    # propertylandusetypeid
+    df['propertylandusetypeid'] = labelEncoder.fit_transform(df['propertylandusetypeid'])
+
+    land_use_code_threshold = 50000
+    luc_vc = df['propertycountylandusecode'].value_counts()
+    land_use_code = df['propertycountylandusecode'].mask(df['propertycountylandusecode'].map(luc_vc) < land_use_code_threshold, 'others')
+    land_use_code = land_use_code.astype('str')
+    df['propertycountylandusecode'] = labelEncoder.fit_transform(land_use_code)
+
+    land_use_desc_threshold = 10000
+    lud_vc = df['propertyzoningdesc'].value_counts()
+    land_use_desc = df['propertyzoningdesc'].mask(df['propertyzoningdesc'].map(lud_vc) < land_use_desc_threshold, 'others')
+    land_use_desc = land_use_desc.astype('str')
+    df['propertyzoningdesc'] = labelEncoder.fit_transform(land_use_desc)
+
+    return df
+
+def one_hot_encode_categorical_data(df):
+    """ Convert categorical data to one hot encode
+        Returns:
+            a copy of encoded dataframe
         columns to drop:
         ['airconditioningtypeid', 'fips', 'heatingorsystemtypeid',
         'propertycountylandusecode', 'propertyzoningdesc']

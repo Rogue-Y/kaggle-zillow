@@ -6,4 +6,6 @@ https://docs.google.com/spreadsheets/d/1_EHvgdIrkDVPs4p98cPQ26inMz349SIioesTD6B7
 Asana task list
 https://app.asana.com/0/389439275300204/board
 
-get_train_test_sets method in feature_eng.utils returns cleaned (X_train, y_train, X_test, y_test) split at 2016-10-01
+when change data processing code without change steps in config file, please set
+force_process_data in config to true, or the processing training data step will
+be skipped, since there's no change in processing steps.

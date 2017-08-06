@@ -1,5 +1,6 @@
 {
   "develop_mode": true,
+  "force_process_data": false,
   "predict": true,
   "steps": [
    [
@@ -38,11 +39,12 @@
      },
      {
        "module": "data_clean",
-       "method": "clean_categorical_data",
+       "method": "one_hot_encode_categorical_data",
        "params": {
          "args": [],
          "kwargs": {}
-       }
+       },
+       "active": true
      },
      {
        "module": "data_clean",
@@ -154,30 +156,79 @@
        "args": [],
        "kwargs": {"llimit": -0.4, "ulimit": 0.4}
      },
-     "active": true
+     "active": false
    }
  ],
  "models": [
    {
      "module": "sklearn.ensemble",
      "model": "RandomForestRegressor",
-     "params": {"n_estimators": 15, "min_samples_split": 50, "max_depth": 15, "random_state": 42},
+     "params": {
+       "random_state": 42,
+       "n_jobs": -1
+     },
      "evparams": {"transform_target": true, "model_name": "Random Forest", "weight": 2},
-     "active": true
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "n_estimators": [30, 100, 300],
+       "max_features": ["sqrt", "log2"],
+       "min_samples_leaf": [100, 300, 1000]
+     },
+     "active": false
    },
    {
      "module": "models.Lightgbm",
      "model": "Lightgbm",
      "params": {},
      "evparams": {"transform_target": false, "model_name": "Lightgbm", "weight": 5},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "n_estimators": [30, 100, 300],
+       "max_features": ["sqrt", "log2"],
+       "min_samples_leaf": [100, 300, 1000]
+     },
+     "active": false
+   },
+   {
+     "module": "lightgbm",
+     "model": "LGBMRegressor",
+     "params": {
+       "seed": 42, "nthread": 4, "silent": true, "boosting_type": "gbdt",
+       "objective": "regression_l2", "colsample_bytree": 0.7,
+       "learning_rate": 0.03, "max_bin": 30, "min_child_samples": 500,
+       "n_estimators": 30, "reg_lambda": 1, "subsample": 0.7,
+       "subsample_freq": 30
+     },
+     "evparams": {"transform_target": false, "model_name": "Lightgbm", "weight": 5, "error_output": 1000},
      "active": true
+   },
+   {
+     "module": "lightgbm",
+     "model": "LGBMRegressor",
+     "params": {"seed": 42, "nthread": 4, "silent": true, "boosting_type": "gbdt", "objective": "regression_l2"},
+     "evparams": {"transform_target": false, "model_name": "Lightgbm", "weight": 1, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 3},
+     "param_space": {
+       "n_estimators": [10, 30],
+       "max_bin": [30, 100],
+       "learning_rate": [0.01, 0.03],
+       "min_child_samples": [500, 1000],
+       "reg_lambda": [0.5, 1],
+       "colsample_bytree": [0.5, 0.7],
+       "subsample": [0.5, 0.7],
+       "subsample_freq": [30, 100]
+     },
+     "active": false
    },
    {
      "module": "sklearn.linear_model",
      "model": "Lasso",
      "params": {"alpha": 1, "fit_intercept": true, "normalize": true, "copy_X": true, "selection": "random", "random_state": 42},
      "evparams": {"transform_target": true, "model_name": "LassoRegression", "weight": 1},
-     "active": true
+     "active": false
    }
  ]
 }
