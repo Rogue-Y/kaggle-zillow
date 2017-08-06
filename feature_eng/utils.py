@@ -9,13 +9,13 @@ from sklearn.model_selection import train_test_split
 def plot_score(y, y_hat):
     return (np.mean(abs(y-y_hat)))
 
-def load_train_data():
+def load_train_data(data_folder='data/'):
     """ Load data and join transaction data with properties data.
         Returns:
             (train_df, properties_df, joined_df)
     """
-    train = pd.read_csv('data/train_2016_v2.csv')
-    prop = pd.read_csv('data/properties_2016.csv')
+    train = pd.read_csv(data_folder + 'train_2016_v2.csv')
+    prop = pd.read_csv(data_folder + 'properties_2016.csv')
     # df = train.merge(prop, how='left', on='parcelid')
     return (train, prop)
 
