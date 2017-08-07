@@ -28,5 +28,6 @@ in main.py works properly
 force_process_data in config to true, or the processing training data step will
 be skipped, since there's no change in processing steps;
 4. please use single-quote(') for string object, except python doc, use
-triple-quote(""") for that;
+triple-quote(""") for that; Also except in config file, where we have to use
+double-quote("")
 5. need everyone's Ok before merge to master;

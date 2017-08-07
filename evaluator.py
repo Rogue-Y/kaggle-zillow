@@ -35,8 +35,10 @@ class Evaluator:
     def postprocess_target(self, y_predict):
         return 0.0052088+0.0312206*np.tan(3.141593*y_predict)
 
-    def fit(self, predictor, transform_target=False, model_name='', weight=1, error_output=1000, predictor_params=None):
+    def fit(self, predictor, transform_target=False, model_name='', weight=1,
+        error_output=1000, save_result=False, predictor_params=None):
         self.check_valid()
+        print("Using model: ", model_name)
         y_train_trans = self.y_train
         if transform_target:
             print("preprocessing target")
@@ -52,24 +54,25 @@ class Evaluator:
             print("postprocessing target")
             y_train_predict = self.postprocess_target(y_train_predict)
             y_test_predict = self.postprocess_target(y_test_predict)
-        # Add the predictor to the predictor list
-        self.predictors.append({
-            'predictor': predictor,
-            'model_name':model_name,
-            'transform_target': transform_target,
-            'weight': weight,
-            'y_test_predict': y_test_predict,
-            'grid_search': False})
+        # Save the predictor to the predictor list for output submission
+        if save_result:
+            self.predictors.append({
+                'predictor': predictor,
+                'model_name':model_name,
+                'transform_target': transform_target,
+                'weight': weight,
+                'y_test_predict': y_test_predict,
+                'grid_search': False})
 
         # output result to console and file (optional)
         print("Results:")
         print(model_name)
         # Get the detail of the prediction, prepare for print to consle and
         # write to record
-        train_errors = pd.Series(abs(y_train_predict - self.y_train), name="train_error")
+        train_errors = abs(y_train_predict - self.y_train)
         mean_train_error = Evaluator.mean_error(y_train_predict, self.y_train)
         print("Training set", mean_train_error)
-        test_errors = pd.Series(abs(y_test_predict - self.y_test), name="test_error")
+        test_errors = abs(y_test_predict - self.y_test)
         mean_test_error = Evaluator.mean_error(y_test_predict, self.y_test)
         print("Testing set", mean_test_error)
         print("params", predictor_params)
@@ -77,10 +80,14 @@ class Evaluator:
         if error_output <= 0:
             return
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        y_train_predict_series = pd.Series(y_train_predict, name="train_predict")
-        y_test_predict_series = pd.Series(y_test_predict, name="test_predict")
-        pd.concat([self.X_train, self.y_train, y_train_predict_series, train_errors], axis=1).nlargest(error_output, "train_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
-        pd.concat([self.X_test, self.y_test, y_test_predict_series, test_errors], axis=1).nlargest(error_output, "test_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
+        train_output = pd.concat([self.X_train, self.y_train], axis=1)
+        train_output['train_predict'] = y_train_predict
+        train_output['train_error'] = train_errors
+        test_output = pd.concat([self.X_test, self.y_test], axis=1)
+        test_output['test_predict'] = y_test_predict
+        test_output['test_error'] = test_errors
+        train_output.nlargest(error_output, "train_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
+        test_output.nlargest(error_output, "test_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
         with open('data/error/%s_%s_params.txt' %(time, model_name), 'w') as params_output:
             params_output.write(model_name + '\n')
             params_output.write('transform_target: ' + str(transform_target) + '\n')
@@ -90,18 +97,21 @@ class Evaluator:
             params_output.write('Test error: ' + str(mean_test_error) + '\n')
             params_output.write('\nTrain Stats \n')
             params_output.write('Train label stats: ' + self.y_train.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Train predict stats: ' + y_train_predict_series.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Train error stats: ' + train_errors.describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Train predict stats: ' + train_output['train_predict'].describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Train error stats: ' + train_output['train_error'].describe().to_string(float_format='{:.5f}'.format) + '\n')
             params_output.write('\nTest Stats \n')
             params_output.write('Test label stats: ' + self.y_test.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Test predict stats: ' + y_test_predict_series.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Test error stats: ' + test_errors.describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Test predict stats: ' + test_output['test_predict'].describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Test error stats: ' + test_output['test_error'].describe().to_string(float_format='{:.5f}'.format) + '\n')
 
 
-    def grid_search(self, predictor, param_space, grid_search_params, transform_target=False, model_name='', weight=1, error_output=1000):
+    def grid_search(self, predictor, param_space, grid_search_params,
+        transform_target=False, model_name='', weight=1, error_output=1000,
+        save_result=False):
         """ Grid search parameter space for the predictor.
             Returns: best fit predictor based on cross validation.
         """
+        print("Using model: ", model_name)
         self.check_valid()
         y_train_trans = self.y_train
         if transform_target:
@@ -119,24 +129,25 @@ class Evaluator:
             print("postprocessing target")
             y_train_predict = self.postprocess_target(y_train_predict)
             y_test_predict = self.postprocess_target(y_test_predict)
-        # Add the cv_predictor to the predictor list
-        self.predictors.append({
-            'predictor': prd,
-            'model_name':model_name,
-            'transform_target': transform_target,
-            'weight': weight,
-            'y_test_predict': y_test_predict,
-            'grid_search': True})
+        if save_result:
+            # Add the cv_predictor to the predictor list for output submission.
+            self.predictors.append({
+                'predictor': prd,
+                'model_name':model_name,
+                'transform_target': transform_target,
+                'weight': weight,
+                'y_test_predict': y_test_predict,
+                'grid_search': True})
 
         # output result to console and file (optional)
         print("Results:")
         print(model_name)
         # Get the detail of the prediction, prepare for print to consle and
         # write to record
-        train_errors = pd.Series(abs(y_train_predict - self.y_train), name="train_error")
+        train_errors = abs(y_train_predict - self.y_train)
         mean_train_error = Evaluator.mean_error(y_train_predict, self.y_train)
         print("Training set", mean_train_error)
-        test_errors = pd.Series(abs(y_test_predict - self.y_test), name="test_error")
+        test_errors = abs(y_test_predict - self.y_test)
         mean_test_error = Evaluator.mean_error(y_test_predict, self.y_test)
         print("Testing set", mean_test_error)
         print("CV score:", prd.best_score_)
@@ -146,10 +157,14 @@ class Evaluator:
         if error_output <= 0:
             return
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        y_train_predict_series = pd.Series(y_train_predict, name="train_predict")
-        y_test_predict_series = pd.Series(y_test_predict, name="test_predict")
-        pd.concat([self.X_train, self.y_train, y_train_predict_series, train_errors], axis=1).nlargest(error_output, "train_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
-        pd.concat([self.X_test, self.y_test, y_test_predict_series, test_errors], axis=1).nlargest(error_output, "test_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
+        train_output = pd.concat([self.X_train, self.y_train], axis=1)
+        train_output['train_predict'] = y_train_predict
+        train_output['train_error'] = train_errors
+        test_output = pd.concat([self.X_test, self.y_test], axis=1)
+        test_output['test_predict'] = y_test_predict
+        test_output['test_error'] = test_errors
+        train_output.nlargest(error_output, "train_error").to_csv('data/error/%s_%s_train.csv' %(time, model_name), index=False)
+        test_output.nlargest(error_output, "test_error").to_csv('data/error/%s_%s_test.csv' %(time, model_name), index=False)
         with open('data/error/%s_%s_params.txt' %(time, model_name), 'w') as params_output:
             params_output.write(model_name + '\n')
             params_output.write('transform_target: ' + str(transform_target) + '\n')
@@ -160,12 +175,12 @@ class Evaluator:
             params_output.write('Test error: ' + str(mean_test_error) + '\n')
             params_output.write('\nTrain Stats \n')
             params_output.write('Train label stats: ' + self.y_train.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Train predict stats: ' + y_train_predict_series.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Train error stats: ' + train_errors.describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Train predict stats: ' + train_output['train_predict'].describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Train error stats: ' + train_output['train_error'].describe().to_string(float_format='{:.5f}'.format) + '\n')
             params_output.write('\nTest Stats \n')
             params_output.write('Test label stats: ' + self.y_test.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Test predict stats: ' + y_test_predict_series.describe().to_string(float_format='{:.5f}'.format) + '\n')
-            params_output.write('Test error stats: ' + test_errors.describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Test predict stats: ' + test_output['test_predict'].describe().to_string(float_format='{:.5f}'.format) + '\n')
+            params_output.write('Test error stats: ' + test_output['test_error'].describe().to_string(float_format='{:.5f}'.format) + '\n')
 
 
     @staticmethod

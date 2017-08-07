@@ -156,10 +156,12 @@ def train(X_train, y_train, X_test, y_test, prop, config):
         if grid_search:
             grid_search_params = model['grid_search_params'] # params of GridSearchCV
             param_space = model['param_space']
-            ev.grid_search(predictor, param_space, grid_search_params, **evparams)
+            ev.grid_search(predictor, param_space, grid_search_params,
+                **evparams, save_result=predict)
         else:
             predictor = model_to_use(**params)
-            ev.fit(predictor, **evparams, predictor_params=params)
+            ev.fit(predictor, **evparams, predictor_params=params,
+            save_result=predict)
         # print some attributes of the model
         if "attributes" in model:
             for attr in model["attributes"]:
@@ -225,7 +227,8 @@ def train(X_train, y_train, X_test, y_test, prop, config):
         for c in sample.columns[sample.columns != 'ParcelId']:
             sample[c] = result
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        sample.to_csv('data/Submission_%s.csv' %time, index=False, float_format='%.4f')
+        sample.to_csv(
+            'data/Submission_%s.csv' %time, index=False, float_format='%.4f')
         print("Submission generated.")
 
     # Return useful information for notebook analysis use

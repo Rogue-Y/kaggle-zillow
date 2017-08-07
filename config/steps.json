@@ -1,7 +1,7 @@
 {
   "develop_mode": true,
   "force_process_data": false,
-  "predict": true,
+  "predict": false,
   "steps": [
    [
      {
@@ -161,23 +161,6 @@
  ],
  "models": [
    {
-     "module": "sklearn.ensemble",
-     "model": "RandomForestRegressor",
-     "params": {
-       "random_state": 42,
-       "n_jobs": -1
-     },
-     "evparams": {"transform_target": true, "model_name": "Random Forest", "weight": 2},
-     "grid_search": true,
-     "grid_search_params": {"cv": 5},
-     "param_space": {
-       "n_estimators": [30, 100, 300],
-       "max_features": ["sqrt", "log2"],
-       "min_samples_leaf": [100, 300, 1000]
-     },
-     "active": false
-   },
-   {
      "module": "models.Lightgbm",
      "model": "Lightgbm",
      "params": {},
@@ -228,6 +211,132 @@
      "model": "Lasso",
      "params": {"alpha": 1, "fit_intercept": true, "normalize": true, "copy_X": true, "selection": "random", "random_state": 42},
      "evparams": {"transform_target": true, "model_name": "LassoRegression", "weight": 1},
+     "active": false
+   },
+   {
+     "module": "sklearn.linear_model",
+     "model": "ElasticNet",
+     "params": {"selection": "random", "random_state": 42},
+     "evparams": {"transform_target": true, "model_name": "ElasticNet", "weight": 1, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "alpha": [3, 5, 10],
+       "l1_ratio": [0.1, 0.5, 0.9],
+       "normalize": [true, false],
+       "max_iter": [3000, 5000]
+     },
+     "active": false
+   },
+   {
+     "module": "sklearn.linear_model",
+     "model": "HuberRegressor",
+     "params": {},
+     "evparams": {"transform_target": true, "model_name": "HuberRegressor", "weight": 1, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "epsilon": [1.1, 1.35],
+       "alpha": [0.0003, 0.001, 0.003]
+     },
+     "active": false
+   },
+   {
+     "module": "sklearn.linear_model",
+     "model": "Lasso",
+     "params": {"selection": "random", "random_state": 42},
+     "evparams": {"transform_target": true, "model_name": "Lasso", "weight": 1, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "alpha": [3, 5, 10],
+       "normalize": [true, false],
+       "max_iter": [3000, 5000]
+     },
+     "active": false
+   },
+   {
+     "module": "sklearn.linear_model",
+     "model": "RandomizedLasso",
+     "params": {"random_state": 42},
+     "evparams": {"transform_target": true, "model_name": "RandomizedLasso", "weight": 1, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "alpha": ["aic", "bic"],
+       "scaling": [0.2, 0.5, 0.8],
+       "sample_fraction": [0.5, 0.75, 0.9],
+       "n_resampling": [200, 300],
+       "selection_threshold": [0.1, 0.25, 0.5],
+       "normalize": [true, false]
+     },
+     "active": false
+   },
+   {
+     "module": "sklearn.ensemble",
+     "model": "AdaBoostRegressor",
+     "params": {
+       "random_state": 42
+     },
+     "evparams": {"transform_target": false, "model_name": "AdaBoostRegressor", "weight": 2, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "n_estimators": [50, 100, 300],
+       "loss": ["linear", "square", "exponential"]
+     },
+     "active": false
+   },
+   {
+     "module": "sklearn.ensemble",
+     "model": "BaggingRegressor",
+     "params": {
+       "random_state": 42
+     },
+     "evparams": {"transform_target": false, "model_name": "BaggingRegressor", "weight": 2, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "n_estimators": [10, 30, 100],
+       "max_samples": [0.5, 0.75, 1],
+       "max_features": [0.5, 0.75, 1],
+       "bootstrap_features": [true, false]
+     },
+     "active": false
+   },
+   {
+     "module": "sklearn.ensemble",
+     "model": "ExtraTreesRegressor",
+     "params": {
+       "criterion": "mae",
+       "random_state": 42
+     },
+     "evparams": {"transform_target": false, "model_name": "BaggingRegressor", "weight": 2, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "n_estimators": [10, 30, 100],
+       "max_features": ["sqrt", "log2"],
+       "max_depth": [5, 10, 15],
+       "min_samples_leaf": [300, 1000, 3000]
+     },
+     "active": false
+   },
+   {
+     "module": "sklearn.ensemble",
+     "model": "RandomForestRegressor",
+     "params": {
+       "random_state": 42
+     },
+     "evparams": {"transform_target": false, "model_name": "Random Forest", "weight": 2, "error_output": 1000},
+     "grid_search": true,
+     "grid_search_params": {"cv": 5},
+     "param_space": {
+       "n_estimators": [30, 100, 300],
+       "max_features": ["sqrt", "log2"],
+       "min_samples_leaf": [100, 300, 1000],
+       "max_depth": [5, 10]
+     },
      "active": false
    }
  ]
