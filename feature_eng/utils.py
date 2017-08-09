@@ -18,6 +18,13 @@ def load_train_data(data_folder='data/'):
     """
     train = pd.read_csv(data_folder + 'train_2016_v2.csv')
     prop = pd.read_csv(data_folder + 'properties_2016.csv')
+    # Convert float64 columns to float32 to save memory
+    for col in train.columns:
+        if train[col].dtype == 'float64':
+            train[col] = train[col].astype('float32')
+    for col in prop.columns:
+        if prop[col].dtype == 'float64':
+            prop[col] = prop[col].astype('float32')
     # df = train.merge(prop, how='left', on='parcelid')
     return (train, prop)
 

@@ -9,6 +9,7 @@ import feature_eng.data_clean as data_clean
 import feature_eng.feature_eng as feature_eng
 import evaluator
 
+# TODO(hzn): investigate if data and training_data is altered during data processing
 data = None
 training_data = None
 last_config = None

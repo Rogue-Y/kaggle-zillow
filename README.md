@@ -31,3 +31,11 @@ be skipped, since there's no change in processing steps;
 triple-quote(""") for that; Also except in config file, where we have to use
 double-quote("")
 5. need everyone's Ok before merge to master;
+
+
+Instruction to use:
+1. Pull the master branch from github
+2. Create a folder named 'data' in the same directory
+3. download all the data files from kaggle website to the data folder
+4. Create a folder named 'error' in the data folder
+5. Run main.py or main_script.py to get the process 

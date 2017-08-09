@@ -10,6 +10,7 @@ from sklearn.linear_model import LinearRegression
 
 import importlib # import module dynamically
 import datetime
+import gc
 
 def load_train_data():
     print('Loading data ...')
@@ -114,6 +115,7 @@ def process_data(train, prop, config):
         #     params[key] = value
 
         train_df = method_to_call(*args, **kwargs, df=train_df)
+        test_df = method_to_call(*args, **kwargs, df=test_df)
 
     # Drop columns that are only available in training data
     train_df = data_clean.drop_training_only_column(train_df)
@@ -235,7 +237,7 @@ def train(X_train, y_train, X_test, y_test, prop, config):
     # return df, ev
 
 if __name__ == "__main__":
-    data = main_script.load_train_data()
-    config = main_script.load_config()
-    training_data = main_script.process_data(*data, config)
-    main_script.train(*training_data, config)
+    data = load_train_data()
+    config = load_config()
+    training_data = process_data(*data, config)
+    train(*training_data, config)

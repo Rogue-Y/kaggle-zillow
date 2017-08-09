@@ -1,7 +1,7 @@
 {
   "develop_mode": true,
   "force_process_data": false,
-  "predict": false,
+  "predict": true,
   "steps": [
    [
      {
