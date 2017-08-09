@@ -38,4 +38,5 @@ Instruction to use:
 2. Create a folder named 'data' in the same directory
 3. download all the data files from kaggle website to the data folder
 4. Create a folder named 'error' in the data folder
-5. Run main.py or main_script.py to get the process 
+5. Run main.py or main_script.py to get the process
+6. create a new branch before you make any changes: git checkout -b new_branch_name.
