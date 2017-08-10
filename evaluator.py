@@ -36,7 +36,7 @@ class Evaluator:
         return 0.0052088+0.0312206*np.tan(3.141593*y_predict)
 
     def fit(self, predictor, transform_target=False, model_name='', weight=1,
-        error_output=1000, save_result=False, predictor_params=None):
+        error_output=1000, save_result=True, predictor_params=None):
         self.check_valid()
         print("Using model: ", model_name)
         y_train_trans = self.y_train
@@ -107,7 +107,7 @@ class Evaluator:
 
     def grid_search(self, predictor, param_space, grid_search_params,
         transform_target=False, model_name='', weight=1, error_output=1000,
-        save_result=False):
+        save_result=True):
         """ Grid search parameter space for the predictor.
             Returns: best fit predictor based on cross validation.
         """

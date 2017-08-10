@@ -8,12 +8,17 @@ def add_missing_value_count(df):
     df['missing_values'] = df.isnull().sum(axis=1)
     return df
 
+def add_missing_column_boolean(df):
+    for col in df.columns:
+        df[col+'_missing'] = df[col].isnull()
+    return df
+
 def convert_year_build_to_age(df):
     df['yearbuilt'] = 2017 - df['yearbuilt']
     return df
 
 def add_before_1900_column(df):
-    df['is_before_1900'] = df['yearbuilt'] <= 1900
+    df['is_before_1900'] = df['yearbuilt'] <= 1910
     return df
 
 # TODO(hzn): investigate data leakage in these new features
@@ -58,7 +63,7 @@ def add_features(df):
 
     # Tax related
     #Ratio of tax of property over parcel
-    df['N-ValueRatio'] = df['taxvaluedollarcnt']/df['taxamount']
+    df['N-ValueRatio'] = df['taxamount']/df['taxvaluedollarcnt']
 
     # #TotalTaxScore
     # df['N-TaxScore'] = df['taxvaluedollarcnt']*df['taxamount']
@@ -212,7 +217,7 @@ def add_bins(df, column, quantile=False, bin_num=10, one_hot_encode=True):
                 (left exculded, right included),
                 note that when cut by quantile, those boundaries needs to be percentiles
         Returns:
-            df (not necessarily a copy) with bins columns(optionally one-hot encoded) added.
+            df with bins columns(optionally one-hot encoded) added.
             bins column will be called column_bins
             one-hot encoded bins columns are prefix with column_bin
     """
@@ -227,12 +232,12 @@ def add_bins(df, column, quantile=False, bin_num=10, one_hot_encode=True):
         return df
 
     bin_dummies = pd.get_dummies(bins, prefix=column+'_bin')
-    return pd.concat([df, bin_dummies], axis=1)
+    return pd.concat([df, bin_dummies], axis=1, copy=False)
 
 def add_year_tax_bins(df, year_bin_num=10, tax_bin_num=10):
     """ Put some features into bins.
         Returns:
-            a copy of df with bins columns added.
+            df with bins columns added.
         Columns:
             ['yearbuilt', 'taxamount']
     """
@@ -251,7 +256,7 @@ def cross_features(df, feature1, feature2, cross_notation='*'):
                 crossed columns can still be included in the cross list, e.g.
                 crossed latitude and longitude bins in data_clean.clean_geo_data().
         Returns:
-            the dataframe (not a copy) with crossed columns added.
+            the dataframe with crossed columns added.
     """
     # columns are the same
     if feature1 == feature2:
@@ -275,9 +280,8 @@ def feature_crossing(df, cross_list=[]):
             df - the dataframe
             cross_list - a list of feature tuples that needs to be crossed
         Returns:
-            a copy of dataframe with crossed columns added.
+            dataframe with crossed columns added.
     """
-    df = df.copy()
     for feature_tuple in cross_list:
         cross_features(df, *feature_tuple)
 

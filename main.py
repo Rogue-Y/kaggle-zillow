@@ -36,7 +36,7 @@ if __name__ == "__main__":
             force_process_data = config['force_process_data'] if 'force_process_data' in config else False
             if last_config is None or force_process_data:
                 print('Force processing data')
-                training_data = main_script.process_data(*data, config)
+                training_data = main_script.process_data(data[0].copy(), data[1].copy(), config)
             else:
                 steps = config['steps']
                 training_preprocess = config['training_preprocess']
@@ -46,7 +46,7 @@ if __name__ == "__main__":
                 last_predict = last_config['predict'] if 'predict' in last_config else False
                 if (not operator.eq(steps, last_steps)) or (not operator.eq(training_preprocess, last_training_preprocess)) or (not operator.eq(predict, last_predict)):
                     print('Data processing config changes', operator.eq(steps, last_steps), operator.eq(training_preprocess, last_training_preprocess), operator.eq(predict, last_predict))
-                    training_data = main_script.process_data(*data, config)
+                    training_data = main_script.process_data(data[0].copy(), data[1].copy(), config)
             main_script.train(*training_data, config)
             last_config = config
         except BaseException as e:

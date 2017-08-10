@@ -5,7 +5,8 @@ from sklearn.preprocessing import LabelEncoder
 import feature_eng.feature_eng as feature_eng
 
 def remove_col(df, cols):
-    return df.drop(cols, axis=1)
+    df.drop(cols, axis=1, inplace=True)
+    return df
 
 def remove_outliers(df, llimit, ulimit):
     return df[(df['logerror'] >= llimit) & (df['logerror'] <= ulimit)]
@@ -29,7 +30,7 @@ def drop_low_ratio_columns(df):
         Exceptions are boolean columns: fireplaceflag, hashottuborspa,
         pooltypeid10, pooltypeid2, storytypeid
         Returns:
-            A copy of df with some columns dropped
+            df with some columns dropped
     """
     columns_to_drop = ['architecturalstyletypeid', 'basementsqft',
         'buildingclasstypeid', 'decktypeid', 'finishedfloor1squarefeet',
@@ -37,21 +38,23 @@ def drop_low_ratio_columns(df):
         'finishedsquarefeet50', 'poolsizesum', 'typeconstructiontypeid',
         'yardbuildingsqft17', 'yardbuildingsqft26', 'taxdelinquencyflag',
         'taxdelinquencyyear']
-    return df.drop(columns_to_drop, axis=1)
+    df.drop(columns_to_drop, axis=1, inplace=True)
+    return df
 
 def drop_high_corr_columns(df):
     """ Drop columns with high correlation with other columns
         Returns:
-            A copy of df with some high correlation columns dropped
+            df with some high correlation columns dropped
     """
     columns_to_drop = ['taxamount', 'taxvaluedollarcnt', 'calculatedbathnbr',
         'finishedsquarefeet12', 'fullbathcnt']
-    return df.drop(columns_to_drop, axis=1)
+    df.drop(columns_to_drop, axis=1, inplace=True)
+    return df
 
 def encode_categorical_data(df):
     """ Convert categorical data label to integers
         Returns:
-            a encoded dataframe (not a copy)
+            a encoded dataframe
     """
     labelEncoder = LabelEncoder()
 
@@ -81,16 +84,13 @@ def encode_categorical_data(df):
 def one_hot_encode_categorical_data(df):
     """ Convert categorical data to one hot encode
         Returns:
-            a copy of encoded dataframe
+            encoded dataframe
         columns to drop:
         ['airconditioningtypeid', 'fips', 'heatingorsystemtypeid',
         'propertycountylandusecode', 'propertyzoningdesc']
     """
     # Preparation
     labelEncoder = LabelEncoder()
-
-    # Make a copy so not mess up with the original df
-    df = df.copy()
 
     # airconditioningtypeid count 28781
     ac_dummies = pd.get_dummies(df['airconditioningtypeid'], prefix='airconditioningtypeid')
@@ -145,20 +145,17 @@ def one_hot_encode_categorical_data(df):
     # df_lists_low_ratio = [arch_style_dummies, building_class_dummies,
     #     deck_type_dummies, construct_mat_dummies]
 
-    return pd.concat(df_list, axis=1)
+    return pd.concat(df_list, axis=1, copy=False)
 
 def clean_boolean_data(df):
     """ Fill boolean data (replace nan with False / 0), inplace change, do not
         need to drop columns.
         Returns:
-            a copy of cleaned dataframe
+            the cleaned dataframe
         columns:
             ['fireplaceflag', 'hashottuborspa', 'pooltypeid10',
                 'pooltypeid2', 'pooltypeid7', 'taxdelinquencyflag']
     """
-
-    # Make a copy so not mess up with the original df
-    df = df.copy()
 
     # fireplaceflag true count 222
     df['fireplaceflag'].fillna(False, inplace=True)
@@ -187,7 +184,7 @@ def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
     """ Need to think about how to deal with geo data, do nothing here and
         drop the columns in column drop method for now.
         Returns:
-            a copy of cleaned dataframe
+            dataframe with geo feature added
         columns (maybe to drop):
             ['latitude', 'longitude', 'rawcensustractandblock',
             'censustractandblock', 'regionidcounty', 'regionidcity',
@@ -208,7 +205,7 @@ def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
 
     df_list = [df, lat_bin_dummies, lon_bin_dummies, county_dummies]
 
-    df = pd.concat(df_list, axis=1)
+    df = pd.concat(df_list, axis=1, input=True)
 
     # Cross latitude and longitude bins, and drop the single bins, as only
     # latitude or longitude does not make much sense.
@@ -216,7 +213,7 @@ def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
 
     lat_bin_cols = [col for col in df.columns if 'lat_bin' in col and '-' not in col]
     lon_bin_cols = [col for col in df.columns if 'lon_bin' in col and '-' not in col]
-    df = df.drop(lat_bin_cols + lon_bin_cols, axis=1)
+    df.drop(lat_bin_cols + lon_bin_cols, axis=1, inplace=True)
     return df
 
 
@@ -240,20 +237,23 @@ def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
 #     return df.drop(columns_to_drop, axis=1)
 
 def drop_id_column(df):
-    return df.drop('parcelid', axis=1)
+    df.drop('parcelid', axis=1, inplace=True)
+    return df
 
 def drop_training_only_column(df):
     """ Drop the columns that is only available in training data,
         namely, parcelid and transactiondate
         Returns:
-            a copy of dataframe with training only columns dropped.
+            the dataframe with training only columns dropped.
     """
-    return df.drop(['parcelid', 'transactiondate'], axis=1)
+    df.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
+    return df
 
 def clean_strange_value(df, value=0):
     """ Violently fill all nan and inf as value, default to 0.
         Returns:
             a copy of df with nan and inf filled as value.
     """
-    df = df.replace([np.inf, -np.inf], np.nan)
-    return df.fillna(value)
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
+    df.fillna(value, inplace=True)
+    return df

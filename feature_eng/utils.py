@@ -37,7 +37,8 @@ def load_test_data(data_folder='data/'):
     # sample submission use "ParcelId" instead of "parcelid"
     test = sample.rename(index=str, columns={'ParcelId': 'parcelid'})
     # drop the month columns in sample submission
-    test = test.drop(['201610', '201611', '201612', '201710', '201711', '201712'], axis=1)
+    test.drop(['201610', '201611', '201612', '201710', '201711', '201712'],
+        axis=1, inplace=True)
     return (test, sample)
 
 def load_config(config_file='config/steps.json'):
@@ -64,7 +65,9 @@ def get_features_target(df):
             (X, y)
     """
     # logerror is the target column
-    return (df.drop(['logerror'], axis=1), df['logerror'])
+    target = df['logerror']
+    df.drop(['logerror'], axis=1, inplace=True)
+    return (df, target)
 
 def split_by_date(df, split_date = '2016-10-01'):
     """ Split the transaction data into two part, those before split_date as
@@ -74,9 +77,11 @@ def split_by_date(df, split_date = '2016-10-01'):
     """
     df['transactiondate'] = pd.to_datetime(df['transactiondate'])
     # 82249 rows
-    train_df = df[df['transactiondate'] < split_date]
+    # loc is used here to get a real slice rather then a view, so there will not
+    # be problem when trying to write to them.
+    train_df = (df.loc[df['transactiondate'] < split_date, :]).copy()
     # 8562 rows
-    test_df = df[df['transactiondate'] >= split_date]
+    test_df = (df.loc[df['transactiondate'] >= split_date, :]).copy()
     return (train_df, test_df)
 
 def predict(predictor, train_cols):

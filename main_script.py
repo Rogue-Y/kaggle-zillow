@@ -92,8 +92,6 @@ def process_data(train, prop, config):
     #     print(col)
 
     print("Spliting data into training and testing...")
-    # transaction date is needed to split train and test(by ourselves) here.
-    train_df, test_df = utils.split_by_date(df)
 
     # preprocess training data
     for method in training_preprocess:
@@ -114,17 +112,22 @@ def process_data(train, prop, config):
         #     value = globals()[value_name]
         #     params[key] = value
 
-        train_df = method_to_call(*args, **kwargs, df=train_df)
-        test_df = method_to_call(*args, **kwargs, df=test_df)
+        df = method_to_call(*args, **kwargs, df=df)
+
+    # transaction date is needed to split train and test(by ourselves) here.
+    train_df, test_df = utils.split_by_date(df)
 
     # Drop columns that are only available in training data
     train_df = data_clean.drop_training_only_column(train_df)
     test_df = data_clean.drop_training_only_column(test_df)
+
     # 82249 rows
     X_train, y_train = utils.get_features_target(train_df)
     # 8562 rows
     X_test, y_test = utils.get_features_target(test_df)
 
+    # for col in X_train.columns:
+    #     print(col)
     return (X_train, y_train, X_test, y_test, prop)
 
 def train(X_train, y_train, X_test, y_test, prop, config):
@@ -158,12 +161,10 @@ def train(X_train, y_train, X_test, y_test, prop, config):
         if grid_search:
             grid_search_params = model['grid_search_params'] # params of GridSearchCV
             param_space = model['param_space']
-            ev.grid_search(predictor, param_space, grid_search_params,
-                **evparams, save_result=predict)
+            ev.grid_search(predictor, param_space, grid_search_params, **evparams)
         else:
             predictor = model_to_use(**params)
-            ev.fit(predictor, **evparams, predictor_params=params,
-            save_result=predict)
+            ev.fit(predictor, **evparams, predictor_params=params)
         # print some attributes of the model
         if "attributes" in model:
             for attr in model["attributes"]:
@@ -219,8 +220,8 @@ def train(X_train, y_train, X_test, y_test, prop, config):
             else:
                 validate_result = np.add(validate_result, weight * p_validate)
         if total_weight > 0:
-            result = result / total_weight
-            validate_result = validate_result / total_weight
+            result = result / total_weight + 0.005
+            validate_result = validate_result / total_weight + 0.005
         print("Ensembling validate:", ev.mean_error(validate_result, ev.y_test))
         # stacking_predictor = LinearRegression()
         # stacking_predictor.fit(stacking_df, y_df)
@@ -230,7 +231,7 @@ def train(X_train, y_train, X_test, y_test, prop, config):
             sample[c] = result
         time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         sample.to_csv(
-            'data/Submission_%s.csv' %time, index=False, float_format='%.4f')
+            'data/submissions/Submission_%s.csv' %time, index=False, float_format='%.4f')
         print("Submission generated.")
 
     # Return useful information for notebook analysis use
