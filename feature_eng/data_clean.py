@@ -19,6 +19,7 @@ def remove_outliers(df, llimit, ulimit):
 def cat2num(df):
     for c in df.dtypes[df.dtypes == object].index.values:
         df[c] = (df[c] == True)
+    return df
 
 def test(df, param='world'):
     print("hello, %s" %param)

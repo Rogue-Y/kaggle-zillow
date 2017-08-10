@@ -220,8 +220,8 @@ def train(X_train, y_train, X_test, y_test, prop, config):
             else:
                 validate_result = np.add(validate_result, weight * p_validate)
         if total_weight > 0:
-            result = result / total_weight + 0.005
-            validate_result = validate_result / total_weight + 0.005
+            result = result / total_weight
+            validate_result = validate_result / total_weight
         print("Ensembling validate:", ev.mean_error(validate_result, ev.y_test))
         # stacking_predictor = LinearRegression()
         # stacking_predictor.fit(stacking_df, y_df)
