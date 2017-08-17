@@ -12,11 +12,12 @@ def plot_score(y, y_hat):
     return (np.mean(abs(y-y_hat)))
 
 def load_train_data(data_folder='data/'):
-    """ Load data and join transaction data with properties data.
+    """ Load transaction data and properties data.
         Returns:
             (train_df, properties_df)
     """
-    train = pd.read_csv(data_folder + 'train_2016_v2.csv')
+    train = pd.read_csv(
+        data_folder + 'train_2016_v2.csv', parse_dates=['transactiondate'])
     prop = pd.read_csv(data_folder + 'properties_2016.csv')
     # Convert float64 columns to float32 to save memory
     for col in train.columns:
@@ -27,6 +28,25 @@ def load_train_data(data_folder='data/'):
             prop[col] = prop[col].astype('float32')
     # df = train.merge(prop, how='left', on='parcelid')
     return (train, prop)
+
+def load_transaction_data(data_folder='data/'):
+    """ Load transaction data.
+        Returns:
+            train_df
+    """
+    return pd.read_csv(
+        data_folder + 'train_2016_v2.csv', parse_dates=['transactiondate'])
+
+def load_properties_data(data_folder='data/'):
+    """ Load properties data.
+        Returns:
+            properties_df
+    """
+    prop = pd.read_csv(data_folder + 'properties_2016.csv')
+    for col in prop.columns:
+        if prop[col].dtype == 'float64':
+            prop[col] = prop[col].astype('float32')
+    return prop
 
 def load_test_data(data_folder='data/'):
     """ Load data and join trasaction data with properties data.

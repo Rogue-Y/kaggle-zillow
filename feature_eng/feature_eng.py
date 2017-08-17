@@ -18,7 +18,7 @@ def convert_year_build_to_age(df):
     return df
 
 def add_before_1900_column(df):
-    df['is_before_1900'] = df['yearbuilt'] <= 1910
+    df['is_before_1900'] = df['yearbuilt'] <= 1900
     return df
 
 # TODO(hzn): investigate data leakage in these new features
