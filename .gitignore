@@ -102,4 +102,5 @@ ENV/
 
 # data
 data/
+feature_eng/features/
 .csv

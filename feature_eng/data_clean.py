@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
-import feature_eng.feature_eng as feature_eng
+# import feature_eng.feature_eng as feature_eng
+import feature_eng
 
 def remove_col(df, cols):
     df.drop(cols, axis=1, inplace=True)

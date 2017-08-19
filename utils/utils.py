@@ -1,15 +1,11 @@
-# import feature_eng.data_clean as data_clean
-# import feature_eng.feature_eng as feature_eng
-
-import data_clean
-import feature_eng
+import feature_eng.data_clean as data_clean
+import feature_eng.feature_eng as feature_eng
 
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
 import json
-import os
 
 # utility functions
 def plot_score(y, y_hat):
