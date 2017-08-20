@@ -102,5 +102,5 @@ ENV/
 
 # data
 data/
-feature_eng/features/
+features/feature_pickles/
 *.csv
