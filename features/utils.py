@@ -1,9 +1,3 @@
-# import feature_eng.data_clean as data_clean
-# import feature_eng.feature_eng as feature_eng
-
-import data_clean
-import feature_eng
-
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -114,9 +108,9 @@ def split_by_date(df, split_date = '2016-10-01'):
     # 82249 rows
     # loc is used here to get a real slice rather then a view, so there will not
     # be problem when trying to write to them.
-    train_df = (df.loc[df['transactiondate'] < split_date, :]).copy()
+    train_df = (df.loc[df['transactiondate'] < split_date, :]).reset_index(drop=True)
     # 8562 rows
-    test_df = (df.loc[df['transactiondate'] >= split_date, :]).copy()
+    test_df = (df.loc[df['transactiondate'] >= split_date, :]).reset_index(drop=True)
     return (train_df, test_df)
 
 def predict(predictor, train_cols):
@@ -150,34 +144,34 @@ def predict(predictor, X_test, sample, suffix=''):
 
     sample.to_csv('data/lgb_starter'+suffix+'.csv', index=False, float_format='%.4f')
 
-def get_train_test_sets():
-    """ Get the training and testing set: now split by 2016-10-01
-        transactions before this date serve as training data; those after as
-        test data.
-        Returns:
-            (X_train, y_train, X_test, y_test)
-    """
-    print('Loading data ...')
-    train, prop = load_train_data()
-
-    print('Cleaning data and feature engineering...')
-    prop_df = feature_eng.add_missing_value_count(prop)
-    prop_df = data_clean.clean_categorical_data(prop_df)
-
-    # Subset with transaction info
-    df = train.merge(prop_df, how='left', on='parcelid')
-    df = feature_eng.convert_year_build_to_age(df)
-    df = data_clean.drop_low_ratio_columns(df)
-    df = data_clean.clean_boolean_data(df)
-    df = data_clean.drop_id_column(df)
-    df = data_clean.fillna(df)
-
-    print("Spliting data into training and testing...")
-    train_df, test_df = split_by_date(df)
-    # 82249 rows
-    X_train, y_train = get_features_target(train_df)
-    # 8562 rows
-    X_test, y_test = get_features_target(test_df)
-
-    print("Done")
-    return (X_train, y_train, X_test, y_test)
+# def get_train_test_sets():
+#     """ Get the training and testing set: now split by 2016-10-01
+#         transactions before this date serve as training data; those after as
+#         test data.
+#         Returns:
+#             (X_train, y_train, X_test, y_test)
+#     """
+#     print('Loading data ...')
+#     train, prop = load_train_data()
+#
+#     print('Cleaning data and feature engineering...')
+#     prop_df = feature_eng.add_missing_value_count(prop)
+#     prop_df = data_clean.clean_categorical_data(prop_df)
+#
+#     # Subset with transaction info
+#     df = train.merge(prop_df, how='left', on='parcelid')
+#     df = feature_eng.convert_year_build_to_age(df)
+#     df = data_clean.drop_low_ratio_columns(df)
+#     df = data_clean.clean_boolean_data(df)
+#     df = data_clean.drop_id_column(df)
+#     df = data_clean.fillna(df)
+#
+#     print("Spliting data into training and testing...")
+#     train_df, test_df = split_by_date(df)
+#     # 82249 rows
+#     X_train, y_train = get_features_target(train_df)
+#     # 8562 rows
+#     X_test, y_test = get_features_target(test_df)
+#
+#     print("Done")
+#     return (X_train, y_train, X_test, y_test)

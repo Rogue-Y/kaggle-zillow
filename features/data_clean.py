@@ -3,7 +3,6 @@ import numpy as np
 from sklearn.preprocessing import LabelEncoder
 
 # import feature_eng.feature_eng as feature_eng
-import feature_eng
 
 def remove_col(df, cols):
     df.drop(cols, axis=1, inplace=True)
@@ -182,41 +181,41 @@ def clean_boolean_data(df):
 
     return df
 
-def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
-    """ Need to think about how to deal with geo data, do nothing here and
-        drop the columns in column drop method for now.
-        Returns:
-            dataframe with geo feature added
-        columns (maybe to drop):
-            ['latitude', 'longitude', 'rawcensustractandblock',
-            'censustractandblock', 'regionidcounty', 'regionidcity',
-            'regionidzip', 'regionidneighborhood']
-    """
-    geo_columns = ['latitude', 'longitude', 'rawcensustractandblock',
-    'censustractandblock', 'regionidcounty', 'regionidcity',
-    'regionidzip', 'regionidneighborhood']
-
-    # put latitude and longitude into bins
-    lat_bins = pd.cut(df['latitude'], lat_bin_num, labels=False)
-    lat_bin_dummies = pd.get_dummies(lat_bins, prefix="lat_bin")
-    lon_bins = pd.cut(df['longitude'], lon_bin_num, labels=False)
-    lon_bin_dummies = pd.get_dummies(lon_bins, prefix="lon_bin")
-
-    # get dummies for 3 counties
-    county_dummies = pd.get_dummies(df['regionidcounty'], prefix='county')
-
-    df_list = [df, lat_bin_dummies, lon_bin_dummies, county_dummies]
-
-    df = pd.concat(df_list, axis=1, input=True)
-
-    # Cross latitude and longitude bins, and drop the single bins, as only
-    # latitude or longitude does not make much sense.
-    df = feature_eng.cross_features(df, 'lat_bin', 'lon_bin', '-');
-
-    lat_bin_cols = [col for col in df.columns if 'lat_bin' in col and '-' not in col]
-    lon_bin_cols = [col for col in df.columns if 'lon_bin' in col and '-' not in col]
-    df.drop(lat_bin_cols + lon_bin_cols, axis=1, inplace=True)
-    return df
+# def clean_geo_data(df, lat_bin_num=10, lon_bin_num=10):
+#     """ Need to think about how to deal with geo data, do nothing here and
+#         drop the columns in column drop method for now.
+#         Returns:
+#             dataframe with geo feature added
+#         columns (maybe to drop):
+#             ['latitude', 'longitude', 'rawcensustractandblock',
+#             'censustractandblock', 'regionidcounty', 'regionidcity',
+#             'regionidzip', 'regionidneighborhood']
+#     """
+#     geo_columns = ['latitude', 'longitude', 'rawcensustractandblock',
+#     'censustractandblock', 'regionidcounty', 'regionidcity',
+#     'regionidzip', 'regionidneighborhood']
+#
+#     # put latitude and longitude into bins
+#     lat_bins = pd.cut(df['latitude'], lat_bin_num, labels=False)
+#     lat_bin_dummies = pd.get_dummies(lat_bins, prefix="lat_bin")
+#     lon_bins = pd.cut(df['longitude'], lon_bin_num, labels=False)
+#     lon_bin_dummies = pd.get_dummies(lon_bins, prefix="lon_bin")
+#
+#     # get dummies for 3 counties
+#     county_dummies = pd.get_dummies(df['regionidcounty'], prefix='county')
+#
+#     df_list = [df, lat_bin_dummies, lon_bin_dummies, county_dummies]
+#
+#     df = pd.concat(df_list, axis=1, input=True)
+#
+#     # Cross latitude and longitude bins, and drop the single bins, as only
+#     # latitude or longitude does not make much sense.
+#     df = feature_eng.cross_features(df, 'lat_bin', 'lon_bin', '-');
+#
+#     lat_bin_cols = [col for col in df.columns if 'lat_bin' in col and '-' not in col]
+#     lon_bin_cols = [col for col in df.columns if 'lon_bin' in col and '-' not in col]
+#     df.drop(lat_bin_cols + lon_bin_cols, axis=1, inplace=True)
+#     return df
 
 
 # def drop_columns(df):

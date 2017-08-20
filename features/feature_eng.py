@@ -1,4 +1,8 @@
 # feature engineering
+# TODO(hzn):
+#   1. split out the columns in the original prop dataframe as single feature too;
+#   2. add transformer for features, like fill nan, inf; normalization;
+
 import pandas as pd
 import numpy as np
 import math
@@ -164,7 +168,7 @@ def geo_lat_lon_block(df):
     lat_bins = labelEncoder.fit_transform(lat_bins)
     lon_bins = pd.cut(df['longitude'], 10, labels=False)
     lon_bins = labelEncoder.fit_transform(lon_bins)
-    return pd.DataFrame({'lat_lon_block': lat_bins * 10 + lon_bins})
+    return pd.Series(lat_bins * 10 + lon_bins, name='lat_lon_block')
 
 def geo_lat_lon_block_tax_value(df):
     lat_lon_block = pd.DataFrame()
@@ -210,34 +214,35 @@ def boolean_has_heat(df):
 # categories
 def category_land_use_type(df):
     #There's 25 different property uses - let's compress them down to 4 categories
-    return df['propertylandusetypeid'].replace({
+    land_use_types = df['propertylandusetypeid'].replace({
         31 : "Mixed", 46 : "Other", 47 : "Mixed", 246 : "Mixed", 247 : "Mixed",
         248 : "Mixed", 260 : "Home", 261 : "Home", 262 : "Home", 263 : "Home",
         264 : "Home", 265 : "Home", 266 : "Home", 267 : "Home", 268 : "Home",
         269 : "Not Built", 270 : "Home", 271 : "Home", 273 : "Home",
         274 : "Other", 275 : "Home", 276 : "Home", 279 : "Home",
         290 : "Not Built", 291 : "Not Built" })
+    return land_use_types.replace({"Mixed": 0, "Home": 1, "Not Built": 2, "Other": 3})
 
 def category_land_use_type_encode(df):
-    return labelEncoder.fit_transform(category_land_use_type(df))
+    return pd.Series(labelEncoder.fit_transform(category_land_use_type(df)))
 
 def category_land_use_type_one_hot(df):
     return pd.get_dummies(category_land_use_type(df), prefix='land_use_type')
 
 def category_ac_type_encode(df):
-    return labelEncoder.fit_transform(df['airconditioningtypeid'])
+    return pd.Series(labelEncoder.fit_transform(df['airconditioningtypeid']))
 
 def category_ac_type_one_hot(df):
     return pd.get_dummies(df['airconditioningtypeid'])
 
 def category_fips_type_encode(df):
-    return labelEncoder.fit_transform(df['fips'])
+    return pd.Series(labelEncoder.fit_transform(df['fips']))
 
 def category_fips_type_one_hot(df):
     return pd.get_dummies(df['fips'])
 
 def category_heating_type_encode(df):
-    return labelEncoder.fit_transform(df['heatingorsystemtypeid'])
+    return pd.Series(labelEncoder.fit_transform(df['heatingorsystemtypeid']))
 
 def category_heating_type_one_hot(df):
     return pd.get_dummies(df['heatingorsystemtypeid'])
@@ -249,7 +254,7 @@ def category_land_use_code(df):
     return land_use_code.astype('str')
 
 def category_land_use_code_encode(df):
-    return labelEncoder.fit_transform(category_land_use_code(df))
+    return pd.Series(labelEncoder.fit_transform(category_land_use_code(df)))
 
 def category_land_use_code_one_hot(df):
     return pd.get_dummies(category_land_use_code(df))
@@ -261,7 +266,7 @@ def category_land_use_desc(df):
     return land_use_desc.astype('str')
 
 def category_land_use_desc_encode(df):
-    return labelEncoder.fit_transform(category_land_use_desc(df))
+    return pd.Series(labelEncoder.fit_transform(category_land_use_desc(df)))
 
 def category_land_use_desc_one_hot(df):
     return pd.get_dummies(category_land_use_desc(df))
