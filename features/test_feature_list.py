@@ -2,7 +2,7 @@ from .feature_eng import *
 
 feature_list = [
     ('average_room_size', average_room_size, {}, 'average_room_size_pickle'),
-    # ('boolean_has_ac', boolean_has_ac, {}, 'boolean_has_ac_pickle'),
+    ('boolean_has_ac', boolean_has_ac, {}, 'boolean_has_ac_pickle'),
     # ('boolean_has_garage_pool_or_ac', boolean_has_garage_pool_or_ac, {}, 'boolean_has_garage_pool_or_ac_pickle'),
     # ('boolean_has_heat', boolean_has_heat, {}, 'boolean_has_heat_pickle'),
     # ('building_age', building_age, {}, 'building_age_pickle'),
