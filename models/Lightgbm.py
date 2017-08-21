@@ -2,6 +2,8 @@ __author__ = 'peter'
 import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 
+from lightgbm import LGBMRegressor
+
 class Lightgbm():
     def __init__(self, model_params = None, data_params = None):
         # TODO(hzn): check params one by one
@@ -36,6 +38,30 @@ class Lightgbm():
         self.model = lgb.train(self.model_params, d_train,
             num_boost_round=self.model_params['num_boost_round'],
             valid_sets=[d_valid])
+
+    def predict(self, X):
+        """ Predict on the given X, need to call fit first
+            Returns:
+                an array of the predict results, has the same rows as X.
+        """
+        return self.model.predict(X)
+
+class Lightgbm_sklearn():
+    def __init__(self, model_params = None):
+        # TODO(hzn): check params one by one
+        if model_params is None:
+            model_params = {
+                 "seed": 42, "nthread": 4, "silent": True, "boosting_type": "gbdt",
+                 "objective": "regression_l2", "colsample_bytree": 0.7,
+                 "learning_rate": 0.03, "max_bin": 30, "min_child_samples": 500,
+                 "n_estimators": 30, "reg_lambda": 1, "subsample": 0.7,
+                 "subsample_freq": 30
+            }
+        self.model_params = model_params
+        self.model = LGBMRegressor(**model_params)
+
+    def fit(self, X_train, y_train):
+        self.model.fit(X_train, y_train)
 
     def predict(self, X):
         """ Predict on the given X, need to call fit first

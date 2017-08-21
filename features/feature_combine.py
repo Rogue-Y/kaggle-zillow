@@ -23,7 +23,12 @@ def list_features(feature_module):
                 % (function_name, function_name, function_name+'_pickle'))
 
 # each feature in the feature_list is a tuple in the form (name, method, pickle_path)
-# TODO(hzn): Add a api for normalization or other feature transformation.
+# TODO(hzn):
+#   1. Add a api for normalization or other feature transformation.
+#   2. Add a api for column to drop when add a feature
+#   3. Add a poly generator for the features, so when a feature is added, also
+#      add its up to nth poly
+
 def feature_combine(
     df, feature_list, force_generate=False, pickle_folder='feature_pickles/'):
     features = []

@@ -49,6 +49,14 @@ def drop_high_corr_columns(df):
     """
     columns_to_drop = ['taxamount', 'taxvaluedollarcnt', 'calculatedbathnbr',
         'finishedsquarefeet12', 'fullbathcnt']
+
+
+def drop_categorical_data(df):
+    """
+        Drop categorical columns.
+    """
+    columns_to_drop = ['airconditioningtypeid', 'fips', 'heatingorsystemtypeid',
+        'propertylandusetypeid', 'propertycountylandusecode', 'propertyzoningdesc']
     df.drop(columns_to_drop, axis=1, inplace=True)
     return df
 
