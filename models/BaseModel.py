@@ -4,4 +4,10 @@ class BaseModel():
         pass
 
     def predict(self, X):
-        pass
+        return None
+
+    def get_params(self):
+        return None
+
+    def get_features_importances(self):
+        return None

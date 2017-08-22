@@ -69,3 +69,9 @@ class Lightgbm_sklearn():
                 an array of the predict results, has the same rows as X.
         """
         return self.model.predict(X)
+
+    def get_params(self):
+        return self.model_params if self.model_params is not None else {}
+
+    def get_features_importances(self):
+        return None

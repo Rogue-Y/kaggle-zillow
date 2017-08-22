@@ -6,7 +6,7 @@ class XGBoost():
         if model_params is None:
             model_params = {
                 'eta': 0.037,
-                'max_depth': 5,
+                'max_depth': 1,
                 'subsample': 0.80,
                 'objective': 'reg:linear',
                 'eval_metric': 'mae',
@@ -35,3 +35,9 @@ class XGBoost():
         """
         data = xgb.DMatrix(X)
         return self.model.predict(data)
+
+    def get_params(self):
+        return self.model_params if self.model_params is not None else {}
+
+    def get_features_importances(self):
+        return self.model.get_fscore() if self.model is not None else None
