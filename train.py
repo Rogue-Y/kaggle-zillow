@@ -49,6 +49,8 @@ Model = config_dict['model']
 # Optional configurations:
 # folds number of K-Fold
 FOLDS = config_dict['folds'] if 'folds' in config_dict else 5
+# if record training
+record = config_dict['record'] if 'record' in config_dict else False
 # if generate submission or not
 submit = config_dict['submit'] if 'submit' in config_dict else False
 
@@ -108,9 +110,10 @@ X_train_q4, y_train_q4 = utils.get_features_target(train_q4)
 del train_q1_q3; del train_q4; gc.collect()
 
 # file handler used to record training
-time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-train_recorder = open('data/error/%s_%s_params.txt' %(Model.__name__, time), 'w')
-train_recorder.write(Model.__name__ + '\n')
+if record:
+    time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    train_recorder = open('data/error/%s_%s_params.txt' %(Model.__name__, time), 'w')
+    train_recorder.write(Model.__name__ + '\n')
 # split train_q4 into k folds, each time combine k-1 folds with train_q1_q3
 # to train model and validate on the left out fold
 mean_errors = []
@@ -140,21 +143,23 @@ for i, (train_index, validate_index) in enumerate(kf.split(X_train_q4)):
     mean_errors.append(mae)
     print("fold validation mean error: ", mae)
     # Record this fold:
-    train_recorder.write('\nFold %d\n' %i)
-    train_recorder.write('Parameters: %s\n' %model.get_params())
-    feature_importances = model.get_features_importances()
-    if feature_importances is not None:
-        train_recorder.write('Feature importances:\n%s\n' %feature_importances)
-        # feature_importances_map = list(zip(X_train.columns, feature_importances))
-        # feature_importances_map.sort(key=lambda x: -x[1])
-        # for fi in feature_importances_map:
-        #     train_recorder.write('%s\n' %fi)
-    record_train(train_recorder, y_train, train_pred, y_validate, y_pred)
+    if record:
+        train_recorder.write('\nFold %d\n' %i)
+        train_recorder.write('Parameters: %s\n' %model.get_params())
+        feature_importances = model.get_features_importances()
+        if feature_importances is not None:
+            train_recorder.write('Feature importances:\n%s\n' %feature_importances)
+            # feature_importances_map = list(zip(X_train.columns, feature_importances))
+            # feature_importances_map.sort(key=lambda x: -x[1])
+            # for fi in feature_importances_map:
+            #     train_recorder.write('%s\n' %fi)
+        record_train(train_recorder, y_train, train_pred, y_validate, y_pred)
     print("--------------------------------------------------------")
 
 avg_cv_errors = np.mean(mean_errors)
-train_recorder.write("\nAverage cross validation mean error: %d\n" %avg_cv_errors)
-train_recorder.close()
+if record:
+    train_recorder.write("\nAverage cross validation mean error: %d\n" %avg_cv_errors)
+    train_recorder.close()
 print("average cross validation mean error", avg_cv_errors)
 
 if submit:
