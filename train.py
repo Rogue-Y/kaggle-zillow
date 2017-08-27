@@ -96,7 +96,7 @@ print(prop.shape)
 # merge transaction and prop data
 df = train.merge(prop, how='left', on='parcelid')
 # df.to_csv('test_df.csv')
-del train; gc.collect()
+# del train; gc.collect()
 
 # split by date
 train_q1_q3, train_q4 = utils.split_by_date(df)
@@ -178,7 +178,7 @@ if submit:
     print(df_test.shape)
     print(sample.shape)
     # keep a copy of to generate resale
-    # predict_df = df_test.copy()
+    predict_df = df_test.copy()
     # organize test set
     df_test = df_test.merge(prop, on='parcelid', how='left')
     df_test = data_clean.drop_id_column(df_test)
@@ -190,16 +190,37 @@ if submit:
     print(len(avg_pred))
 
     # add resale
-    # sales = train[['parcelid', 'logerror']].groupby('parcelid').mean()
-    # predict_df = predict_df.join(sales, on='parcelid', how='left')
-    # predict_df['predict'] = avg_pred
+    sales = train[['parcelid', 'logerror']].groupby('parcelid').mean()
+    predict_df = predict_df.join(sales, on='parcelid', how='left')
+    predict_df['predict'] = avg_pred
     # predict = predict_df['predict'].where(predict_df['logerror'].isnull(), predict_df['logerror'])
+    predict = predict_df['predict'].where(
+        predict_df['logerror'].isnull(), predict_df['predict'] + 0.001)
+    predict2 = predict_df['predict'].where(
+        predict_df['logerror'].isnull(), predict_df['predict'] + 0.005)
+    predict3 = predict_df['predict'].where(
+        predict_df['logerror'].isnull(), predict_df['predict'] + 0.01)
 
     # generate submission
     print("generating submission...")
     for c in sample.columns[sample.columns != 'ParcelId']:
-        sample[c] = avg_pred
+        # sample[c] = avg_pred
+        sample[c] = predict.as_matrix()
     # time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     sample.to_csv(
         'data/submissions/Submission_%s.csv' %time, index=False, float_format='%.4f')
+
+    for c in sample.columns[sample.columns != 'ParcelId']:
+        # sample[c] = avg_pred
+        sample[c] = predict2.as_matrix()
+    # time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sample.to_csv(
+        'data/submissions/Submission2_%s.csv' %time, index=False, float_format='%.4f')
+
+    for c in sample.columns[sample.columns != 'ParcelId']:
+        # sample[c] = avg_pred
+        sample[c] = predict3.as_matrix()
+    # time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    sample.to_csv(
+        'data/submissions/Submission3_%s.csv' %time, index=False, float_format='%.4f')
     print("submission generated.")

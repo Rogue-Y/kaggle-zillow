@@ -94,11 +94,13 @@ def geo_neighborhood(df, columns=None):
     neighborhood = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+        columns = [
+            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
             'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount', 'taxvaluedollarcnt']
+            'taxamount',
+            'taxvaluedollarcnt']
     #Number of properties in the neighborhood
     neighborhood_count = df['regionidneighborhood'].value_counts().to_dict()
     neighborhood['neighborhood_count'] = df['regionidneighborhood'].map(neighborhood_count)

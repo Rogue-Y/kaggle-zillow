@@ -40,6 +40,12 @@ class Lightgbm():
         """
         return self.model.predict(X)
 
+    def get_params(self):
+        return self.model_params if self.model_params is not None else {}
+
+    def get_features_importances(self):
+        return None
+
 class Lightgbm_sklearn():
     def __init__(self, model_params = None):
         # TODO(hzn): check params one by one

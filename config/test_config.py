@@ -18,11 +18,14 @@ from models import XGBoost, Lightgbm
 # Model = Lightgbm.Lightgbm_sklearn
 Model = Lightgbm.Lightgbm
 
-submit = False
+submit = True
+
+record = False
 
 test_config = {
     'folds': 5,
     'feature_list': feature_list,
     'model': Model,
-    'submit': submit
+    'submit': submit,
+    'record': record
 }
