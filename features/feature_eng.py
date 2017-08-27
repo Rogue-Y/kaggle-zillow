@@ -90,23 +90,129 @@ def round_lon(df):
 # TODO(hzn): add more aggregation to neighborhood/zip/city/county/lat-lon-block:
 # https://pandas.pydata.org/pandas-docs/stable/api.html#id32
 
-def geo_neighorhood_tax_value(df):
+def geo_neighborhood(df, columns=None):
     neighborhood = pd.DataFrame()
+    if columns is None:
+        # Use default columns if col is None
+        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
+            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            'taxamount', 'taxvaluedollarcnt']
     #Number of properties in the neighborhood
     neighborhood_count = df['regionidneighborhood'].value_counts().to_dict()
     neighborhood['neighborhood_count'] = df['regionidneighborhood'].map(neighborhood_count)
 
     # stats of value estimate of properties grouped by neighborhood
+    neighborhood_dict = (df[['regionidneighborhood', *columns]].groupby('regionidneighborhood')
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+
+    for col in columns:
+        neighborhood[col + '_neighborhood_mean'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'mean')])
+        neighborhood[col + '_neighborhood_mean_ratio'] = df[col] / neighborhood[col + '_neighborhood_mean']
+        neighborhood[col + '_neighborhood_std'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'std')])
+        neighborhood[col + '_neighborhood_std_ratio'] = (df[col] - neighborhood[col + '_neighborhood_mean']) / neighborhood[col + '_neighborhood_std']
+        # neighborhood[col + '_neighborhood_max'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'max')])
+        # neighborhood[col + '_neighborhood_min'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'min')])
+
+    return neighborhood
+
+def geo_city(df, columns=None):
+    city = pd.DataFrame()
+    if columns is None:
+        # Use default columns if col is None
+        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
+            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            'taxamount', 'taxvaluedollarcnt']
+    #Number of properties in the city
+    city_count = df['regionidcity'].value_counts().to_dict()
+    city['city_count'] = df['regionidcity'].map(city_count)
+
+    # stats of value estimate of properties grouped by city
+    city_dict = (df[['regionidcity', *columns]].groupby('regionidcity')
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+
+    for col in columns:
+        city[col + '_city_mean'] = df['regionidcity'].map(city_dict[(col, 'mean')])
+        city[col + '_city_std'] = df['regionidcity'].map(city_dict[(col, 'std')])
+        # city[col + '_city_max'] = df['regionidcity'].map(city_dict[(col, 'max')])
+        # city[col + '_city_min'] = df['regionidcity'].map(city_dict[(col, 'min')])
+
+    return city
+
+def geo_zip(df, columns=None):
+    zip = pd.DataFrame()
+    if columns is None:
+        # Use default columns if col is None
+        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
+            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            'taxamount', 'taxvaluedollarcnt']
+    #Number of properties in the zip
+    zip_count = df['regionidzip'].value_counts().to_dict()
+    zip['zip_count'] = df['regionidzip'].map(zip_count)
+
+    # stats of value estimate of properties grouped by zip
+    zip_dict = (df[['regionidzip', *columns]].groupby('regionidzip')
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+
+    for col in columns:
+        zip[col + '_zip_mean'] = df['regionidzip'].map(zip_dict[(col, 'mean')])
+        zip[col + '_zip_std'] = df['regionidzip'].map(zip_dict[(col, 'std')])
+        # zip[col + '_zip_max'] = df['regionidzip'].map(zip_dict[(col, 'max')])
+        # zip[col + '_zip_min'] = df['regionidzip'].map(zip_dict[(col, 'min')])
+
+    return zip
+
+def geo_county(df, columns=None):
+    county = pd.DataFrame()
+    if columns is None:
+        # Use default columns if col is None
+        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
+            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            'taxamount', 'taxvaluedollarcnt']
+    #Number of properties in the county
+    county_count = df['regionidcounty'].value_counts().to_dict()
+    county['county_count'] = df['regionidcounty'].map(county_count)
+
+    # stats of value estimate of properties grouped by county
+    county_dict = (df[['regionidcounty', *columns]].groupby('regionidcounty')
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+
+    for col in columns:
+        county[col + '_county_mean'] = df['regionidcounty'].map(county_dict[(col, 'mean')])
+        county[col + '_county_std'] = df['regionidcounty'].map(county_dict[(col, 'std')])
+        # county[col + '_county_max'] = df['regionidcounty'].map(county_dict[(col, 'max')])
+        # county[col + '_county_min'] = df['regionidcounty'].map(county_dict[(col, 'min')])
+
+    return county
+
+def geo_neighborhood_tax_value(df):
+    neighborhood_df = pd.DataFrame()
+    #Number of properties in the neighborhood
+    neighborhood_count = df['regionidneighborhood'].value_counts().to_dict()
+    neighborhood_df['neighborhood_count'] = df['regionidneighborhood'].map(neighborhood_count)
+
+    # stats of value estimate of properties grouped by neighborhood
     neighborhood_dict = (df[['regionidneighborhood', 'taxvaluedollarcnt']].groupby('regionidneighborhood')
         .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
 
-    neighborhood['neighborhood_value_mean'] = df['regionidneighborhood'].map(neighborhood_dict['mean'])
-    neighborhood['neighborhood_value_std'] = df['regionidneighborhood'].map(neighborhood_dict['std'])
-    neighborhood['neighborhood_value_max'] = df['regionidneighborhood'].map(neighborhood_dict['max'])
-    neighborhood['neighborhood_value_min'] = df['regionidneighborhood'].map(neighborhood_dict['min'])
-    neighborhood['neighborhood_value_range'] = neighborhood['neighborhood_value_max'] - neighborhood['neighborhood_value_min']
+    neighborhood_df['neighborhood_value_mean'] = df['regionidneighborhood'].map(neighborhood_dict['mean'])
+    neighborhood_df['neighborhood_value_std'] = df['regionidneighborhood'].map(neighborhood_dict['std'])
+    neighborhood_df['neighborhood_value_max'] = df['regionidneighborhood'].map(neighborhood_dict['max'])
+    neighborhood_df['neighborhood_value_min'] = df['regionidneighborhood'].map(neighborhood_dict['min'])
+    neighborhood_df['neighborhood_value_range'] = neighborhood_df['neighborhood_value_max'] - neighborhood_df['neighborhood_value_min']
 
-    return neighborhood
+    return neighborhood_df
+
+def geo_neighborhood_tax_value_ratio_mean(df):
+    neighborhood_df = geo_neighborhood_tax_value(df)
+    return df['taxvaluedollarcnt'] / neighborhood_df['neighborhood_value_mean']
 
 def geo_zip_tax_value(df):
     zip_df = pd.DataFrame()

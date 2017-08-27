@@ -17,8 +17,14 @@ def remove_outliers(df, llimit, ulimit):
 #     return df[(df['logerror'] >= llimit) & (df['logerror'] <= ulimit)]
 
 def cat2num(df):
-    for c in df.dtypes[df.dtypes == object].index.values:
-        df[c] = (df[c] == True)
+    labelEncoder = LabelEncoder()
+    df['propertycountylandusecode'] = labelEncoder.fit_transform(df['propertycountylandusecode'].astype(str))
+    df['propertyzoningdesc'] = labelEncoder.fit_transform(df['propertyzoningdesc'].astype(str))
+    df['taxdelinquencyflag'] = df['taxdelinquencyflag'] == 'Y'
+    df['fireplaceflag'] = df['fireplaceflag'] == True
+    df['hashottuborspa'] = df['hashottuborspa'] == True
+    # for c in df.dtypes[df.dtypes == object].index.values:
+    #     df[c] = (df[c] == True)
     return df
 
 def test(df, param='world'):

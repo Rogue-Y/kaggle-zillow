@@ -110,8 +110,8 @@ X_train_q4, y_train_q4 = utils.get_features_target(train_q4)
 del train_q1_q3; del train_q4; gc.collect()
 
 # file handler used to record training
+time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 if record:
-    time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     train_recorder = open('data/error/%s_%s_params.txt' %(Model.__name__, time), 'w')
     train_recorder.write(Model.__name__ + '\n')
 # split train_q4 into k folds, each time combine k-1 folds with train_q1_q3
@@ -127,6 +127,16 @@ for i, (train_index, validate_index) in enumerate(kf.split(X_train_q4)):
 
     X_validate = X_train_q4.iloc[validate_index]
     y_validate = y_train_q4.iloc[validate_index]
+
+    # try remove outliers
+    print(X_train.shape, y_train.shape)
+    ulimit = np.percentile(y_train.values, 99)
+    llimit = np.percentile(y_train.values, 1)
+    mask = (y_train >= llimit) & (y_train <= ulimit)
+    print(llimit, ulimit)
+    X_train = X_train[mask]
+    y_train = y_train[mask]
+    print(X_train.shape, y_train.shape)
 
     print('training...')
     model = Model()
@@ -167,6 +177,8 @@ if submit:
     df_test, sample = utils.load_test_data()
     print(df_test.shape)
     print(sample.shape)
+    # keep a copy of to generate resale
+    # predict_df = df_test.copy()
     # organize test set
     df_test = df_test.merge(prop, on='parcelid', how='left')
     df_test = data_clean.drop_id_column(df_test)
@@ -176,6 +188,12 @@ if submit:
     model_preds = list(map(lambda model: model.predict(df_test), models))
     avg_pred = np.mean(model_preds, axis=0)
     print(len(avg_pred))
+
+    # add resale
+    # sales = train[['parcelid', 'logerror']].groupby('parcelid').mean()
+    # predict_df = predict_df.join(sales, on='parcelid', how='left')
+    # predict_df['predict'] = avg_pred
+    # predict = predict_df['predict'].where(predict_df['logerror'].isnull(), predict_df['logerror'])
 
     # generate submission
     print("generating submission...")

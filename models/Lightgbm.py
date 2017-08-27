@@ -27,17 +27,11 @@ class Lightgbm():
         self.data_params = data_params
         self.model=None
 
-    def fit(self, X, y):
-        X_train, X_valid, y_train, y_valid = train_test_split(
-            X, y,
-            test_size=self.data_params['test_size'],
-            random_state=self.data_params['random_state'])
+    def fit(self, X_train, y_train):
 
         d_train = lgb.Dataset(X_train, label=y_train)
-        d_valid = lgb.Dataset(X_valid, label=y_valid)
         self.model = lgb.train(self.model_params, d_train,
-            num_boost_round=self.model_params['num_boost_round'],
-            valid_sets=[d_valid])
+            num_boost_round=self.model_params['num_boost_round'])
 
     def predict(self, X):
         """ Predict on the given X, need to call fit first
@@ -53,8 +47,8 @@ class Lightgbm_sklearn():
             model_params = {
                  "seed": 42, "nthread": 4, "silent": True, "boosting_type": "gbdt",
                  "objective": "regression_l2", "colsample_bytree": 0.7,
-                 "learning_rate": 0.03, "max_bin": 30, "min_child_samples": 500,
-                 "n_estimators": 30, "reg_lambda": 1, "subsample": 0.7,
+                 "learning_rate": 0.01, "max_bin": 30, "min_child_samples": 500,
+                 "n_estimators": 100, "reg_lambda": 0.3, "subsample": 0.7,
                  "subsample_freq": 30
             }
         self.model_params = model_params

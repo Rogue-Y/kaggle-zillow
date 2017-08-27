@@ -13,16 +13,16 @@ def list_features(feature_module):
     functions = inspect.getmembers(feature_module, lambda x: callable(x))
     for name, function in functions:
         name_lower = name.lower()
-        if 'bin' in name_lower or 'cross' in name_lower:
+        if 'bin' in name_lower or 'cross' in name_lower or 'encoder' in name_lower:
             continue
         feature_list.append(name)
     with open('feature_list.txt', 'w') as feature_list_handler:
         for function_name in feature_list:
             feature_list_handler.write(
-                "('%s', %s, {}, '%s'),\n"
+                "('%s', %s, {}, '%s', False),\n"
                 % (function_name, function_name, function_name+'_pickle'))
 
-# each feature in the feature_list is a tuple in the form (name, method, pickle_path)
+# each feature in the feature_list is a tuple in the form (name, method, method_params, pickle_path, force_generate)
 # TODO(hzn):
 #   1. Add a api for normalization or other feature transformation.
 #   2. Add a api for column to drop when add a feature
@@ -30,11 +30,11 @@ def list_features(feature_module):
 #      add its up to nth poly
 
 def feature_combine(
-    df, feature_list, force_generate=False, pickle_folder='feature_pickles/'):
+    df, feature_list, global_force_generate=False, pickle_folder='feature_pickles/'):
     features = []
-    for name, generator, kwparams, pickle_path in feature_list:
+    for name, generator, kwparams, pickle_path, feature_force_generate in feature_list:
         pickle_path = pickle_folder + pickle_path
-        if not force_generate and os.path.exists(pickle_path):
+        if not global_force_generate and not feature_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)
         else:
             print(pickle_path)
