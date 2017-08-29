@@ -70,6 +70,19 @@ def load_test_data(data_folder='data/', force_read=False):
         axis=1, inplace=True)
     return (test, sample)
 
+def load_sample_submission(data_folder='data/', force_read=False):
+    """ Load data and join trasaction data with properties data.
+        Returns:
+            sample_submission_df
+    """
+    test_data_pickle = data_folder + 'sample_submission_pickle'
+    if not force_read and os.path.exists(test_data_pickle):
+        sample = pd.read_pickle(test_data_pickle)
+    else:
+        sample = pd.read_csv(data_folder + 'sample_submission.csv')
+        sample.to_pickle(test_data_pickle)
+    return sample
+
 def load_config(config_file='config/steps.json'):
     """ Read config file
         Returns: config JSON object

@@ -18,7 +18,7 @@ from models import XGBoost, Lightgbm
 # Model = Lightgbm.Lightgbm_sklearn
 Model = Lightgbm.Lightgbm
 
-submit = True
+submit = False
 
 record = False
 

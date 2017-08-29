@@ -114,6 +114,8 @@ def geo_neighborhood(df, columns=None):
         neighborhood[col + '_neighborhood_mean_ratio'] = df[col] / neighborhood[col + '_neighborhood_mean']
         neighborhood[col + '_neighborhood_std'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'std')])
         neighborhood[col + '_neighborhood_std_ratio'] = (df[col] - neighborhood[col + '_neighborhood_mean']) / neighborhood[col + '_neighborhood_std']
+        # neighborhood.drop(col + '_neighborhood_mean', axis=1, inplace=True)
+        # neighborhood.drop(col + '_neighborhood_std', axis=1, inplace=True)
         # neighborhood[col + '_neighborhood_max'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'max')])
         # neighborhood[col + '_neighborhood_min'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'min')])
 
@@ -123,11 +125,13 @@ def geo_city(df, columns=None):
     city = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+        columns = [
+            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
             'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount', 'taxvaluedollarcnt']
+            'taxamount',
+            'taxvaluedollarcnt']
     #Number of properties in the city
     city_count = df['regionidcity'].value_counts().to_dict()
     city['city_count'] = df['regionidcity'].map(city_count)
@@ -139,6 +143,8 @@ def geo_city(df, columns=None):
     for col in columns:
         city[col + '_city_mean'] = df['regionidcity'].map(city_dict[(col, 'mean')])
         city[col + '_city_std'] = df['regionidcity'].map(city_dict[(col, 'std')])
+        city[col + '_city_mean_ratio'] = df[col] / city[col + '_city_mean']
+        city[col + '_city_std_ratio'] = (df[col] - city[col + '_city_mean']) / city[col + '_city_std']
         # city[col + '_city_max'] = df['regionidcity'].map(city_dict[(col, 'max')])
         # city[col + '_city_min'] = df['regionidcity'].map(city_dict[(col, 'min')])
 
@@ -148,11 +154,13 @@ def geo_zip(df, columns=None):
     zip = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+        columns = [
+            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
             'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount', 'taxvaluedollarcnt']
+            'taxamount',
+            'taxvaluedollarcnt']
     #Number of properties in the zip
     zip_count = df['regionidzip'].value_counts().to_dict()
     zip['zip_count'] = df['regionidzip'].map(zip_count)
@@ -164,6 +172,8 @@ def geo_zip(df, columns=None):
     for col in columns:
         zip[col + '_zip_mean'] = df['regionidzip'].map(zip_dict[(col, 'mean')])
         zip[col + '_zip_std'] = df['regionidzip'].map(zip_dict[(col, 'std')])
+        zip[col + '_zip_mean_ratio'] = df[col] / zip[col + '_zip_mean']
+        zip[col + '_zip_std_ratio'] = (df[col] - zip[col + '_zip_mean']) / zip[col + '_zip_std']
         # zip[col + '_zip_max'] = df['regionidzip'].map(zip_dict[(col, 'max')])
         # zip[col + '_zip_min'] = df['regionidzip'].map(zip_dict[(col, 'min')])
 
@@ -173,11 +183,13 @@ def geo_county(df, columns=None):
     county = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = ['bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+        columns = [
+            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
             'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount', 'taxvaluedollarcnt']
+            'taxamount',
+            'taxvaluedollarcnt']
     #Number of properties in the county
     county_count = df['regionidcounty'].value_counts().to_dict()
     county['county_count'] = df['regionidcounty'].map(county_count)
@@ -189,6 +201,8 @@ def geo_county(df, columns=None):
     for col in columns:
         county[col + '_county_mean'] = df['regionidcounty'].map(county_dict[(col, 'mean')])
         county[col + '_county_std'] = df['regionidcounty'].map(county_dict[(col, 'std')])
+        county[col + '_county_mean_ratio'] = df[col] / county[col + '_county_mean']
+        county[col + '_county_std_ratio'] = (df[col] - county[col + '_county_mean']) / county[col + '_county_std']
         # county[col + '_county_max'] = df['regionidcounty'].map(county_dict[(col, 'max')])
         # county[col + '_county_min'] = df['regionidcounty'].map(county_dict[(col, 'min')])
 
@@ -300,6 +314,40 @@ def geo_lat_lon_block_tax_value(df):
     lat_lon_block['lat_lon_block_value_range'] = lat_lon_block['lat_lon_block_value_max'] - lat_lon_block['lat_lon_block_value_min']
 
     return lat_lon_block
+
+def geo_lat_lon_block_features(df, columns=None):
+    if columns is None:
+        # Use default columns if col is None
+        columns = [
+            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
+            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            'taxamount',
+            'taxvaluedollarcnt']
+    lat_lon_block = pd.DataFrame()
+
+    blocks = geo_lat_lon_block(df)
+
+    values = df[columns]
+    values['lat_lon_block'] = blocks
+
+    # stats of value estimate of properties grouped by lat_lon_block
+    lat_lon_block_dict = (values.groupby('lat_lon_block')
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+
+    for col in columns:
+        lat_lon_block[col + '_lat_lon_block_mean'] = blocks.map(lat_lon_block_dict[(col, 'mean')])
+        lat_lon_block[col + '_lat_lon_block_mean_ratio'] = df[col] / lat_lon_block[col + '_lat_lon_block_mean']
+        lat_lon_block[col + '_lat_lon_block_std'] = blocks.map(lat_lon_block_dict[(col, 'std')])
+        lat_lon_block[col + '_lat_lon_block_std_ratio'] = (df[col] - lat_lon_block[col + '_lat_lon_block_mean']) / lat_lon_block[col + '_lat_lon_block_std']
+        # lat_lon_block.drop(col + '_lat_lon_block_mean', axis=1, inplace=True)
+        # lat_lon_block.drop(col + '_lat_lon_block_std', axis=1, inplace=True)
+        # lat_lon_block[col + '_lat_lon_block_max'] = df['regionidlat_lon_block'].map(lat_lon_block_dict[(col, 'max')])
+        # lat_lon_block[col + '_lat_lon_block_min'] = df['regionidlat_lon_block'].map(lat_lon_block_dict[(col, 'min')])
+
+    return lat_lon_block
+
 
 def geo_city_structure_tax_value(df):
     #Average structuretaxvaluedollarcnt by city
