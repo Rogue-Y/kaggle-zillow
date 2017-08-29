@@ -41,7 +41,7 @@ def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
     train_recorder.write('Validation label stats: ' + y_valid.describe().to_string(float_format='{:.5f}'.format) + '\n')
     train_recorder.write('Validation predict stats: ' + y_valid_pred.describe().to_string(float_format='{:.5f}'.format) + '\n')
 
-def train(Model, model_params = None, feature_list=[], FOLDS = 5, record=False, submit=True,
+def train(Model, model_params = None, feature_list=[], FOLDS = 5, record=False, submit=False,
     outliers_up_pct = 99, outliers_lw_pct = 1, resale_offset = 0.012):
     # Process:
     # load training data
@@ -186,7 +186,16 @@ def train(Model, model_params = None, feature_list=[], FOLDS = 5, record=False, 
         sample.to_csv(
             'data/submissions/Submission_%s.csv' %time, index=False, float_format='%.4f')
 
+    return avg_cv_errors
+
+# A wrapper of the above train funtion that takes a single dict param
+# for hyperopt use
+def train_wrapper(param_dict):
+    return train(**param_dict)
+
 if __name__ == '__main__':
+    import time
+    t1 = time.time()
     # Get configuration
     # parser to parse cmd line option
     parser = OptionParser()
@@ -227,3 +236,6 @@ if __name__ == '__main__':
     train(Model=Model, model_params=model_params, feature_list=feature_list, FOLDS = FOLDS,
         record=record, submit=submit, outliers_up_pct=outliers_up_pct,
         outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset)
+
+    t2 = time.time()
+    print((t2 - t1) / 60)
