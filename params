@@ -1,0 +1,49 @@
+{'Model': <class 'models.Lightgbm.Lightgbm'>, 'feature_list': (('average_room_size', <function average_room_size at 0x7f9fc4eb8730>, {}, 'average_room_size_pickle', False), ('boolean_has
+_ac', <function boolean_has_ac at 0x7f9fc4eb9488>, {}, 'boolean_has_ac_pickle', False), ('boolean_has_garage_pool_or_ac', <function boolean_has_garage_pool_or_ac at 0x7f9fc4eb8840>, {},
+'boolean_has_garage_pool_or_ac_pickle', False), ('boolean_has_heat', <function boolean_has_heat at 0x7f9fc4eb9510>, {}, 'boolean_has_heat_pickle', False), ('building_age', <function buil
+ding_age at 0x7f9fc4eb8158>, {}, 'building_age_pickle', False), ('built_before_year', <function built_before_year at 0x7f9fc4eb8488>, {}, 'built_before_year_pickle', False), ('category_a
+c_type_encode', <function category_ac_type_encode at 0x7f9fc4eb9730>, {}, 'category_ac_type_encode_pickle', False), ('category_fips_type_encode', <function category_fips_type_encode at 0
+x7f9fc4eb9840>, {}, 'category_fips_type_encode_pickle', False), ('category_heating_type_encode', <function category_heating_type_encode at 0x7f9fc4eb9950>, {}, 'category_heating_type_enc
+ode_pickle', False), ('category_land_use_code_encode', <function category_land_use_code_encode at 0x7f9fc4eb9ae8>, {}, 'category_land_use_code_encode_pickle', False), ('category_land_use
+_desc_encode', <function category_land_use_desc_encode at 0x7f9fc4eb9c80>, {}, 'category_land_use_desc_encode_pickle', False), ('category_land_use_type_encode', <function category_land_u
+se_type_encode at 0x7f9fc4eb9620>, {}, 'category_land_use_type_encode_pickle', False), ('error_rate_calculated_finished_living_sqft', <function error_rate_calculated_finished_living_sqft
+ at 0x7f9fc4eb8510>, {}, 'error_rate_calculated_finished_living_sqft_pickle', False), ('extra_rooms', <function extra_rooms at 0x7f9fc4eb87b8>, {}, 'extra_rooms_pickle', False), ('extra_
+space', <function extra_space at 0x7f9fc4eb8620>, {}, 'extra_space_pickle', False), ('geo_city', <function geo_city at 0x7f9fc4eb8d08>, {}, 'geo_city_pickle', False), ('geo_county', <fun
+ction geo_county at 0x7f9fc4eb8e18>, {}, 'geo_county_pickle', False), ('geo_neighborhood', <function geo_neighborhood at 0x7f9fc4eb8c80>, {}, 'geo_neighborhood_pickle', False), ('geo_lat
+_lon_block_features', <function geo_lat_lon_block_features at 0x7f9fc4eb92f0>, {}, 'geo_lat_lon_block_features_pickle', True), ('geo_region_tax_value', <function geo_region_tax_value at
+0x7f9fc4eb9158>, {}, 'geo_region_tax_value_pickle', False), ('geo_zip', <function geo_zip at 0x7f9fc4eb8d90>, {}, 'geo_zip_pickle', False),('missing_value_count', <function missing_valu
+e_count at 0x7f9fd4c58620>, {}, 'missing_value_count_pickle', False), ('multiply_lat_lon', <function multiply_lat_lon at 0x7f9fc4eb8a60>, {}, 'multiply_lat_lon_pickle', False), ('poly_2_
+structure_tax_value', <function poly_2_structure_tax_value at 0x7f9fc4eb9d90>, {}, 'poly_2_structure_tax_value_pickle', False), ('poly_3_structure_tax_value', <function poly_3_structure_
+tax_value at 0x7f9fc4eb9e18>, {}, 'poly_3_structure_tax_value_pickle', False), ('ratio_living_area', <function ratio_living_area at 0x7f9fc4eb8598>, {}, 'ratio_living_area_pickle', False
+), ('ratio_structure_tax_value_to_land_tax_value', <function ratio_structure_tax_value_to_land_tax_value at 0x7f9fc4eb88c8>, {}, 'ratio_structure_tax_value_to_land_tax_value_pickle', Fal
+se), ('ratio_tax', <function ratio_tax at 0x7f9fc4eb8950>, {}, 'ratio_tax_pickle', False), ('round_lat', <function round_lat at 0x7f9fc4eb8b70>, {}, 'round_lat_pickle', False), ('round_l
+on', <function round_lon at 0x7f9fc4eb8bf8>, {}, 'round_lon_pickle', False), ('round_multiply_lat_lon', <function round_multiply_lat_lon at 0x7f9fc4eb8ae8>, {}, 'round_multiply_lat_lon_p
+ickle', False), ('sum_lat_lon', <function sum_lat_lon at 0x7f9fc4eb89d8>, {}, 'sum_lat_lon_pickle', False), ('total_rooms', <function total_rooms at 0x7f9fc4eb86a8>, {}, 'total_rooms_pic
+kle', False)), 'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.05525896243523381, 'metric': 'mae', 'min_data': 260, 'min_hessian': 0.57579034653711, 'num_boost_round': 300,
+'num_leaves': 70, 'objective': 'regression_l1', 'sub_feature': 0.06638755200543586, 'verbose': -1}}
+
+{'bagging_fraction': 0.6589658864509478, 'bagging_freq': 0, 'learning_rate': 0.13772517225636907, 'max_bin': 1, 'metric': 0, 'min_data': 7, 'min_hessian': 0.6566060504172, 'num_boost_rou
+nd': 0, 'num_leaves': 0, 'sub_feature': 0.03008666127016822}
+{'Model': <class 'models.Lightgbm.Lightgbm'>, 'feature_list': (('average_room_size', <function average_room_size at 0x7f4a149809d8>, {}, 'average_room_size_pickle', False), ('boolean_has
+_ac', <function boolean_has_ac at 0x7f4a14981840>, {}, 'boolean_has_ac_pickle', False), ('boolean_has_garage_pool_or_ac', <function boolean_has_garage_pool_or_ac at 0x7f4a14980ae8>, {},
+'boolean_has_garage_pool_or_ac_pickle', False), ('boolean_has_heat', <function boolean_has_heat at 0x7f4a149818c8>, {}, 'boolean_has_heat_pickle', False), ('building_age', <function buil
+ding_age at 0x7f4a14980400>, {}, 'building_age_pickle', False), ('built_before_year', <function built_before_year at 0x7f4a14980730>, {}, 'built_before_year_pickle', False), ('category_a
+c_type_encode', <function category_ac_type_encode at 0x7f4a14981ae8>, {}, 'category_ac_type_encode_pickle', False), ('category_fips_type_encode', <function category_fips_type_encode at 0
+x7f4a14981bf8>, {}, 'category_fips_type_encode_pickle', False), ('category_heating_type_encode', <function category_heating_type_encode at 0x7f4a14981d08>, {}, 'category_heating_type_enc
+ode_pickle', False), ('category_land_use_code_encode', <function category_land_use_code_encode at 0x7f4a14981ea0>, {}, 'category_land_use_code_encode_pickle', False), ('category_land_use
+_desc_encode', <function category_land_use_desc_encode at 0x7f4a149820d0>, {}, 'category_land_use_desc_encode_pickle', False), ('category_land_use_type_encode', <function category_land_u
+se_type_encode at 0x7f4a149819d8>, {}, 'category_land_use_type_encode_pickle', False), ('error_rate_calculated_finished_living_sqft', <function error_rate_calculated_finished_living_sqft
+ at 0x7f4a149807b8>, {}, 'error_rate_calculated_finished_living_sqft_pickle', False), ('extra_rooms', <function extra_rooms at 0x7f4a14980a60>, {}, 'extra_rooms_pickle', False), ('extra_
+space', <function extra_space at 0x7f4a149808c8>, {}, 'extra_space_pickle', False), ('geo_city', <function geo_city at 0x7f4a14981158>, {}, 'geo_city_pickle', False), ('geo_county', <fun
+ction geo_county at 0x7f4a14981268>, {}, 'geo_county_pickle', False), ('geo_neighborhood', <function geo_neighborhood at 0x7f4a149810d0>, {}, 'geo_neighborhood_pickle', False), ('geo_lat
+_lon_block_features', <function geo_lat_lon_block_features at 0x7f4a149816a8>, {}, 'geo_lat_lon_block_features_pickle', False), ('geo_region_tax_value', <function geo_region_tax_value at 0x7f4a14981510>, {}, 'geo_region_tax_value_pickle', False), ('geo_zip', <function geo_zip at 0x7f4a149811e0>, {}, 'geo_zip_pickle', False), ('missing_value_count', <function missing_val
+ue_count at 0x7f4a2471b620>, {}, 'missing_value_count_pickle', False), ('poly_2_structure_tax_value', <function poly_2_structure_tax_value at 0x7f4a149821e0>, {}, 'poly_2_structure_tax_v
+alue_pickle', False), ('poly_3_structure_tax_value', <function poly_3_structure_tax_value at 0x7f4a14982268>, {}, 'poly_3_structure_tax_value_pickle', False), ('ratio_living_area', <func
+tion ratio_living_area at 0x7f4a14980840>, {}, 'ratio_living_area_pickle', False), ('ratio_structure_tax_value_to_land_tax_value', <function ratio_structure_tax_value_to_land_tax_value a
+t 0x7f4a14980c80>, {}, 'ratio_structure_tax_value_to_land_tax_value_pickle', False), ('ratio_structure_tax_value_to_land_tax_value', <function ratio_structure_tax_value_to_land_tax_value
+ at 0x7f4a14980c80>, {}, 'ratio_structure_tax_value_to_land_tax_value_pickle', False), ('ratio_tax_value_to_structure_value', <function ratio_tax_value_to_structure_value at 0x7f4a14980b
+70>, {}, 'ratio_tax_value_to_structure_value_pickle', False), ('ratio_tax_value_to_land_tax_value', <function ratio_tax_value_to_land_tax_value at 0x7f4a14980bf8>, {}, 'ratio_tax_value_t
+o_land_tax_value_pickle', False), ('ratio_tax', <function ratio_tax at 0x7f4a14980d08>, {}, 'ratio_tax_pickle', False), ('total_rooms', <function total_rooms at 0x7f4a14980950>, {}, 'tot
+al_rooms_pickle', False)), 'model_params': {'bagging_fraction': 0.6589658864509478, 'bagging_freq': 0, 'boosting_type': 'gbdt', 'learning_rate': 0.13772517225636907, 'max_bin': 150, 'met
+ric': 'mae', 'min_data': 270, 'min_hessian': 0.6566060504172, 'num_boost_round': 200, 'num_leaves': 50, 'objective': 'regression', 'sub_feature': 0.03008666127016822, 'verbose': -1}}
+

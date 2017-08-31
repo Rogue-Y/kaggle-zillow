@@ -60,6 +60,14 @@ def boolean_has_garage_pool_or_ac(df):
     return (df['garagecarcnt']>0) & (df['pooltypeid10']>0) & (df['airconditioningtypeid']!=5)
 
 # Tax related
+def ratio_tax_value_to_structure_value(df):
+    #Ratio of the total value to structure
+    return df['taxvaluedollarcnt']/df['structuretaxvaluedollarcnt']
+
+def ratio_tax_value_to_land_tax_value(df):
+    #Ratio of the total value to land area
+    return df['taxvaluedollarcnt']/df['landtaxvaluedollarcnt']
+
 def ratio_structure_tax_value_to_land_tax_value(df):
     #Ratio of the built structure value to land area
     return df['structuretaxvaluedollarcnt']/df['landtaxvaluedollarcnt']
@@ -328,6 +336,7 @@ def geo_lat_lon_block_features(df, columns=None):
     lat_lon_block = pd.DataFrame()
 
     blocks = geo_lat_lon_block(df)
+    lat_lon_block['lat_lon_block'] = blocks
 
     values = df[columns]
     values['lat_lon_block'] = blocks

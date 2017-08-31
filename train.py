@@ -10,6 +10,7 @@
 
 import gc
 import datetime
+import os
 import sys
 from optparse import OptionParser
 
@@ -26,12 +27,12 @@ import config
 
 # Helper functions:
 def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
+    mean_train_error = Evaluator.mean_error(y_train, y_train_pred)
+    mean_valid_error = Evaluator.mean_error(y_valid, y_valid_pred)
     y_train = pd.Series(y_train)
     y_train_pred = pd.Series(y_train_pred)
     y_valid = pd.Series(y_valid)
     y_valid_pred = pd.Series(y_valid_pred)
-    mean_train_error = Evaluator.mean_error(y_train, y_train_pred)
-    mean_valid_error = Evaluator.mean_error(y_valid, y_valid_pred)
     train_recorder.write('Train error: ' + str(mean_train_error) + '\n')
     train_recorder.write('Validation error: ' + str(mean_valid_error) + '\n')
     train_recorder.write('\nTrain Stats \n')
@@ -41,29 +42,41 @@ def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
     train_recorder.write('Validation label stats: ' + y_valid.describe().to_string(float_format='{:.5f}'.format) + '\n')
     train_recorder.write('Validation predict stats: ' + y_valid_pred.describe().to_string(float_format='{:.5f}'.format) + '\n')
 
-def train(Model, model_params = None, feature_list=[], FOLDS = 5, record=False, submit=False,
+def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
+    feature_eng_pickle = 'data/feature_eng_pickle'
+    if not force_prepare and os.path.exists(feature_eng_pickle):
+        prop = pd.read_pickle(feature_eng_pickle)
+    else:
+        prop = utils.load_properties_data()
+        # use minimized version of properties data when memory is a concern
+        # prop = utils.load_properties_data_minimize()
+        # feature engineering
+        print('Feature engineering')
+        prop = feature_combine.feature_combine(
+            prop, feature_list, False, 'features/feature_pickles/')
+        print(prop.shape)
+        # for col in prop.columns:
+        #     print(col)
+
+        # fill nan, inf
+        # prop = data_clean.clean_boolean_data(prop)
+        # convert string value to boolean
+        # prop = data_clean.drop_low_ratio_columns(prop)
+        prop = data_clean.clean_boolean_data(prop)
+        # prop = data_clean.drop_categorical_data(prop)
+        prop = data_clean.cat2num(prop)
+        if save_pickle:
+            # Only save pickle when necessary, as this takes some time
+            prop.to_pickle(feature_eng_pickle)
+    print(prop.shape)
+    return prop
+
+def train(prop, Model, model_params = None, FOLDS = 5, record=False, submit=False,
     outliers_up_pct = 99, outliers_lw_pct = 1, resale_offset = 0.012):
     # Process:
     # load training data
     print('Load training data...')
-    train, prop = utils.load_train_data()
-
-    # feature engineering
-    print('Feature engineering')
-    prop = feature_combine.feature_combine(
-        prop, feature_list, False, 'features/feature_pickles/')
-    print(prop.shape)
-    # for col in prop.columns:
-    #     print(col)
-
-    # fill nan, inf
-    # prop = data_clean.clean_boolean_data(prop)
-    # convert string value to boolean
-    # prop = data_clean.drop_low_ratio_columns(prop)
-    prop = data_clean.clean_boolean_data(prop)
-    # prop = data_clean.drop_categorical_data(prop)
-    prop = data_clean.cat2num(prop)
-    print(prop.shape)
+    train = utils.load_transaction_data()
 
     # merge transaction and prop data
     df = train.merge(prop, how='left', on='parcelid')
@@ -147,7 +160,7 @@ def train(Model, model_params = None, feature_list=[], FOLDS = 5, record=False, 
 
     avg_cv_errors = np.mean(mean_errors)
     if record:
-        train_recorder.write("\nAverage cross validation mean error: %d\n" %avg_cv_errors)
+        train_recorder.write("\nAverage cross validation mean error: %f\n" %avg_cv_errors)
         train_recorder.close()
     print("average cross validation mean error", avg_cv_errors)
 
@@ -187,11 +200,6 @@ def train(Model, model_params = None, feature_list=[], FOLDS = 5, record=False, 
             'data/submissions/Submission_%s.csv' %time, index=False, float_format='%.4f')
 
     return avg_cv_errors
-
-# A wrapper of the above train funtion that takes a single dict param
-# for hyperopt use
-def train_wrapper(param_dict):
-    return train(**param_dict)
 
 if __name__ == '__main__':
     import time
@@ -233,7 +241,8 @@ if __name__ == '__main__':
     # resale offset
     resale_offset = config_dict['resale_offset'] if 'resale_offset' in config_dict else 0.012
 
-    train(Model=Model, model_params=model_params, feature_list=feature_list, FOLDS = FOLDS,
+    prop = prepare_features(feature_list)
+    train(prop=prop, Model=Model, model_params=model_params, FOLDS = FOLDS,
         record=record, submit=submit, outliers_up_pct=outliers_up_pct,
         outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset)
 
