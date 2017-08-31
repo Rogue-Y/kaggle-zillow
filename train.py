@@ -12,6 +12,7 @@ import gc
 import datetime
 import os
 import sys
+import time
 from optparse import OptionParser
 
 import numpy as np
@@ -71,15 +72,14 @@ def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
     print(prop.shape)
     return prop
 
-def train(prop, Model, model_params = None, FOLDS = 5, record=False, submit=False,
-    outliers_up_pct = 99, outliers_lw_pct = 1, resale_offset = 0.012):
+def prepare_training_data(prop):
     # Process:
     # load training data
     print('Load training data...')
-    train = utils.load_transaction_data()
+    train_df = utils.load_transaction_data()
 
     # merge transaction and prop data
-    df = train.merge(prop, how='left', on='parcelid')
+    df = train_df.merge(prop, how='left', on='parcelid')
     # df.to_csv('test_df.csv')
     # del train; gc.collect()
 
@@ -94,6 +94,13 @@ def train(prop, Model, model_params = None, FOLDS = 5, record=False, submit=Fals
     X_train_q4, y_train_q4 = utils.get_features_target(train_q4)
     del train_q1_q3; del train_q4; gc.collect()
 
+    return train_df, X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4
+
+def train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
+    Model, model_params = None, FOLDS = 5, record=False,
+    outliers_up_pct = 99, outliers_lw_pct = 1,
+    submit=False, prop = None, train = None, # if submit is true, than must provide train and prop
+    resale_offset = 0.012):
     # file handler used to record training
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if record:
@@ -201,8 +208,8 @@ def train(prop, Model, model_params = None, FOLDS = 5, record=False, submit=Fals
 
     return avg_cv_errors
 
+
 if __name__ == '__main__':
-    import time
     t1 = time.time()
     # Get configuration
     # parser to parse cmd line option
@@ -242,9 +249,18 @@ if __name__ == '__main__':
     resale_offset = config_dict['resale_offset'] if 'resale_offset' in config_dict else 0.012
 
     prop = prepare_features(feature_list)
-    train(prop=prop, Model=Model, model_params=model_params, FOLDS = FOLDS,
-        record=record, submit=submit, outliers_up_pct=outliers_up_pct,
-        outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset)
+    train_df, X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4 = prepare_training_data(prop)
+    if submit:
+        train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
+            prop=prop, train=train_df, Model=Model, model_params=model_params, FOLDS = FOLDS,
+            record=record, submit=True, outliers_up_pct=outliers_up_pct,
+            outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset)
+    else:
+        del train_df; del prop; gc.collect()
+        train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
+            Model=Model, model_params=model_params, FOLDS = FOLDS,
+            record=record, submit=False, outliers_up_pct=outliers_up_pct,
+            outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset)
 
     t2 = time.time()
     print((t2 - t1) / 60)

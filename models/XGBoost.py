@@ -6,14 +6,15 @@ class XGBoost():
         if model_params is None:
             model_params = {
                 'eta': 0.037,
-                'max_depth': 1,
+                'max_depth': 5,
                 'subsample': 0.80,
                 'objective': 'reg:linear',
                 'eval_metric': 'mae',
                 'lambda': 0.8,
                 'alpha': 0.4,
                 # 'base_score': y_mean,
-                'silent': 1
+                'silent': 1,
+                # 'booster': 'gblinear'
             }
         if train_params is None:
             train_params = {
