@@ -83,6 +83,9 @@ def train(prop, Model, model_params = None, FOLDS = 5, record=False, submit=Fals
     # df.to_csv('test_df.csv')
     # del train; gc.collect()
 
+    #TODO: Configurize processing nan for different columns
+    df = data_clean.clean_strange_value(df)
+
     # split by date
     train_q1_q3, train_q4 = utils.split_by_date(df)
     # train_q4.to_csv('test_train_q4.csv')
