@@ -2,14 +2,17 @@
 # TODO(hzn):
 #   1. data clean step, like drop low ratio columns, fill nan in the original prop;
 #   2. training data proprocessing
-#  *3. model wrapper, model parameter tuning
+#   3. model wrapper, model parameter tuning
 #   4. notebook api
 #   5. output training records
-#   6. write code to automatically add feature and see how it works
+#   6. write code to automatically add feature and see how it works: not working
 #   7. move configuration to a standalone file, and read it from cmd line
+#  *8. add ensembler, how to better preseve predict result and their timestamp,
+#       so that: 1. it's easy for ensembler to identify them; 2, they can be
+#               associated with other record like training record.
 
-import gc
 import datetime
+import gc
 import os
 import sys
 import time
@@ -17,14 +20,13 @@ from optparse import OptionParser
 
 import numpy as np
 import pandas as pd
-
 from sklearn.model_selection import KFold
 
+import config
+from evaluator import Evaluator
 from features import utils
 from features import feature_combine
 from features import data_clean
-from evaluator import Evaluator
-import config
 
 # Helper functions:
 def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
@@ -197,14 +199,21 @@ def train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
         predict = predict_df['predict'].where(
             predict_df['logerror'].isnull(), predict_df['predict'] + resale_offset)
 
-        # generate submission
-        print("generating submission...")
-        for c in sample.columns[sample.columns != 'ParcelId']:
-            # sample[c] = avg_pred
-            sample[c] = predict.as_matrix()
-        # time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        sample.to_csv(
-            'data/submissions/Submission_%s.csv' %time, index=False, float_format='%.4f')
+        # Save prediction(a Series object) to a pickle for ensembling use
+        # Save one in history
+        predict.to_pickle('data/predictions/history/%s_%s_pickle' %(time, Model.__name__))
+        # Update the most recent pickle for this model
+        predict.to_pickle('data/predictions/%s_latest_pickle' %Model.__name__)
+        print("Prediction made.")
+
+        # # generate submission
+        # print("generating submission...")
+        # for c in sample.columns[sample.columns != 'ParcelId']:
+        #     # sample[c] = avg_pred
+        #     sample[c] = predict.as_matrix()
+        # # time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # sample.to_csv(
+        #     'data/submissions/Submission_%s.csv' %time, index=False, float_format='%.4f')
 
     return avg_cv_errors
 

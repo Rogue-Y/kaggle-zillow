@@ -47,3 +47,37 @@ o_land_tax_value_pickle', False), ('ratio_tax', <function ratio_tax at 0x7f4a149
 al_rooms_pickle', False)), 'model_params': {'bagging_fraction': 0.6589658864509478, 'bagging_freq': 0, 'boosting_type': 'gbdt', 'learning_rate': 0.13772517225636907, 'max_bin': 150, 'met
 ric': 'mae', 'min_data': 270, 'min_hessian': 0.6566060504172, 'num_boost_round': 200, 'num_leaves': 50, 'objective': 'regression', 'sub_feature': 0.03008666127016822, 'verbose': -1}}
 
+
+
+xgboost: cv 0.0647672681377, plb 0.0644724
+
+features:
+('geo_neighborhood', geo_neighborhood, {}, 'geo_neighborhood_pickle', False),
+('geo_zip', geo_zip, {}, 'geo_zip_pickle', False),
+('ratio_structure_tax_value_to_land_tax_value', ratio_structure_tax_value_to_land_tax_value, {}, 'ratio_structure_tax_value_to_land_tax_value_pickle', False),
+('ratio_tax_value_to_structure_value', ratio_tax_value_to_structure_value, {}, 'ratio_tax_value_to_structure_value_pickle', False),
+('ratio_tax_value_to_land_tax_value', ratio_tax_value_to_land_tax_value, {}, 'ratio_tax_value_to_land_tax_value_pickle', False),
+
+'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
+    #     'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
+    #     'eval_metric': 'mae', 'gamma': 8.249459830776771e-05, 'lambda': 0.6,
+    #     'max_depth': 4, 'min_child_weight': 0.9055707037083442,
+    #     'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
+    # 'outliers_lw_pct': 2,
+    # 'outliers_up_pct': 98
+
+
+lightgbm: cv 0.0646702326023, plb 0.0644824
+
+features:
+('geo_neighborhood', geo_neighborhood, {}, 'geo_neighborhood_pickle', False),
+('geo_zip', geo_zip, {}, 'geo_zip_pickle', False),
+('ratio_structure_tax_value_to_land_tax_value', ratio_structure_tax_value_to_land_tax_value, {}, 'ratio_structure_tax_value_to_land_tax_value_pickle', False),
+('ratio_tax_value_to_structure_value', ratio_tax_value_to_structure_value, {}, 'ratio_tax_value_to_structure_value_pickle', False),
+('ratio_tax_value_to_land_tax_value', ratio_tax_value_to_land_tax_value, {}, 'ratio_tax_value_to_land_tax_value_pickle', False),
+
+'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.012923556870735842,
+        'metric': 'mse', 'min_data': 200, 'min_hessian': 0.232705809294419,
+        'num_boost_round': 500, 'num_leaves': 30, 'objective': 'regression',
+        'sub_feature': 0.1596488603529622, 'verbose': -1},
+

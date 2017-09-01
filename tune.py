@@ -1,3 +1,9 @@
+# Parameter tuning for single model
+# TODO(hzn):
+#   *1. better record the tuning process, record each trial
+#   *2. better record the useful parameter, features it uses, cv and public lb scores
+#   *3. feature selection
+
 from hyperopt import hp, fmin, tpe, space_eval
 
 from config import test_config
@@ -37,7 +43,7 @@ space_xgb = {
         'colsample_bylevel': hp.choice('colsample_bylevel', [x/10 for x in range(3, 8)]),
         'lambda': hp.choice('lambda', [x/10 for x in range(3, 8)]),
         'alpha': hp.choice('alpha', [x/10 for x in range(3, 8)]),
-        'objective': 'reg:linear',
+        'objective': 'reg:linear', 
         'eval_metric': hp.choice('eval_metric', ['mae', 'rmse']),
         # 'base_score': y_mean,
         # 'booster': 'gblinear',

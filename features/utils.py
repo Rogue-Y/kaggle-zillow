@@ -45,6 +45,8 @@ def load_properties_data(data_folder='data/', force_read=False):
         prop = pd.read_pickle(prop_data_pickle)
     else:
         prop = pd.read_csv(data_folder + 'properties_2016.csv')
+        # Fill missing geo data a little bit
+        prop = preprocess_geo(prop)
         # Convert float64 to float32 to save memory
         for col in prop.columns:
             if prop[col].dtype == 'float64':
@@ -64,9 +66,46 @@ def load_properties_data_minimize(data_folder='data/', force_read=False):
         prop = pd.read_pickle(prop_data_pickle)
     else:
         prop = pd.read_csv(data_folder + 'properties_2016.csv')
+        # Fill missing geo data a little bit
+        prop = preprocess_geo(prop)
         # Convert float64 to float32 to save memory
         prop, na_list = reduce_mem_usage(prop)
         prop.to_pickle(prop_data_pickle)
+    return prop
+
+def preprocess_geo(prop):
+    """ Preprocess data, fill some missing regionidcity, zip and neighborhood
+        from existing data.
+        Returns:
+            properties_df
+    """
+    geo = prop[["latitude", "longitude", "fips", "regionidcounty", "regionidcity",
+        "regionidzip", "regionidneighborhood"]].copy()
+    geo['missing'] = geo.isnull().sum(axis=1)
+    geo_complete = geo[geo['missing'] == 0].copy()
+    # TODO(hzn): the way this join key works depend on how the latitude and longitude
+    # are convert to strings, in the float32 case, the key looks like:
+    # 3.41444e+07-1.18654e+08
+    # This means, every points in the square of (34.144400, -118.654000) and
+    # (34.144499, -118.654999) will be redeemed as the same location.
+    # The diagonal of such grouping is around 100m, which is reasonable to me,
+    # but it somehow hurt the validation performance of the two models we have
+    # a little bit. Therefore, more observations/experiements are needed.
+    # On the other hand, in the float64 case, the join_key is formed with exact
+    # lat/lon number: 34144442.0-118654084.0
+    # so only exact same location are joined (probably two parcels in the same
+    # building).
+    # This one seems benefit lightgbm a little bit while hurt xgboost. Those changes
+    # Could all due to the parameters is not optimal. 
+    # Besides filling missing geo, this is also an interesting feature
+    # to investigate.
+    geo['join_key'] = geo['latitude'].astype(str) + geo['longitude'].astype(str)
+    geo_complete['join_key'] = geo_complete['latitude'].astype(str) + geo_complete['longitude'].astype(str)
+    geo_complete = geo_complete.drop_duplicates('join_key').set_index('join_key')
+    geo_join = geo.join(geo_complete, 'join_key', 'left', rsuffix = '_r')
+    cols = ["regionidcity", "regionidzip", "regionidneighborhood"]
+    for col in cols:
+        prop[col] = geo_join[col].where(geo_join[col].notnull(), geo_join[col+'_r'])
     return prop
 
 def load_test_data(data_folder='data/', force_read=False):
