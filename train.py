@@ -74,7 +74,7 @@ def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
     print(prop.shape)
     return prop
 
-def prepare_training_data(prop):
+def prepare_training_data(prop, clean_na = False):
     # Process:
     # load training data
     print('Load training data...')
@@ -84,6 +84,10 @@ def prepare_training_data(prop):
     df = train_df.merge(prop, how='left', on='parcelid')
     # df.to_csv('test_df.csv')
     # del train; gc.collect()
+
+    if clean_na:
+        #TODO: Configurize processing nan for different columns
+        df = data_clean.clean_strange_value(df)
 
     # split by date
     train_q1_q3, train_q4 = utils.split_by_date(df)

@@ -105,3 +105,6 @@ data/
 features/feature_pickles/
 *.csv
 *.txt
+
+# iod
+.idea/
