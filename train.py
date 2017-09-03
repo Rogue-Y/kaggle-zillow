@@ -54,6 +54,16 @@ def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
         # use minimized version of properties data when memory is a concern
         # prop = utils.load_properties_data_minimize()
         # feature engineering
+
+        # prepare target feature
+        # TODO: control
+        train_df = utils.load_transaction_data()
+        df = train_df.merge(prop, how='left', on='parcelid')
+        utils.aggregate_by_region(df, 'regionidneighborhood')
+        utils.aggregate_by_region(df, 'regionidzip')
+        utils.aggregate_by_region(df, 'regionidcity')
+        utils.aggregate_by_region(df, 'regionidcounty')
+
         print('Feature engineering')
         prop = feature_combine.feature_combine(
             prop, feature_list, False, 'features/feature_pickles/')
@@ -264,6 +274,7 @@ if __name__ == '__main__':
     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
 
     prop = prepare_features(feature_list)
+
     train_df, X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4 = prepare_training_data(prop, clean_na)
     if submit:
         train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,

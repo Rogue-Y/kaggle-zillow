@@ -1,9 +1,11 @@
+from collections import defaultdict
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 
 import json
 import os
+import pickle
 
 # utility functions
 def plot_score(y, y_hat):
@@ -312,3 +314,21 @@ def reduce_mem_usage(props):
     print("Memory usage is: ",mem_usg," MB")
     print("This is ",100*mem_usg/start_mem_usg,"% of the initial size")
     return props, NAlist
+
+def dump_aux(obj, name):
+    folder = 'features/aux_pickles'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    pickle.dump(obj, open(os.path.join(folder, '%s.pickle' % name), 'wb'))
+
+def read_aux(name):
+    folder =  'features/aux_pickles'
+    return pickle.load(open(os.path.join(folder, '%s.pickle' % name), 'rb'))
+
+
+def aggregate_by_region(df, id_name, column='logerror'):
+    region_dict = (df[[id_name, column]].groupby(id_name)
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+    default_value_dict=df[[column]].agg(['max', 'min', 'std', 'mean']).to_dict()[column]
+    region_dict['default'] = default_value_dict
+    dump_aux(region_dict, '%s_%s' % (column, id_name))

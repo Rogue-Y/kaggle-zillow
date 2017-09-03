@@ -2,8 +2,10 @@
 # TODO(hzn):
 #   1. split out the columns in the original prop dataframe as single feature too;
 #   2. add transformer for features, like fill nan, inf; normalization;
+from collections import defaultdict
 
 import pandas as pd
+from .utils import *
 import numpy as np
 import math
 from sklearn.preprocessing import LabelEncoder
@@ -601,3 +603,17 @@ def feature_crossing(df, cross_list=[]):
         cross_features(df, *feature_tuple)
 
     return df
+
+def target_region_feature(df, id_name, column='logerror'):
+    region_dict_name = '%s_%s' % (column, id_name)
+    region_dict = read_aux(region_dict_name)
+    default_value_dict = region_dict['default']
+    # TODO: default value
+    del region_dict['default']
+    stats = [item[1] for item in region_dict.keys()]
+    newdf = pd.DataFrame()
+    for stat in stats:
+        newdf[column + '_' + id_name + '_' + stat] = df[id_name].map(region_dict[column, stat])
+    print(list(newdf))
+    # TODO: division and crossing between features
+    return newdf
