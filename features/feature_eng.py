@@ -27,14 +27,45 @@ def built_before_year(df, year=1900):
 
 # TODO(hzn): investigate data leakage in these new features
 # From https://www.kaggle.com/nikunjm88/creating-additional-features
+# and https://www.kaggle.com/lauracozma/eda-data-cleaning-feature-engineering
 def error_rate_calculated_finished_living_sqft(df):
     # error in calculation of the finished living area of home
     # this 2 values has correlation 1
     return df['calculatedfinishedsquarefeet']/df['finishedsquarefeet12']
 
+def error_rate_first_floor_living_sqft(df):
+    return df['finishedsquarefeet50']/df['finishedfloor1squarefeet']
+
+def error_rate_bathroom(df):
+    return df['calculatedbathnbr']/df['bathroomcnt']
+
+def error_rate_count_bathroom(df):
+    return (df['threequarterbathnbr'] + df['fullbathcnt'])/df['bathroomcnt']
+
 def ratio_living_area(df):
     #proportion of living area
     return df['calculatedfinishedsquarefeet']/df['lotsizesquarefeet']
+
+def ratio_living_area_2(df):
+    return df['finishedsquarefeet12']/df['finishedsquarefeet15']
+
+def ratio_bedroom_bathroom(df):
+    return df['bedroomcnt']/df['bathroomcnt']
+
+def ratio_basement(df):
+    return df['basementsqft']/df['finishedsquarefeet12']
+
+def ratio_pool_yard(df):
+    return df['poolsizesum']/df['yardbuildingsqft17']
+
+def ratio_pool_shed(df):
+    return df['yardbuildingsqft26']/df['yardbuildingsqft17']
+
+def ratio_floor_shape(df):
+    return df['finishedsquarefeet13']/df['calculatedfinishedsquarefeet']
+
+def ratio_fireplace(df):
+    return df['fireplacecnt']/df['finishedsquarefeet15']
 
 def extra_space(df):
     #Amout of extra space
@@ -48,6 +79,18 @@ def average_room_size(df):
     #Average room size
     total = total_rooms(df)
     return df['calculatedfinishedsquarefeet']/total
+
+def average_room_size_2(df):
+    return df['calculatedfinishedsquarefeet']/df['roomcnt']
+
+def average_bathroom_size(df):
+    return df['finishedsquarefeet12']/df['bathroomcnt']
+
+def average_bedroom_size(df):
+    return df['finishedsquarefeet12']/df['bedroomcnt']
+
+def average_pool_size(df):
+    return df['poolsizesum']/df['poolcnt']
 
 def extra_rooms(df):
     # Number of Extra rooms
@@ -216,83 +259,83 @@ def geo_county(df, columns=None):
 
     return county
 
-def geo_neighborhood_tax_value(df):
-    neighborhood_df = pd.DataFrame()
-    #Number of properties in the neighborhood
-    neighborhood_count = df['regionidneighborhood'].value_counts().to_dict()
-    neighborhood_df['neighborhood_count'] = df['regionidneighborhood'].map(neighborhood_count)
+# def geo_neighborhood_tax_value(df):
+#     neighborhood_df = pd.DataFrame()
+#     #Number of properties in the neighborhood
+#     neighborhood_count = df['regionidneighborhood'].value_counts().to_dict()
+#     neighborhood_df['neighborhood_count'] = df['regionidneighborhood'].map(neighborhood_count)
 
-    # stats of value estimate of properties grouped by neighborhood
-    neighborhood_dict = (df[['regionidneighborhood', 'taxvaluedollarcnt']].groupby('regionidneighborhood')
-        .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
+#     # stats of value estimate of properties grouped by neighborhood
+#     neighborhood_dict = (df[['regionidneighborhood', 'taxvaluedollarcnt']].groupby('regionidneighborhood')
+#         .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
 
-    neighborhood_df['neighborhood_value_mean'] = df['regionidneighborhood'].map(neighborhood_dict['mean'])
-    neighborhood_df['neighborhood_value_std'] = df['regionidneighborhood'].map(neighborhood_dict['std'])
-    neighborhood_df['neighborhood_value_max'] = df['regionidneighborhood'].map(neighborhood_dict['max'])
-    neighborhood_df['neighborhood_value_min'] = df['regionidneighborhood'].map(neighborhood_dict['min'])
-    neighborhood_df['neighborhood_value_range'] = neighborhood_df['neighborhood_value_max'] - neighborhood_df['neighborhood_value_min']
+#     neighborhood_df['neighborhood_value_mean'] = df['regionidneighborhood'].map(neighborhood_dict['mean'])
+#     neighborhood_df['neighborhood_value_std'] = df['regionidneighborhood'].map(neighborhood_dict['std'])
+#     neighborhood_df['neighborhood_value_max'] = df['regionidneighborhood'].map(neighborhood_dict['max'])
+#     neighborhood_df['neighborhood_value_min'] = df['regionidneighborhood'].map(neighborhood_dict['min'])
+#     neighborhood_df['neighborhood_value_range'] = neighborhood_df['neighborhood_value_max'] - neighborhood_df['neighborhood_value_min']
 
-    return neighborhood_df
+#     return neighborhood_df
 
-def geo_neighborhood_tax_value_ratio_mean(df):
-    neighborhood_df = geo_neighborhood_tax_value(df)
-    return df['taxvaluedollarcnt'] / neighborhood_df['neighborhood_value_mean']
+# def geo_neighborhood_tax_value_ratio_mean(df):
+#     neighborhood_df = geo_neighborhood_tax_value(df)
+#     return df['taxvaluedollarcnt'] / neighborhood_df['neighborhood_value_mean']
 
-def geo_zip_tax_value(df):
-    zip_df = pd.DataFrame()
-    #Number of properties in the zip
-    zip_count = df['regionidzip'].value_counts().to_dict()
-    zip_df['zip_count'] = df['regionidzip'].map(zip_count)
+# def geo_zip_tax_value(df):
+#     zip_df = pd.DataFrame()
+#     #Number of properties in the zip
+#     zip_count = df['regionidzip'].value_counts().to_dict()
+#     zip_df['zip_count'] = df['regionidzip'].map(zip_count)
 
-    # stats of value estimate of properties grouped by zip
-    zip_dict = (df[['regionidzip', 'taxvaluedollarcnt']].groupby('regionidzip')
-        .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
+#     # stats of value estimate of properties grouped by zip
+#     zip_dict = (df[['regionidzip', 'taxvaluedollarcnt']].groupby('regionidzip')
+#         .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
 
-    zip_df['zip_value_mean'] = df['regionidzip'].map(zip_dict['mean'])
-    zip_df['zip_value_std'] = df['regionidzip'].map(zip_dict['std'])
-    zip_df['zip_value_max'] = df['regionidzip'].map(zip_dict['max'])
-    zip_df['zip_value_min'] = df['regionidzip'].map(zip_dict['min'])
-    zip_df['zip_value_range'] = zip_df['zip_value_max'] - zip_df['zip_value_min']
+#     zip_df['zip_value_mean'] = df['regionidzip'].map(zip_dict['mean'])
+#     zip_df['zip_value_std'] = df['regionidzip'].map(zip_dict['std'])
+#     zip_df['zip_value_max'] = df['regionidzip'].map(zip_dict['max'])
+#     zip_df['zip_value_min'] = df['regionidzip'].map(zip_dict['min'])
+#     zip_df['zip_value_range'] = zip_df['zip_value_max'] - zip_df['zip_value_min']
 
-    return zip_df
+#     return zip_df
 
-def geo_city_tax_value(df):
-    city = pd.DataFrame()
-    #Number of properties in the city
-    city_count = df['regionidcity'].value_counts().to_dict()
-    city['city_count'] = df['regionidcity'].map(city_count)
+# def geo_city_tax_value(df):
+#     city = pd.DataFrame()
+#     #Number of properties in the city
+#     city_count = df['regionidcity'].value_counts().to_dict()
+#     city['city_count'] = df['regionidcity'].map(city_count)
 
-    # stats of value estimate of properties grouped by city
-    city_dict = (df[['regionidcity', 'taxvaluedollarcnt']].groupby('regionidcity')
-        .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
+#     # stats of value estimate of properties grouped by city
+#     city_dict = (df[['regionidcity', 'taxvaluedollarcnt']].groupby('regionidcity')
+#         .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
 
-    city['city_value_mean'] = df['regionidcity'].map(city_dict['mean'])
-    city['city_value_std'] = df['regionidcity'].map(city_dict['std'])
-    city['city_value_max'] = df['regionidcity'].map(city_dict['max'])
-    city['city_value_min'] = df['regionidcity'].map(city_dict['min'])
-    city['city_value_range'] = city['city_value_max'] - city['city_value_min']
+#     city['city_value_mean'] = df['regionidcity'].map(city_dict['mean'])
+#     city['city_value_std'] = df['regionidcity'].map(city_dict['std'])
+#     city['city_value_max'] = df['regionidcity'].map(city_dict['max'])
+#     city['city_value_min'] = df['regionidcity'].map(city_dict['min'])
+#     city['city_value_range'] = city['city_value_max'] - city['city_value_min']
 
-    return city
+#     return city
 
-def geo_region_tax_value(df):
-    region = pd.DataFrame()
-    #Number of properties in the county
-    region_count = df['regionidcounty'].value_counts().to_dict()
-    region['county_count'] = df['regionidcounty'].map(region_count)
+# def geo_region_tax_value(df):
+#     region = pd.DataFrame()
+#     #Number of properties in the county
+#     region_count = df['regionidcounty'].value_counts().to_dict()
+#     region['county_count'] = df['regionidcounty'].map(region_count)
 
-    # stats of value estimate of properties grouped by county
-    county_dict = (df[['regionidcounty', 'taxvaluedollarcnt']].groupby('regionidcounty')
-        .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
+#     # stats of value estimate of properties grouped by county
+#     county_dict = (df[['regionidcounty', 'taxvaluedollarcnt']].groupby('regionidcounty')
+#         .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
 
-    region['county_value_mean'] = df['regionidcounty'].map(county_dict['mean'])
-    region['county_value_std'] = df['regionidcounty'].map(county_dict['std'])
-    region['county_value_max'] = df['regionidcounty'].map(county_dict['max'])
-    region['county_value_min'] = df['regionidcounty'].map(county_dict['min'])
-    region['county_value_range'] = region['county_value_max'] - region['county_value_min']
+#     region['county_value_mean'] = df['regionidcounty'].map(county_dict['mean'])
+#     region['county_value_std'] = df['regionidcounty'].map(county_dict['std'])
+#     region['county_value_max'] = df['regionidcounty'].map(county_dict['max'])
+#     region['county_value_min'] = df['regionidcounty'].map(county_dict['min'])
+#     region['county_value_range'] = region['county_value_max'] - region['county_value_min']
 
-    return region
+#     return region
 
-def geo_lat_lon_block(df):
+def geo_lat_lon_block_helper(df):
     # Latitude, longitude blocks
     lat_bins = pd.cut(df['latitude'], 10, labels=False)
     lat_bins = labelEncoder.fit_transform(lat_bins)
@@ -300,28 +343,28 @@ def geo_lat_lon_block(df):
     lon_bins = labelEncoder.fit_transform(lon_bins)
     return pd.Series(lat_bins * 10 + lon_bins, name='lat_lon_block')
 
-def geo_lat_lon_block_tax_value(df):
-    lat_lon_block = pd.DataFrame()
+# def geo_lat_lon_block_tax_value(df):
+#     lat_lon_block = pd.DataFrame()
 
-    blocks = geo_lat_lon_block(df)
+#     blocks = geo_lat_lon_block_helper(df)
 
-    #Number of properties in the lat_lon_block
-    lat_lon_block_count = blocks.value_counts().to_dict()
-    lat_lon_block['lat_lon_block_count'] = blocks.map(lat_lon_block_count)
+#     #Number of properties in the lat_lon_block
+#     lat_lon_block_count = blocks.value_counts().to_dict()
+#     lat_lon_block['lat_lon_block_count'] = blocks.map(lat_lon_block_count)
 
-    # stats of value estimate of properties grouped by lat_lon_block
-    lat_lon_block_tax_value_df = pd.DataFrame(
-        {'lat_lon_block': blocks, 'taxvaluedollarcnt': df['taxvaluedollarcnt']})
-    lat_lon_block_dict = (lat_lon_block_tax_value_df.groupby('lat_lon_block')
-        .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
+#     # stats of value estimate of properties grouped by lat_lon_block
+#     lat_lon_block_tax_value_df = pd.DataFrame(
+#         {'lat_lon_block': blocks, 'taxvaluedollarcnt': df['taxvaluedollarcnt']})
+#     lat_lon_block_dict = (lat_lon_block_tax_value_df.groupby('lat_lon_block')
+#         .agg(['max', 'min', 'std', 'mean'])['taxvaluedollarcnt'].to_dict())
 
-    lat_lon_block['lat_lon_block_value_mean'] = blocks.map(lat_lon_block_dict['mean'])
-    lat_lon_block['lat_lon_block_value_std'] = blocks.map(lat_lon_block_dict['std'])
-    lat_lon_block['lat_lon_block_value_max'] = blocks.map(lat_lon_block_dict['max'])
-    lat_lon_block['lat_lon_block_value_min'] = blocks.map(lat_lon_block_dict['min'])
-    lat_lon_block['lat_lon_block_value_range'] = lat_lon_block['lat_lon_block_value_max'] - lat_lon_block['lat_lon_block_value_min']
+#     lat_lon_block['lat_lon_block_value_mean'] = blocks.map(lat_lon_block_dict['mean'])
+#     lat_lon_block['lat_lon_block_value_std'] = blocks.map(lat_lon_block_dict['std'])
+#     lat_lon_block['lat_lon_block_value_max'] = blocks.map(lat_lon_block_dict['max'])
+#     lat_lon_block['lat_lon_block_value_min'] = blocks.map(lat_lon_block_dict['min'])
+#     lat_lon_block['lat_lon_block_value_range'] = lat_lon_block['lat_lon_block_value_max'] - lat_lon_block['lat_lon_block_value_min']
 
-    return lat_lon_block
+#     return lat_lon_block
 
 def geo_lat_lon_block_features(df, columns=None):
     if columns is None:
@@ -335,7 +378,7 @@ def geo_lat_lon_block_features(df, columns=None):
             'taxvaluedollarcnt']
     lat_lon_block = pd.DataFrame()
 
-    blocks = geo_lat_lon_block(df)
+    blocks = geo_lat_lon_block_helper(df)
     lat_lon_block['lat_lon_block'] = blocks
 
     values = df[columns]
@@ -358,15 +401,15 @@ def geo_lat_lon_block_features(df, columns=None):
     return lat_lon_block
 
 
-def geo_city_structure_tax_value(df):
-    #Average structuretaxvaluedollarcnt by city
-    group = df.groupby('regionidcity')['structuretaxvaluedollarcnt'].aggregate('mean').to_dict()
-    return df['regionidcity'].map(group)
+# def geo_city_structure_tax_value(df):
+#     #Average structuretaxvaluedollarcnt by city
+#     group = df.groupby('regionidcity')['structuretaxvaluedollarcnt'].aggregate('mean').to_dict()
+#     return df['regionidcity'].map(group)
 
-def deviation_from_avg_structure_tax_value(df):
-    #Deviation away from average
-    avg_structure_tax_value = geo_city_structure_tax_value(df)
-    return abs(df['structuretaxvaluedollarcnt'] - avg_structure_tax_value) / avg_structure_tax_value
+# def deviation_from_avg_structure_tax_value(df):
+#     #Deviation away from average
+#     avg_structure_tax_value = geo_city_structure_tax_value(df)
+#     return abs(df['structuretaxvaluedollarcnt'] - avg_structure_tax_value) / avg_structure_tax_value
 
 # others
 def boolean_has_ac(df):
@@ -377,7 +420,7 @@ def boolean_has_heat(df):
     return df['heatingorsystemtypeid']!=13
 
 # categories
-def category_land_use_type(df):
+def category_land_use_type_helper(df):
     #There's 25 different property uses - let's compress them down to 4 categories
     land_use_types = df['propertylandusetypeid'].replace({
         31 : "Mixed", 46 : "Other", 47 : "Mixed", 246 : "Mixed", 247 : "Mixed",
@@ -389,10 +432,10 @@ def category_land_use_type(df):
     return land_use_types.replace({"Mixed": 0, "Home": 1, "Not Built": 2, "Other": 3})
 
 def category_land_use_type_encode(df):
-    return pd.Series(labelEncoder.fit_transform(category_land_use_type(df)))
+    return pd.Series(labelEncoder.fit_transform(category_land_use_type_helper(df)))
 
 def category_land_use_type_one_hot(df):
-    return pd.get_dummies(category_land_use_type(df), prefix='land_use_type')
+    return pd.get_dummies(category_land_use_type_helper(df), prefix='land_use_type')
 
 def category_ac_type_encode(df):
     return pd.Series(labelEncoder.fit_transform(df['airconditioningtypeid']))
@@ -412,29 +455,29 @@ def category_heating_type_encode(df):
 def category_heating_type_one_hot(df):
     return pd.get_dummies(df['heatingorsystemtypeid'])
 
-def category_land_use_code(df):
+def category_land_use_code_helper(df):
     land_use_code_threshold = 50000
     luc_vc = df['propertycountylandusecode'].value_counts()
     land_use_code = df['propertycountylandusecode'].mask(df['propertycountylandusecode'].map(luc_vc) < land_use_code_threshold, 'others')
     return land_use_code.astype('str')
 
 def category_land_use_code_encode(df):
-    return pd.Series(labelEncoder.fit_transform(category_land_use_code(df)))
+    return pd.Series(labelEncoder.fit_transform(category_land_use_code_helper(df)))
 
 def category_land_use_code_one_hot(df):
-    return pd.get_dummies(category_land_use_code(df))
+    return pd.get_dummies(category_land_use_code_helper(df))
 
-def category_land_use_desc(df):
+def category_land_use_desc_helper(df):
     land_use_desc_threshold = 10000
     lud_vc = df['propertyzoningdesc'].value_counts()
     land_use_desc = df['propertyzoningdesc'].mask(df['propertyzoningdesc'].map(lud_vc) < land_use_desc_threshold, 'others')
     return land_use_desc.astype('str')
 
 def category_land_use_desc_encode(df):
-    return pd.Series(labelEncoder.fit_transform(category_land_use_desc(df)))
+    return pd.Series(labelEncoder.fit_transform(category_land_use_desc_helper(df)))
 
 def category_land_use_desc_one_hot(df):
-    return pd.get_dummies(category_land_use_desc(df))
+    return pd.get_dummies(category_land_use_desc_helper(df))
 
 #polnomials of the variable
 def poly_2_structure_tax_value(df):

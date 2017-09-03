@@ -30,8 +30,7 @@ class Lightgbm():
     def fit(self, X_train, y_train):
 
         d_train = lgb.Dataset(X_train, label=y_train)
-        self.model = lgb.train(self.model_params, d_train,
-            num_boost_round=self.model_params['num_boost_round'])
+        self.model = lgb.train(self.model_params, d_train)
 
     def predict(self, X):
         """ Predict on the given X, need to call fit first

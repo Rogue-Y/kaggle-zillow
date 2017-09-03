@@ -13,7 +13,7 @@ def list_features(feature_module):
     functions = inspect.getmembers(feature_module, lambda x: callable(x))
     for name, function in functions:
         name_lower = name.lower()
-        if 'bin' in name_lower or 'cross' in name_lower or 'encoder' in name_lower:
+        if 'bin' in name_lower or 'cross' in name_lower or 'encoder' in name_lower or 'helper' in name_lower:
             continue
         feature_list.append(name)
     with open('feature_list.txt', 'w') as feature_list_handler:

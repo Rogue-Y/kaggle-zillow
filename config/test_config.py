@@ -17,7 +17,7 @@ from models import XGBoost, Lightgbm, RFRegressor
 # Model = XGBoost.XGBoost
 # Model = Lightgbm.Lightgbm_sklearn
 # Model = Lightgbm.Lightgbm
-Model = RFRegressor
+Model = RFRegressor.RFRegressor
 
 
 submit = False
@@ -40,7 +40,8 @@ test_config = {
     #     'sub_feature': 0.06638755200543586, 'verbose': -1},
     # rf parameters
     'model_params': {'max_features': 0.2, 'max_leaf_nodes': None,
-            'min_samples_leaf': 70, 'n_estimators': 90},
+            'min_samples_leaf': 70, 'n_estimators': 50},
+    'clean_na': True,
     'submit': submit,
     'record': record,
     # Best xgboost with 5 added features: 0647672681377

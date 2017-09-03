@@ -260,9 +260,11 @@ if __name__ == '__main__':
     outliers_lw_pct = config_dict['outliers_lw_pct'] if 'outliers_lw_pct' in config_dict else 1
     # resale offset
     resale_offset = config_dict['resale_offset'] if 'resale_offset' in config_dict else 0.012
+    # clean_na
+    clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
 
     prop = prepare_features(feature_list)
-    train_df, X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4 = prepare_training_data(prop)
+    train_df, X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4 = prepare_training_data(prop, clean_na)
     if submit:
         train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
             prop=prop, train=train_df, Model=Model, model_params=model_params, FOLDS = FOLDS,
