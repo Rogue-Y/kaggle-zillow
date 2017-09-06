@@ -20,7 +20,7 @@ Model = XGBoost.XGBoost
 # Model = RFRegressor.RFRegressor
 
 
-submit = True
+submit = False
 
 record = False
 
@@ -62,6 +62,7 @@ test_config = {
     # 'outliers_lw_pct': 4, 'outliers_up_pct': 96
 
     # xgboost with almost all features + precise geo filling: cv 0.0646354220721, lb: 0.0643522
+    # same parameter with 5 features + target features + precise geo filling: cv 0.0645577144428, lb: 0.0643933
     'model_params': { 'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7,
         'eta': 0.08383948785330207, 'eval_metric': 'rmse', 'gamma': 0.001115761304103735,
         'lambda': 0.4, 'max_depth': 4, 'min_child_weight': 4.092393060805701, 'subsample': 0.6},
