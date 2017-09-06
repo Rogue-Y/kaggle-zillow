@@ -94,7 +94,8 @@ for Model, feature_list, parameter_space, max_evals, exp_params in experiments:
         return {
             'loss': loss,
             'status': STATUS_OK,
-            'eval_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            'eval_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'params': params
         }
 
     trials = Trials()

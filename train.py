@@ -168,7 +168,11 @@ def train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
         # Predict on testing data if needed to generate submission
         if submit:
             print('predicting on testing data...')
-            model_preds.append(model.predict(df_test))
+            test_preds = []
+            # Split testing dataframe 
+            for df_test_split in np.array_split(df_test, 30):
+                test_preds.append(model.predict(df_test_split))
+            model_preds.append(np.concatenate(test_preds))
         print("--------------------------------------------------------")
 
     avg_cv_errors = np.mean(mean_errors)

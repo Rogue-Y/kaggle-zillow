@@ -14,18 +14,18 @@ feature_list = test_feature_list.feature_list
 
 # model
 from models import XGBoost, Lightgbm, RFRegressor
-# Model = XGBoost.XGBoost
+Model = XGBoost.XGBoost
 # Model = Lightgbm.Lightgbm_sklearn
 # Model = Lightgbm.Lightgbm
-Model = RFRegressor.RFRegressor
+# Model = RFRegressor.RFRegressor
 
 
-submit = False
+submit = True
 
 record = False
 
 test_config = {
-    'folds': 5,
+    'folds': FOLDS,
     'feature_list': feature_list,
     'model': Model,
     # Best lightgbm param with geo_neighborhood and geo_zip, 0.0646722050526
@@ -39,12 +39,12 @@ test_config = {
     #     'num_boost_round': 300, 'num_leaves': 70, 'objective': 'regression_l1',
     #     'sub_feature': 0.06638755200543586, 'verbose': -1},
     # rf parameters
-    'model_params': {'max_features': 0.2, 'max_leaf_nodes': None,
-            'min_samples_leaf': 70, 'n_estimators': 50},
-    'clean_na': True,
+    # 'model_params': {'max_features': 0.2, 'max_leaf_nodes': None,
+    #         'min_samples_leaf': 70, 'n_estimators': 50},
+    # 'clean_na': True,
     'submit': submit,
     'record': record,
-    # Best xgboost with 5 added features: 0647672681377
+    # # Best xgboost with 5 added features + precise geo filling: 0647672681377, lb: 0.0644668
     # 'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
     #     'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
     #     'eval_metric': 'mae', 'gamma': 8.249459830776771e-05, 'lambda': 0.6,
@@ -52,4 +52,18 @@ test_config = {
     #     'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
     # 'outliers_lw_pct': 2,
     # 'outliers_up_pct': 98
+
+    # lightgbm: cv 0.064637416215, lb:0.0645447
+    # 'model_params': {'bagging_fraction': 0.8384638110940468, 'bagging_freq': 0,
+    #     'boosting_type': 'gbdt', 'learning_rate': 0.1353711356306096,
+    #     'max_bin': 100, 'metric': 'mse', 'min_data': 230,
+    #     'min_hessian': 0.5961775594444781, 'num_boost_round': 200, 'num_leaves': 50,
+    #     'objective': 'regression', 'sub_feature': 0.18462105358643505, 'verbose': -1},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 96
+
+    # xgboost with almost all features + precise geo filling: cv 0.0646354220721, lb: 0.0643522
+    'model_params': { 'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7,
+        'eta': 0.08383948785330207, 'eval_metric': 'rmse', 'gamma': 0.001115761304103735,
+        'lambda': 0.4, 'max_depth': 4, 'min_child_weight': 4.092393060805701, 'subsample': 0.6},
+    'outliers_lw_pct': 4, 'outliers_up_pct': 97
 }
