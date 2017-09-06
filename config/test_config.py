@@ -21,7 +21,7 @@ Model = XGBoost.XGBoost
 # Model = RFRegressor.RFRegressor
 
 
-submit = True
+submit = False
 
 record = False
 
@@ -46,6 +46,9 @@ test_config = {
     'submit': submit,
     'record': record,
     # Best xgboost with 5 added features: 0647672681377
+
+    # Based on above, with target: 0646927
+    # Add std/mean ratio and range, fillna: 0646785
     'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
         'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
         'eval_metric': 'mae', 'gamma': 8.249459830776771e-05, 'lambda': 0.6,
