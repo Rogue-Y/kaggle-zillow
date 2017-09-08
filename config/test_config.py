@@ -46,6 +46,7 @@ test_config = {
     # 'clean_na': True,
     'submit': submit,
     'record': record,
+
     # # Best xgboost with 5 added features + precise geo filling: 0647672681377, lb: 0.0644668
     # 'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
     #     'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
@@ -54,6 +55,14 @@ test_config = {
     #     'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
     # 'outliers_lw_pct': 2,
     # 'outliers_up_pct': 98
+
+    # xgboost with 5 added features + target features: 0.0644820716823
+    # 'model_params': {'alpha': 0.0, 'colsample_bylevel': 0.5,
+    #     'colsample_bytree': 0.6, 'eta': 0.057797411022032265,
+    #     'eval_metric': 'rmse', 'gamma': 0.026493673908889032, 'lambda': 0.7,
+    #     'max_depth': 6, 'min_child_weight': 1.913900160701277,
+    #     'objective': 'reg:linear', 'silent': 1, 'subsample': 0.8},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
 
     # Based on above, with target: 0646927
     # Add std/mean ratio and range, fillna: 0646785
@@ -89,8 +98,8 @@ test_config = {
     'outliers_lw_pct': 4, 'outliers_up_pct': 97
 
     # xgboost with almost all features + precise geo filling + target features: cv 0.064534428294, lb: 0.0643728
-    # 'model_params': {'alpha': 0.4, 'colsample_bylevel': 0.5, 'colsample_bytree': 0.5, 'eta': 0.13806545489668282, 
-    #     'eval_metric': 'rmse', 'gamma': 0.010959418042539222, 'lambda': 0.0, 'max_depth': 3, 
+    # 'model_params': {'alpha': 0.4, 'colsample_bylevel': 0.5, 'colsample_bytree': 0.5, 'eta': 0.13806545489668282,
+    #     'eval_metric': 'rmse', 'gamma': 0.010959418042539222, 'lambda': 0.0, 'max_depth': 3,
     #     'min_child_weight': 5.990179308552547, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.8},
     # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
 

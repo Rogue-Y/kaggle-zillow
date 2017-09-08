@@ -605,12 +605,12 @@ def feature_crossing(df, cross_list=[]):
     return df
 
 def target_region_feature(df, id_name, column='logerror'):
-    region_dict_name = '%s_%s' % (column, id_name)
-    region_dict = read_aux(region_dict_name)
+    region_dict = aggregate_by_region(id_name)
     default_value_dict = region_dict['default']
-    # TODO: cascade default value
-    del region_dict['default']
-    stats = [item[1] for item in region_dict.keys()]
+    # TODO: default value
+    print(region_dict.keys())
+    stats = [item[1] for item in region_dict.keys() if item != 'default']
+    print(stats)
     newdf = pd.DataFrame()
     for stat in stats:
         newdf[column + '_' + id_name + '_' + stat] = df[id_name].map(region_dict[column, stat])
