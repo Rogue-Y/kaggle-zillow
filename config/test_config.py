@@ -21,7 +21,7 @@ Model = XGBoost.XGBoost
 # Model = RFRegressor.RFRegressor
 
 
-submit = True
+submit = False
 
 record = False
 
@@ -46,11 +46,19 @@ test_config = {
     'submit': submit,
     'record': record,
     # Best xgboost with 5 added features: 0647672681377
-    'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
-        'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
-        'eval_metric': 'mae', 'gamma': 8.249459830776771e-05, 'lambda': 0.6,
-        'max_depth': 4, 'min_child_weight': 0.9055707037083442,
-        'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
-    'outliers_lw_pct': 2,
-    'outliers_up_pct': 98
+    # 'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
+    #     'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
+    #     'eval_metric': 'mae', 'gamma': 8.249459830776771e-05, 'lambda': 0.6,
+    #     'max_depth': 4, 'min_child_weight': 0.9055707037083442,
+    #     'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
+    # 'outliers_lw_pct': 2,
+    # 'outliers_up_pct': 98
+
+    # xgboost with 5 added features + target features: 0.0644820716823
+    'model_params': {'alpha': 0.0, 'colsample_bylevel': 0.5,
+        'colsample_bytree': 0.6, 'eta': 0.057797411022032265,
+        'eval_metric': 'rmse', 'gamma': 0.026493673908889032, 'lambda': 0.7,
+        'max_depth': 6, 'min_child_weight': 1.913900160701277,
+        'objective': 'reg:linear', 'silent': 1, 'subsample': 0.8},
+    'outliers_lw_pct': 4, 'outliers_up_pct': 97
 }

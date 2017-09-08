@@ -59,10 +59,10 @@ def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
         # TODO: control
         train_df = utils.load_transaction_data()
         df = train_df.merge(prop, how='left', on='parcelid')
-        utils.aggregate_by_region(df, 'regionidneighborhood')
-        utils.aggregate_by_region(df, 'regionidzip')
-        utils.aggregate_by_region(df, 'regionidcity')
-        utils.aggregate_by_region(df, 'regionidcounty')
+        # utils.aggregate_by_region(df, 'regionidneighborhood')
+        # utils.aggregate_by_region(df, 'regionidzip')
+        # utils.aggregate_by_region(df, 'regionidcity')
+        # utils.aggregate_by_region(df, 'regionidcounty')
 
         print('Feature engineering')
         prop = feature_combine.feature_combine(

@@ -98,7 +98,7 @@ def preprocess_geo(prop):
     # so only exact same location are joined (probably two parcels in the same
     # building).
     # This one seems benefit lightgbm a little bit while hurt xgboost. Those changes
-    # Could all due to the parameters is not optimal. 
+    # Could all due to the parameters is not optimal.
     # Besides filling missing geo, this is also an interesting feature
     # to investigate.
     geo['join_key'] = geo['latitude'].astype(str) + geo['longitude'].astype(str)
@@ -326,9 +326,19 @@ def read_aux(name):
     return pickle.load(open(os.path.join(folder, '%s.pickle' % name), 'rb'))
 
 
-def aggregate_by_region(df, id_name, column='logerror'):
+def aggregate_by_region(id_name, column='logerror', force_generate=False):
+    folder = 'features/aux_pickles'
+    region_dict_name = '%s_%s' % (column, id_name)
+    pickle_path = os.path.join(folder, '%s.pickle' % region_dict_name)
+    if not force_generate and os.path.exists(pickle_path):
+        return pickle.load(open(pickle_path, 'rb'))
+
+    train, prop = load_train_data()
+    df = train.merge(prop, how='left', on='parcelid')
     region_dict = (df[[id_name, column]].groupby(id_name)
         .agg(['max', 'min', 'std', 'mean']).to_dict())
-    default_value_dict=df[[column]].agg(['max', 'min', 'std', 'mean']).to_dict()[column]
+    default_value_dict = (
+        df[[column]].agg(['max', 'min', 'std', 'mean']).to_dict()[column])
     region_dict['default'] = default_value_dict
-    dump_aux(region_dict, '%s_%s' % (column, id_name))
+    dump_aux(region_dict, region_dict_name)
+    return region_dict

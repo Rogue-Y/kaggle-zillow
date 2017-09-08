@@ -19,7 +19,7 @@ from features import utils
 # tuples of format (pickle_path, weight)
 prediction_list = [
     ('XGBoost_latest_pickle', 3),
-    ('Lightgbm_latest_pickle', 7)
+    # ('Lightgbm_latest_pickle', 7)
 ]
 
 def ensemble(prediction_list=prediction_list):

@@ -100,9 +100,10 @@ ENV/
 # mypy
 .mypy_cache/
 
-# data
+# data, pickles
 data/
 features/feature_pickles/
+features/aux_pickles/
 *.csv
 *.txt
 

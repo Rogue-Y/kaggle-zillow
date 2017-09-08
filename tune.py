@@ -13,8 +13,9 @@ from models import XGBoost, Lightgbm, RFRegressor
 
 import datetime
 import gc
-import time
+import os
 import pickle
+import time
 
 # parameter space
 # lightgbm parameter space
@@ -41,15 +42,15 @@ space_lightgbm = {
 space_xgb = {
     'model_params': {
         'eta': hp.loguniform('eta', -3, 0),
-        'gamma': hp.uniform('gamma', 0, 2),
-        'max_depth': hp.choice('max_depth', list(range(1, 6))),
+        'gamma': hp.loguniform('gamma', -7, 0),
+        'max_depth': hp.choice('max_depth', list(range(1, 7))),
         'min_child_weight': hp.uniform('min_child_weight', 0.1, 5),
-        'subsample': hp.choice('subsample', [x/10 for x in range(3, 8)]),
+        'subsample': hp.choice('subsample', [x/10 for x in range(3, 9)]),
         'colsample_bytree': hp.choice('colsample_bytree', [x/10 for x in range(3, 8)]),
-        'colsample_bylevel': hp.choice('colsample_bylevel', [x/10 for x in range(3, 8)]),
+        'colsample_bylevel': hp.choice('colsample_bylevel', [x/10 for x in range(1, 7)]),
         'lambda': hp.choice('lambda', [x/10 for x in range(3, 8)]),
-        'alpha': hp.choice('alpha', [x/10 for x in range(3, 8)]),
-        'objective': 'reg:linear', 
+        'alpha': hp.choice('alpha', [x/10 for x in range(0, 5)]),
+        'objective': 'reg:linear',
         'eval_metric': hp.choice('eval_metric', ['mae', 'rmse']),
         # 'base_score': y_mean,
         # 'booster': 'gblinear',
@@ -76,9 +77,9 @@ space_rf = {
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
 configuration = test_config
 experiments = [
-    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 500, {}),
-    (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 500, {}),
-    (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}), # 70
+    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 150, {}),
+    # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 500, {}),
+    # (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}), # 70
 ]
 # feature engineering
 for Model, feature_list, parameter_space, max_evals, exp_params in experiments:
@@ -103,9 +104,11 @@ for Model, feature_list, parameter_space, max_evals, exp_params in experiments:
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
     t2 = time.time()
-    # save the experiment trials in a pickle
-    pickle.dump(trials, open("data/trials/%s_%s_pickle" %(Model.__name__, timestamp), "wb"))
-
     print(best)
     print(space_eval(parameter_space, best))
     print("time: %s" %((t2-t1) / 60))
+    # save the experiment trials in a pickle
+    folder = 'data/trials'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    pickle.dump(trials, open("%s/%s_%s_pickle" %(folder, Model.__name__, timestamp), "wb"))
