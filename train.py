@@ -305,10 +305,10 @@ if __name__ == '__main__':
             os.makedirs(folder)
         with open('%s/%s.txt' %(folder, 'experiments'), 'a') as record:
             exp_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            record.write('Time: %s\n' %exp_time)
+            record.write('\n\nTime: %s\n' %exp_time)
             record.write('Config: %s\n' %config_dict)
             record.write('cv_error:%s\n' %cv_error)
-            record.write('leaderboard:________________PLEASE FILL____________________\n\n\n')
+            record.write('leaderboard:________________PLEASE FILL____________________\n')
     else:
         del transactions; del prop; gc.collect()
         train(train_df,
