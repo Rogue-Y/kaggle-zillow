@@ -608,12 +608,27 @@ def target_region_feature(df, id_name, column='logerror'):
     region_dict_name = '%s_%s' % (column, id_name)
     region_dict = read_aux(region_dict_name)
     default_value_dict = region_dict['default']
-    # TODO: default value
+    # TODO: cascade default value
     del region_dict['default']
     stats = [item[1] for item in region_dict.keys()]
     newdf = pd.DataFrame()
     for stat in stats:
         newdf[column + '_' + id_name + '_' + stat] = df[id_name].map(region_dict[column, stat])
+        newdf[column + '_' + id_name + '_' + stat].fillna(default_value_dict[stat])
+    newdf[column + '_' + id_name + '_std_over_mean'] = newdf[column + '_' + id_name + '_std'] / newdf[column + '_' + id_name + '_mean']
+    newdf[column + '_' + id_name + '_range'] = newdf[column + '_' + id_name + '_max'] - newdf[column + '_' + id_name + '_min']
+
     print(list(newdf))
-    # TODO: division and crossing between features
+    return newdf
+
+def target_region_ratio(df):
+    newdf = pd.DataFrame()
+    column = 'logerror'
+    stats = ['std', 'mean', 'max', 'min']
+    cases = [('regionidneighborhood', 'regionidcity'), ('regionidneighborhood', 'regionidzip'), ('regionidneighborhood', 'regionidcounty')]
+    for (r1, r2) in cases:
+        dfr1 = target_region_feature(df, r1, column)
+        dfr2 = target_region_feature(df, r2, column)
+        for stat in stats:
+            newdf[column + '_' + stat + '_' + 'ratio' + r1 + '_' + r2] = dfr1[column + '_' + r1 + '_' + stat] / dfr2[column + '_' + r2 + '_' + stat]
     return newdf

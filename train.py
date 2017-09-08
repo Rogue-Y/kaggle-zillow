@@ -262,6 +262,12 @@ if __name__ == '__main__':
 
     # Configuration:
     config_dict = getattr(config, config_file)
+    # print configuration for confirmation
+    for key, value in config_dict.items():
+        if key == 'feature_list':
+            print('%s: %s' %(key, len(value)))
+        else:
+            print('%s: %s' %(key, value))
 
     # Mandatory configurations:
     # Feature list

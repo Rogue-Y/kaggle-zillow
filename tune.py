@@ -20,22 +20,22 @@ import pickle
 # lightgbm parameter space
 space_lightgbm = {
     'model_params': {
-        'learning_rate': hp.loguniform('learning_rate', -2, -1),
+        'learning_rate': hp.loguniform('learning_rate', -2, 0),
         'boosting_type': 'gbdt',
         'objective': 'regression',
         'metric': hp.choice('metric', ['mae', 'mse']),
-        'sub_feature': hp.uniform('sub_feature', 0.03, 0.2),
-        'num_leaves': hp.choice('num_leaves', list(range(50, 101, 10))),
-        'min_data': hp.choice('min_data', list(range(200, 301, 10))),
-        'min_hessian': hp.uniform('min_hessian', 0.3, 0.7),
+        'sub_feature': hp.uniform('sub_feature', 0.1, 0.5),
+        'num_leaves': hp.choice('num_leaves', list(range(10, 151, 15))),
+        'min_data': hp.choice('min_data', list(range(150, 301, 15))),
+        'min_hessian': hp.loguniform('min_hessian', -3, 1),
         'num_boost_round': hp.choice('num_boost_round', [200, 300, 500]),
-        'max_bin': hp.choice('max_bin', list(range(100, 301, 50))),
-        'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
-        'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
+        'max_bin': hp.choice('max_bin', list(range(50, 151, 10))),
+        # 'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
+        # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
         'verbose': -1
     },
-    'outliers_up_pct': hp.choice('outliers_up_pct', [96, 97, 98, 99, 100]),
-    'outliers_lw_pct': hp.choice('outliers_lw_pct', [4, 3, 2, 1, 0])
+    'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+    'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
 }
 
 # search space for the so-far best model
@@ -98,8 +98,8 @@ space_rf = {
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
 configuration = test_config
 experiments = [
-    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 800, {}),
-    # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 500, {}),
+    # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 800, {}),
+    (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
     # (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}), # 70
 ]
 

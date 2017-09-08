@@ -26,6 +26,7 @@ record = False
 
 test_config = {
     # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
+    # 'resale_offset': 0,
     'folds': FOLDS,
     'feature_list': feature_list,
     'model': Model,
@@ -54,6 +55,16 @@ test_config = {
     # 'outliers_lw_pct': 2,
     # 'outliers_up_pct': 98
 
+    # Based on above, with target: 0646927
+    # Add std/mean ratio and range, fillna: 0646785
+    # 'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
+    #     'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
+    #     'eval_metric': 'mae', 'gamma': 8.249459830776771e-05, 'lambda': 0.6,
+    #     'max_depth': 4, 'min_child_weight': 0.9055707037083442,
+    #     'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
+    # 'outliers_lw_pct': 2,
+    # 'outliers_up_pct': 98,
+
     # lightgbm: cv 0.064637416215, lb:0.0645447
     # 'model_params': {'bagging_fraction': 0.8384638110940468, 'bagging_freq': 0,
     #     'boosting_type': 'gbdt', 'learning_rate': 0.1353711356306096,
@@ -71,6 +82,7 @@ test_config = {
     # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
 
     # further tuning of the above one: cv 0.0646223502383, lb: 0.0643487
+    # plus target: cv: 0.0645315564755 lb: 0.0643622
     'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
         'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
         'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
