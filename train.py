@@ -21,6 +21,7 @@ from optparse import OptionParser
 import numpy as np
 import pandas as pd
 from sklearn.model_selection import KFold
+from sklearn.decomposition import PCA
 
 import config
 from evaluator import Evaluator
@@ -47,7 +48,7 @@ def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
 
 def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
     feature_eng_pickle = 'data/feature_eng_pickle'
-    if not force_prepare and os.path.exists(feature_eng_pickle):
+    if not force_prepare and not save_pickle and os.path.exists(feature_eng_pickle):
         prop = pd.read_pickle(feature_eng_pickle)
     else:
         prop = utils.load_properties_data()
@@ -88,21 +89,36 @@ def prepare_training_data(prop, clean_na = False):
     # Process:
     # load training data
     print('Load training data...')
-    train_df = utils.load_transaction_data()
+    transactions = utils.load_transaction_data()
 
     # merge transaction and prop data
-    df = train_df.merge(prop, how='left', on='parcelid')
+    train_df = transactions.merge(prop, how='left', on='parcelid')
     # df.to_csv('test_df.csv')
-    # del train; gc.collect()
+    # del train_df; gc.collect()
 
     if clean_na:
         #TODO: Configurize processing nan for different columns
-        df = data_clean.clean_strange_value(df)
+        train_df = data_clean.clean_strange_value(train_df)
+
+    return train_df, transactions
+
+def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
+    outliers_up_pct = 99, outliers_lw_pct = 1,
+    submit=False, prop = None, transactions = None, # if submit is true, than must provide transactions and prop
+    resale_offset = 0.012, pca_components=-1):
+    # Optional dimension reduction.
+    if pca_components > 0:
+        print('PCA...')
+        pca = PCA(n_components=pca_components, copy=False)
+        feature_df, non_feature_df = utils.get_dimension_reduction_df(train_df)
+        # Note that the features pca produces is some combination of the original features, not retain/discard some columns
+        feature_df = pca.fit_transform(feature_df)
+        train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1, copy=False)
 
     # split by date
-    train_q1_q3, train_q4 = utils.split_by_date(df)
+    train_q1_q3, train_q4 = utils.split_by_date(train_df)
     # train_q4.to_csv('test_train_q4.csv')
-    del df; gc.collect()
+    del train_df; gc.collect()
 
     train_q1_q3 = data_clean.drop_training_only_column(train_q1_q3)
     train_q4 = data_clean.drop_training_only_column(train_q4)
@@ -110,13 +126,6 @@ def prepare_training_data(prop, clean_na = False):
     X_train_q4, y_train_q4 = utils.get_features_target(train_q4)
     del train_q1_q3; del train_q4; gc.collect()
 
-    return train_df, X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4
-
-def train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
-    Model, model_params = None, FOLDS = 5, record=False,
-    outliers_up_pct = 99, outliers_lw_pct = 1,
-    submit=False, prop = None, train = None, # if submit is true, than must provide train and prop
-    resale_offset = 0.012):
     # file handler used to record training
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     if record:
@@ -210,7 +219,7 @@ def train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
         print(len(avg_pred))
 
         # add resale
-        sales = train[['parcelid', 'logerror']].groupby('parcelid').mean()
+        sales = transactions[['parcelid', 'logerror']].groupby('parcelid').mean()
         predict_df = predict_df.join(sales, on='parcelid', how='left')
         predict_df['predict'] = avg_pred
         # predict = predict_df['predict'].where(predict_df['logerror'].isnull(), predict_df['logerror'])
@@ -276,21 +285,36 @@ if __name__ == '__main__':
     resale_offset = config_dict['resale_offset'] if 'resale_offset' in config_dict else 0.012
     # clean_na
     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
+    # PCA component
+    pca_components = config_dict['pca_components'] if 'pca_components' in config_dict else -1
+    # PCA cannot deal with infinite numbers
+    if pca_components > 0:
+        clean_na = True
+
 
     prop = prepare_features(feature_list)
 
-    train_df, X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4 = prepare_training_data(prop, clean_na)
+    train_df, transactions = prepare_training_data(prop, clean_na)
     if submit:
-        train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
-            prop=prop, train=train_df, Model=Model, model_params=model_params, FOLDS = FOLDS,
+        cv_error = train(train_df,
+            prop=prop, transactions=transactions, Model=Model, model_params=model_params, FOLDS = FOLDS,
             record=record, submit=True, outliers_up_pct=outliers_up_pct,
-            outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset)
+            outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset, pca_components=pca_components)
+        folder = 'data/experiments'
+        if not os.path.exists(folder):
+            os.makedirs(folder)
+        with open('%s/%s.txt' %(folder, 'experiments'), 'a') as record:
+            exp_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            record.write('Time: %s\n' %exp_time)
+            record.write('Config: %s\n' %config_dict)
+            record.write('cv_error:%s\n' %cv_error)
+            record.write('leaderboard:________________PLEASE FILL____________________\n\n\n')
     else:
-        del train_df; del prop; gc.collect()
-        train(X_train_q1_q3, y_train_q1_q3, X_train_q4, y_train_q4,
+        del transactions; del prop; gc.collect()
+        train(train_df,
             Model=Model, model_params=model_params, FOLDS = FOLDS,
             record=record, submit=False, outliers_up_pct=outliers_up_pct,
-            outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset)
+            outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset, pca_components=pca_components)
 
     t2 = time.time()
     print((t2 - t1) / 60)

@@ -20,11 +20,12 @@ Model = XGBoost.XGBoost
 # Model = RFRegressor.RFRegressor
 
 
-submit = False
+submit = True
 
 record = False
 
 test_config = {
+    # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
     'folds': FOLDS,
     'feature_list': feature_list,
     'model': Model,
@@ -63,8 +64,27 @@ test_config = {
 
     # xgboost with almost all features + precise geo filling: cv 0.0646354220721, lb: 0.0643522
     # same parameter with 5 features + target features + precise geo filling: cv 0.0645577144428, lb: 0.0643933
-    'model_params': { 'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7,
-        'eta': 0.08383948785330207, 'eval_metric': 'rmse', 'gamma': 0.001115761304103735,
-        'lambda': 0.4, 'max_depth': 4, 'min_child_weight': 4.092393060805701, 'subsample': 0.6},
+    # with almost all features + target features + precise geo filling: cv 0.0646190894623, lb: 0.0643531
+    # 'model_params': { 'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7,
+    #     'eta': 0.08383948785330207, 'eval_metric': 'rmse', 'gamma': 0.001115761304103735,
+    #     'lambda': 0.4, 'max_depth': 4, 'min_child_weight': 4.092393060805701, 'subsample': 0.6},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
+
+    # xgboost with almost all features + precise geo filling + target features: cv 0.064534428294, lb: 0.0643728
+    # 'model_params': {'alpha': 0.4, 'colsample_bylevel': 0.5, 'colsample_bytree': 0.5, 'eta': 0.13806545489668282, 
+    #     'eval_metric': 'rmse', 'gamma': 0.010959418042539222, 'lambda': 0.0, 'max_depth': 3, 
+    #     'min_child_weight': 5.990179308552547, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.8},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
+
+    # xgboost with almost all features + precise geo filling + target features: cv 0.0646297759966, lb: 0.0643844
+    # 'model_params': {
+    #     'alpha': 0.1, 'colsample_bylevel': 0.5, 'colsample_bytree': 0.8, 'eta': 0.143998802451337,
+    #     'eval_metric': 'rmse', 'gamma': 0.053876541022518674, 'lambda': 0.0, 'max_depth': 7,
+    #     'min_child_weight': 2.6616870580729772, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.8},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
+
+    'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
+        'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
+        'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
     'outliers_lw_pct': 4, 'outliers_up_pct': 97
 }
