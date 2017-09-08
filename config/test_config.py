@@ -61,4 +61,14 @@ test_config = {
         'max_depth': 6, 'min_child_weight': 1.913900160701277,
         'objective': 'reg:linear', 'silent': 1, 'subsample': 0.8},
     'outliers_lw_pct': 4, 'outliers_up_pct': 97
+
+    # Based on above, with target: 0646927
+    # Add std/mean ratio and range, fillna: 0646785
+    'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
+        'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
+        'eval_metric': 'mae', 'gamma': 8.249459830776771e-05, 'lambda': 0.6,
+        'max_depth': 4, 'min_child_weight': 0.9055707037083442,
+        'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
+    'outliers_lw_pct': 2,
+    'outliers_up_pct': 98
 }
