@@ -99,7 +99,7 @@ space_rf = {
 configuration = test_config
 experiments = [
     # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 800, {}),
-    (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
+    (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 600, {}),
     # (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}), # 70
 ]
 

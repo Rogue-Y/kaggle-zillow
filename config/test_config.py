@@ -40,12 +40,28 @@ test_config = {
     #     'metric': 'mae', 'min_data': 260, 'min_hessian': 0.57579034653711,
     #     'num_boost_round': 300, 'num_leaves': 70, 'objective': 'regression_l1',
     #     'sub_feature': 0.06638755200543586, 'verbose': -1},
+    # lightgbm: cv 0.064637416215, lb:0.0645447
+    # 'model_params': {'bagging_fraction': 0.8384638110940468, 'bagging_freq': 0,
+    #     'boosting_type': 'gbdt', 'learning_rate': 0.1353711356306096,
+    #     'max_bin': 100, 'metric': 'mse', 'min_data': 230,
+    #     'min_hessian': 0.5961775594444781, 'num_boost_round': 200, 'num_leaves': 50,
+    #     'objective': 'regression', 'sub_feature': 0.18462105358643505, 'verbose': -1},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 96
+    # # lightgbm with almost all features, cv: 0.0645163978449, lb: 0.0643813
+    # 'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.2100954943925603,
+    #     'max_bin': 50, 'metric': 'mse', 'min_data': 225, 'min_hessian': 0.06297429722636191,
+    #     'num_boost_round': 500, 'num_leaves': 10, 'objective': 'regression',
+    #     'sub_feature': 0.13114357843072696, 'verbose': -1},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97,
+
     # rf parameters
     # 'model_params': {'max_features': 0.2, 'max_leaf_nodes': None,
     #         'min_samples_leaf': 70, 'n_estimators': 50},
     # 'clean_na': True,
+
     'submit': submit,
     'record': record,
+
     # # Best xgboost with 5 added features + precise geo filling: 0647672681377, lb: 0.0644668
     # 'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,
     #     'colsample_bytree': 0.5, 'eta': 0.07455450922244707,
@@ -64,14 +80,6 @@ test_config = {
     #     'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
     # 'outliers_lw_pct': 2,
     # 'outliers_up_pct': 98,
-
-    # lightgbm: cv 0.064637416215, lb:0.0645447
-    # 'model_params': {'bagging_fraction': 0.8384638110940468, 'bagging_freq': 0,
-    #     'boosting_type': 'gbdt', 'learning_rate': 0.1353711356306096,
-    #     'max_bin': 100, 'metric': 'mse', 'min_data': 230,
-    #     'min_hessian': 0.5961775594444781, 'num_boost_round': 200, 'num_leaves': 50,
-    #     'objective': 'regression', 'sub_feature': 0.18462105358643505, 'verbose': -1},
-    # 'outliers_lw_pct': 4, 'outliers_up_pct': 96
 
     # xgboost with almost all features + precise geo filling: cv 0.0646354220721, lb: 0.0643522
     # same parameter with 5 features + target features + precise geo filling: cv 0.0645577144428, lb: 0.0643933
