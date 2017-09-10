@@ -20,7 +20,7 @@ Model = XGBoost.XGBoost
 # Model = RFRegressor.RFRegressor
 
 
-submit = False
+submit = True
 
 record = False
 
@@ -91,6 +91,7 @@ test_config = {
     # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
 
     # further tuning of the above one: cv 0.0646223502383, lb: 0.0643487
+    # changed order of features (put missing values first): cv 0.0647246470924, lb: 0.0643368
     # plus target: cv: 0.0645315564755 lb: 0.0643622
     'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
         'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,

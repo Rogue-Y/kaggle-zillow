@@ -605,7 +605,7 @@ def feature_crossing(df, cross_list=[]):
     return df
 
 def target_region_feature(df, id_name, column='logerror', minthres=10):
-    region_dict = aggregate_by_region(id_name, column, force_generate=True)
+    region_dict = aggregate_by_region(id_name, column)
     default_value_dict = region_dict['default']
     del region_dict['default']
 
