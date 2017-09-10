@@ -604,13 +604,22 @@ def feature_crossing(df, cross_list=[]):
 
     return df
 
-def target_region_feature(df, id_name, column='logerror'):
-    region_dict = aggregate_by_region(id_name)
+def target_region_feature(df, id_name, column='logerror', minthres=10):
+    region_dict = aggregate_by_region(id_name, column, force_generate=True)
     default_value_dict = region_dict['default']
-    # TODO: default value
+    del region_dict['default']
+
     print(region_dict.keys())
-    stats = [item[1] for item in region_dict.keys() if item != 'default']
+    stats = [item[1] for item in region_dict.keys() if item[1] != 'count']
     print(stats)
+    print('Total Group number', len(region_dict[(column, 'count')]))
+
+    for k,v in region_dict[(column, 'count')].items():
+        if v < minthres:
+            for stat in stats:
+                del region_dict[(column, stat)][k]
+
+    print('Survived Group number', len(region_dict[(column, stats[0])]))
     newdf = pd.DataFrame()
     for stat in stats:
         newdf[column + '_' + id_name + '_' + stat] = df[id_name].map(region_dict[column, stat])

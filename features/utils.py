@@ -346,8 +346,11 @@ def aggregate_by_region(id_name, column='logerror', force_generate=False):
 
     train, prop = load_train_data()
     df = train.merge(prop, how='left', on='parcelid')
+    df, _ = split_by_date(df)
+
     region_dict = (df[[id_name, column]].groupby(id_name)
-        .agg(['max', 'min', 'std', 'mean']).to_dict())
+        .agg(['max', 'min', 'std', 'mean', 'count']).to_dict())
+
     default_value_dict = (
         df[[column]].agg(['max', 'min', 'std', 'mean']).to_dict()[column])
     region_dict['default'] = default_value_dict
