@@ -119,6 +119,8 @@ from .feature_eng import *
 # ]
 
 feature_list = [
+    ('missing_value_count', missing_value_count, {}, 'missing_value_count_pickle', False),
+    # ('missing_value_one_hot', missing_value_one_hot, {}, 'missing_value_one_hot_pickle', False),
     ('average_bathroom_size', average_bathroom_size, {}, 'average_bathroom_size_pickle', False),
     ('average_bedroom_size', average_bedroom_size, {}, 'average_bedroom_size_pickle', False),
     ('average_pool_size', average_pool_size, {}, 'average_pool_size_pickle', False),
@@ -155,8 +157,6 @@ feature_list = [
     ('geo_lat_lon_block_features', geo_lat_lon_block_features, {}, 'geo_lat_lon_block_features_pickle', False),
     ('geo_neighborhood', geo_neighborhood, {}, 'geo_neighborhood_pickle', False),
     ('geo_zip', geo_zip, {}, 'geo_zip_pickle', False),
-    ('missing_value_count', missing_value_count, {}, 'missing_value_count_pickle', False),
-    # ('missing_value_one_hot', missing_value_one_hot, {}, 'missing_value_one_hot_pickle', False),
     ('multiply_lat_lon', multiply_lat_lon, {}, 'multiply_lat_lon_pickle', False),
     ('poly_2_structure_tax_value', poly_2_structure_tax_value, {}, 'poly_2_structure_tax_value_pickle', False),
     ('poly_3_structure_tax_value', poly_3_structure_tax_value, {}, 'poly_3_structure_tax_value_pickle', False),
