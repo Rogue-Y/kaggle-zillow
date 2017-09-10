@@ -24,6 +24,8 @@ submit = False
 
 record = False
 
+compress = False
+
 test_config = {
     # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
     # 'resale_offset': 0,
@@ -46,6 +48,7 @@ test_config = {
     # 'clean_na': True,
     'submit': submit,
     'record': record,
+    'compress': compress,
 
     # # Best xgboost with 5 added features + precise geo filling: 0647672681377, lb: 0.0644668
     # 'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.3,

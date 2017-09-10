@@ -46,18 +46,21 @@ def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
     train_recorder.write('Validation label stats: ' + y_valid.describe().to_string(float_format='{:.5f}'.format) + '\n')
     train_recorder.write('Validation predict stats: ' + y_valid_pred.describe().to_string(float_format='{:.5f}'.format) + '\n')
 
-def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
+def prepare_features(feature_list = [], force_prepare=True, save_pickle=False, compress=False):
     feature_eng_pickle = 'data/feature_eng_pickle'
     if not force_prepare and not save_pickle and os.path.exists(feature_eng_pickle):
         prop = pd.read_pickle(feature_eng_pickle)
     else:
-        prop = utils.load_properties_data()
-        # use minimized version of properties data when memory is a concern
-        # prop = utils.load_properties_data_minimize()
+        if compress:
+            # use minimized version of properties data when memory is a concern
+            prop = utils.load_properties_data_minimize()
+        else:
+            prop = utils.load_properties_data()
+        # TODO: do original feature cleaning here
         # feature engineering
         print('Feature engineering')
         prop = feature_combine.feature_combine(
-            prop, feature_list, False, 'features/feature_pickles/')
+            prop, feature_list, False, compress, 'features/feature_pickles/')
         print(prop.shape)
         # for col in prop.columns:
         #     print(col)
@@ -94,7 +97,7 @@ def prepare_training_data(prop, clean_na = False):
 
 def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     outliers_up_pct = 99, outliers_lw_pct = 1,
-    submit=False, prop = None, transactions = None, # if submit is true, than must provide transactions and prop
+    submit=False, compress=False, prop = None, transactions = None, # if submit is true, than must provide transactions and prop
     resale_offset = 0.012, pca_components=-1):
     # Optional dimension reduction.
     if pca_components > 0:
@@ -274,6 +277,8 @@ if __name__ == '__main__':
     record = config_dict['record'] if 'record' in config_dict else False
     # if generate submission or not
     submit = config_dict['submit'] if 'submit' in config_dict else False
+    # if need to reduce memory
+    compress = config_dict['compress'] if 'compress' in config_dict else False
     # outliers removal upper and lower percentile
     outliers_up_pct = config_dict['outliers_up_pct'] if 'outliers_up_pct' in config_dict else 99
     outliers_lw_pct = config_dict['outliers_lw_pct'] if 'outliers_lw_pct' in config_dict else 1
@@ -288,13 +293,13 @@ if __name__ == '__main__':
         clean_na = True
 
 
-    prop = prepare_features(feature_list)
+    prop = prepare_features(feature_list, compress=compress)
 
     train_df, transactions = prepare_training_data(prop, clean_na)
     if submit:
         cv_error = train(train_df,
             prop=prop, transactions=transactions, Model=Model, model_params=model_params, FOLDS = FOLDS,
-            record=record, submit=True, outliers_up_pct=outliers_up_pct,
+            record=record, submit=True, compress=compress, outliers_up_pct=outliers_up_pct,
             outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset, pca_components=pca_components)
         folder = 'data/experiments'
         if not os.path.exists(folder):
@@ -309,7 +314,7 @@ if __name__ == '__main__':
         del transactions; del prop; gc.collect()
         train(train_df,
             Model=Model, model_params=model_params, FOLDS = FOLDS,
-            record=record, submit=False, outliers_up_pct=outliers_up_pct,
+            record=record, submit=False, compress=compress, outliers_up_pct=outliers_up_pct,
             outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset, pca_components=pca_components)
 
     t2 = time.time()

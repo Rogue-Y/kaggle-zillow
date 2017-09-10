@@ -30,7 +30,7 @@ def list_features(feature_module):
 #      add its up to nth poly
 
 def feature_combine(
-    df, feature_list, global_force_generate=False, pickle_folder='feature_pickles/'):
+    df, feature_list, global_force_generate=False, compress=False, pickle_folder='feature_pickles/'):
     features = []
     for name, generator, kwparams, pickle_path, feature_force_generate in feature_list:
         pickle_path = pickle_folder + pickle_path
@@ -45,7 +45,10 @@ def feature_combine(
         if isinstance(feature, pd.Series):
             feature.rename(name, inplace=True)
         features.append(feature)
-    return pd.concat([df, *features], axis=1)
+    combined = pd.concat([df, *features], axis=1)
+    if compress:
+        combined, _ = reduce_mem_usage(combined)
+    return combined
 
 if __name__ == "__main__":
     feature_list = [
