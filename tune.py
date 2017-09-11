@@ -40,47 +40,47 @@ space_lightgbm = {
 }
 
 # search space for the so-far best model
-space_xgb = {
-    'model_params': {
-        'eta': hp.loguniform('eta', -3, 0),
-        'gamma': hp.loguniform('gamma', -7, 0),
-        'max_depth': hp.choice('max_depth', list(range(1, 7))),
-        'min_child_weight': hp.uniform('min_child_weight', 0.1, 5),
-        'subsample': hp.choice('subsample', [x/10 for x in range(3, 9)]),
-        'colsample_bytree': hp.choice('colsample_bytree', [x/10 for x in range(3, 8)]),
-        'colsample_bylevel': hp.choice('colsample_bylevel', [x/10 for x in range(1, 7)]),
-        'lambda': hp.choice('lambda', [x/10 for x in range(3, 8)]),
-        'alpha': hp.choice('alpha', [x/10 for x in range(0, 5)]),
-        'objective': 'reg:linear',
-        'eval_metric': hp.choice('eval_metric', ['mae', 'rmse']),
-        # 'base_score': y_mean,
-        # 'booster': 'gblinear',
-        'silent': 1
-    },
-    'outliers_up_pct': hp.choice('outliers_up_pct', [96, 97, 98, 99, 100]),
-    'outliers_lw_pct': hp.choice('outliers_lw_pct', [4, 3, 2, 1, 0])
-}
-
 # space_xgb = {
 #     'model_params': {
-#         'eta': hp.loguniform('eta', -2, 0),
-#         'gamma': hp.loguniform('gamma', -6, -1),
-#         'max_depth': hp.choice('max_depth', list(range(3, 8))),
-#         'min_child_weight': hp.uniform('min_child_weight', 1, 6),
-#         'subsample': hp.choice('subsample', [x/10 for x in range(5, 10)]),
-#         'colsample_bytree': hp.choice('colsample_bytree', [x/10 for x in range(5, 11)]),
-#         'colsample_bylevel': hp.choice('colsample_bylevel', [x/10 for x in range(5, 11)]),
-#         'lambda': hp.choice('lambda', [x/10 for x in range(0, 6)]),
-#         'alpha': hp.choice('alpha', [x/10 for x in range(0, 7)]),
+#         'eta': hp.loguniform('eta', -3, 0),
+#         'gamma': hp.loguniform('gamma', -7, 0),
+#         'max_depth': hp.choice('max_depth', list(range(1, 7))),
+#         'min_child_weight': hp.uniform('min_child_weight', 0.1, 5),
+#         'subsample': hp.choice('subsample', [x/10 for x in range(3, 9)]),
+#         'colsample_bytree': hp.choice('colsample_bytree', [x/10 for x in range(3, 8)]),
+#         'colsample_bylevel': hp.choice('colsample_bylevel', [x/10 for x in range(1, 7)]),
+#         'lambda': hp.choice('lambda', [x/10 for x in range(3, 8)]),
+#         'alpha': hp.choice('alpha', [x/10 for x in range(0, 5)]),
 #         'objective': 'reg:linear',
 #         'eval_metric': hp.choice('eval_metric', ['mae', 'rmse']),
 #         # 'base_score': y_mean,
 #         # 'booster': 'gblinear',
 #         'silent': 1
 #     },
-#     'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99,]),
-#     'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
+#     'outliers_up_pct': hp.choice('outliers_up_pct', [96, 97, 98, 99, 100]),
+#     'outliers_lw_pct': hp.choice('outliers_lw_pct', [4, 3, 2, 1, 0])
 # }
+
+space_xgb = {
+    'model_params': {
+        'eta': hp.loguniform('eta', -2, 0),
+        'gamma': hp.loguniform('gamma', -4, -1),
+        'max_depth': hp.choice('max_depth', list(range(2, 7))),
+        'min_child_weight': hp.uniform('min_child_weight', 3, 6),
+        'subsample': hp.choice('subsample', [x/10 for x in range(5, 10)]),
+        'colsample_bytree': hp.choice('colsample_bytree', [x/10 for x in range(5, 11)]),
+        'colsample_bylevel': hp.choice('colsample_bylevel', [x/10 for x in range(5, 11)]),
+        'lambda': hp.choice('lambda', [x/10 for x in range(0, 6)]),
+        'alpha': hp.choice('alpha', [x/10 for x in range(3, 8)]),
+        'objective': 'reg:linear',
+        'eval_metric': hp.choice('eval_metric', ['mae', 'rmse']),
+        # 'base_score': y_mean,
+        # 'booster': 'gblinear',
+        'silent': 1
+    },
+    'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+    'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
+}
 
 space_rf = {
     'model_params': {
@@ -99,7 +99,7 @@ space_rf = {
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
 configuration = test_config
 experiments = [
-    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 850, {}),
+    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
     # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
     # (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}),
 ]
