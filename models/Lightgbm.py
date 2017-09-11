@@ -13,7 +13,7 @@ class Lightgbm():
             model_params['boosting_type'] = 'gbdt'
             model_params['objective'] = 'regression'
             model_params['metric'] = 'mae'
-            model_params['sub_feature'] = 0.5
+            # model_params['sub_feature'] = 0.5
             model_params['num_leaves'] = 60
             model_params['min_data'] = 500
             model_params['min_hessian'] = 1

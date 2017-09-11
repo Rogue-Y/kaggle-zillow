@@ -36,7 +36,7 @@ def load_transaction_data(data_folder='data/', force_read=False):
         train.to_pickle(train_data_pickle)
     return train
 
-def load_properties_data(data_folder='data/', force_read=True):
+def load_properties_data(data_folder='data/', force_read=False):
     """ Load properties data.
         Returns:
             properties_df

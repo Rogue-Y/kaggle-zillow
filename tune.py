@@ -99,8 +99,8 @@ space_rf = {
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
 configuration = test_config
 experiments = [
-    # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 800, {}),
-    (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
+    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 850, {}),
+    # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
     # (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}),
 ]
 
