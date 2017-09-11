@@ -39,11 +39,15 @@ def feature_combine(
         else:
             print(pickle_path)
             feature = generator(df, **kwparams)
+            # Rename Series so that they have proper names in the resulting
+            # dataframe
+            if isinstance(feature, pd.Series):
+                feature.rename(name, inplace=True)
+                feature = feature.astype('float32')
+            else:
+                for col in feature.columns:
+                    feature[col] = feature[col].astype('float32')
             feature.to_pickle(pickle_path)
-        # Rename Series so that they have proper names in the resulting
-        # dataframe
-        if isinstance(feature, pd.Series):
-            feature.rename(name, inplace=True)
         features.append(feature)
     return pd.concat([df, *features], axis=1)
 
