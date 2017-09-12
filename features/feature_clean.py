@@ -8,65 +8,86 @@ import numpy as np
 import math
 from sklearn.preprocessing import LabelEncoder
 
-def parcelid(df):
-    return df['parcelid']
 
 def airconditioningtypeid(df):
+    # Low non-nan ratio
+    # Prior to 1965 there was no AC
+    row_indexer = (df['airconditioningtypeid'].isnull()) & (df['yearbuilt'] <= 1965)
+    col_indexer = ['airconditioningtypeid']
+    df.loc[row_indexer, col_indexer] = 5
+
+    # After 1965 set to "Other"
+    row_indexer = (df['airconditioningtypeid'].isnull()) & (df['yearbuilt'] > 1965)
+    col_indexer = ['airconditioningtypeid']
+    df.loc[row_indexer, col_indexer] = 6
     return df['airconditioningtypeid']
 
 def architecturalstyletypeid(df):
-    return df['architecturalstyletypeid']
+    # Low non-nan ratio, fill "Other"
+    return df['architecturalstyletypeid'].fillna(19)
 
 def basementsqft(df):
-    return df['basementsqft']
+    # Low non-nan ratio
+    return df['basementsqft'].fillna(0)
 
 def bathroomcnt(df):
-    return df['bathroomcnt']
+    # Median = 2
+    return df['bathroomcnt'].fillna(df['bathroomcnt'].median())
 
 def bedroomcnt(df):
-    return df['bedroomcnt']
+    # Median = 3
+    return df['bedroomcnt'].fillna(df['bedroomcnt'].median())
 
 def buildingclasstypeid(df):
-    return df['buildingclasstypeid']
+    # Low non-nan ratio, fill 0 (Not in dict)
+    return df['buildingclasstypeid'].fillna(0)
 
 def buildingqualitytypeid(df):
-    return df['buildingqualitytypeid']
+    # 1-12, fill in median or mean = 7
+    return df['buildingqualitytypeid'].fillna(df['buildingqualitytypeid'].median())
 
 def calculatedbathnbr(df):
-    return df['calculatedbathnbr']
+    # 1-20, fill in median or mean = 2
+    return df['calculatedbathnbr'].fillna(df['calculatedbathnbr'].median())
 
 def decktypeid(df):
-    return df['decktypeid']
+    # Low non-nan ratio, fill 0 (Not in dict)
+    return df['decktypeid'].fillna(0)
 
 def finishedfloor1squarefeet(df):
-    return df['finishedfloor1squarefeet']
+    # Long tail distribution
+    return df['finishedfloor1squarefeet'].fillna(df['finishedfloor1squarefeet'].median())
 
 def calculatedfinishedsquarefeet(df):
-    return df['calculatedfinishedsquarefeet']
+    #TODO: see notebook
+    return df['calculatedfinishedsquarefeet'].fillna()
 
 def finishedsquarefeet12(df):
-    return df['finishedsquarefeet12']
+    return df['finishedsquarefeet12'].fillna()
 
 def finishedsquarefeet13(df):
-    return df['finishedsquarefeet13']
+    return df['finishedsquarefeet13'].fillna()
 
 def finishedsquarefeet15(df):
-    return df['finishedsquarefeet15']
+    return df['finishedsquarefeet15'].fillna()
 
 def finishedsquarefeet50(df):
-    return df['finishedsquarefeet50']
+    return df['finishedsquarefeet50'].fillna()
 
 def finishedsquarefeet6(df):
-    return df['finishedsquarefeet6']
+    return df['finishedsquarefeet6'].fillna()
 
 def fips(df):
-    return df['fips']
+    # fill in mode "6037"
+    return df['fips'].fillna(df['fips'].mode()[0])
 
 def fireplacecnt(df):
-    return df['fireplacecnt']
+    # Can fill na with 0
+    return df['fireplacecnt'].fillna(0)
 
 def fullbathcnt(df):
-    return df['fullbathcnt']
+    # Fill in median = 2
+    return df['fullbathcnt'].fillna(df['fullbathcnt'].median())
 
 def garagecarcnt(df):
     return df['garagecarcnt']
