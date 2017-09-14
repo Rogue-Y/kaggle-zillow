@@ -6,6 +6,7 @@ import pandas as pd
 
 from .utils import *
 from .feature_eng import *
+from .feature_clean import *
 
 def list_features(feature_module):
     # Iterate through functions to generate a feature list
@@ -28,6 +29,29 @@ def list_features(feature_module):
 #   2. Add a api for column to drop when add a feature
 #   3. Add a poly generator for the features, so when a feature is added, also
 #      add its up to nth poly
+
+def original_feature_clean(df, feature_module, global_force_generate=True, pickle_folder='feature_pickles/'):
+    functions = [o for o in inspect.getmembers(feature_module) if inspect.isfunction(o[1])]
+    features = []
+    for name, generator in functions:
+        pickle_path = pickle_folder + str(name) + '_pickle'
+        if not global_force_generate and os.path.exists(pickle_path):
+            feature = pd.read_pickle(pickle_path)
+        else:
+            print(pickle_path)
+            # Let the original feature generators have no arguments in the definition. If different cleaning methods are
+            # needed, just make a new feature.
+            feature = generator(df)
+            # Rename Series so that they have proper names in the resulting
+            # dataframe
+            if isinstance(feature, pd.Series):
+                feature.rename(name, inplace=True)
+
+            # TODO: Currently contains strings. Need insert one-hot encodings and other preprocess.
+            feature.to_pickle(pickle_path)
+        features.append(feature)
+    return pd.concat([*features], axis=1)
+
 
 def feature_combine(
     df, feature_list, global_force_generate=False, pickle_folder='feature_pickles/'):

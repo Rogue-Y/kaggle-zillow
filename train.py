@@ -26,7 +26,7 @@ from sklearn.decomposition import PCA
 import config
 from evaluator import Evaluator
 from features import utils
-from features import feature_combine
+from features import feature_combine, feature_clean
 from features import data_clean
 
 # Helper functions:
@@ -56,6 +56,7 @@ def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
         # prop = utils.load_properties_data_minimize()
         # feature engineering
         print('Feature engineering')
+        prop = feature_combine.original_feature_clean(prop, feature_clean, False, 'features/feature_pickles/')
         prop = feature_combine.feature_combine(
             prop, feature_list, False, 'features/feature_pickles/')
         print(prop.shape)

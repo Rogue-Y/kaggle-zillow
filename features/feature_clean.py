@@ -3,10 +3,8 @@
 # dummy name generator in notebook "Original data cleaning"
 
 import pandas as pd
-from .utils import *
 import numpy as np
 import math
-from sklearn.preprocessing import LabelEncoder
 
 
 def airconditioningtypeid(df):
@@ -60,22 +58,27 @@ def finishedfloor1squarefeet(df):
 
 def calculatedfinishedsquarefeet(df):
     #TODO: see notebook
-    return df['calculatedfinishedsquarefeet'].fillna()
+    return df['calculatedfinishedsquarefeet'].fillna(0)
 
 def finishedsquarefeet12(df):
-    return df['finishedsquarefeet12'].fillna()
+    # TODO: see notebook
+    return df['finishedsquarefeet12'].fillna(0)
 
 def finishedsquarefeet13(df):
-    return df['finishedsquarefeet13'].fillna()
+    # TODO: see notebook
+    return df['finishedsquarefeet13'].fillna(0)
 
 def finishedsquarefeet15(df):
-    return df['finishedsquarefeet15'].fillna()
+    # TODO: see notebook
+    return df['finishedsquarefeet15'].fillna(0)
 
 def finishedsquarefeet50(df):
-    return df['finishedsquarefeet50'].fillna()
+    # TODO: see notebook
+    return df['finishedsquarefeet50'].fillna(0)
 
 def finishedsquarefeet6(df):
-    return df['finishedsquarefeet6'].fillna()
+    # TODO: see notebook
+    return df['finishedsquarefeet6'].fillna(0)
 
 def fips(df):
     # fill in mode "6037"
@@ -88,6 +91,10 @@ def fireplacecnt(df):
 def fullbathcnt(df):
     # Fill in median = 2
     return df['fullbathcnt'].fillna(df['fullbathcnt'].median())
+
+
+############
+
 
 def garagecarcnt(df):
     return df['garagecarcnt']
