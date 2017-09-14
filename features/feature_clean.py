@@ -7,6 +7,9 @@ import numpy as np
 import math
 
 
+def parcelid(df):
+    return df['parcelid']
+
 def airconditioningtypeid(df):
     # Low non-nan ratio
     # Prior to 1965 there was no AC
