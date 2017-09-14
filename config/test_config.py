@@ -14,13 +14,13 @@ feature_list = test_feature_list.feature_list
 
 # model
 from models import XGBoost, Lightgbm, RFRegressor
-Model = XGBoost.XGBoost
+# Model = XGBoost.XGBoost
 # Model = Lightgbm.Lightgbm_sklearn
-# Model = Lightgbm.Lightgbm
+Model = Lightgbm.Lightgbm
 # Model = RFRegressor.RFRegressor
 
 
-submit = False
+submit = True
 
 record = False
 
@@ -75,12 +75,19 @@ test_config = {
     # 'outliers_up_pct': 98,
 
     # lightgbm: cv 0.064637416215, lb:0.0645447
-    # 'model_params': {'bagging_fraction': 0.8384638110940468, 'bagging_freq': 0,
-    #     'boosting_type': 'gbdt', 'learning_rate': 0.1353711356306096,
+    # 'model_params': {'bagging_fraction': 0.8384638110940468, 'bagging_freq': 100,
+    #     'boosting_type': 'rf', 'learning_rate': 0.1353711356306096,
     #     'max_bin': 100, 'metric': 'mse', 'min_data': 230,
     #     'min_hessian': 0.5961775594444781, 'num_boost_round': 200, 'num_leaves': 50,
-    #     'objective': 'regression', 'sub_feature': 0.18462105358643505, 'verbose': -1},
+    #     'objective': 'poisson', 'sub_feature': 0.18462105358643505, 'verbose': -1},
     # 'outliers_lw_pct': 4, 'outliers_up_pct': 96
+
+    # lightgbm: cv 0.06468674762475103, lb:0.0645447
+    'model_params': {'bagging_fraction': 0.9455409606086613, 'bagging_freq': 10,
+        'boosting_type': 'rf', 'learning_rate': 0.20932001112145668, 'max_bin': 255,
+        'metric': 'mse', 'min_data': 165, 'min_hessian': 0.22173251831188498,
+        'num_leaves': 130, 'objective': 'poisson', 'sub_feature': 0.13272436629811, 'verbose': -1},
+    'outliers_lw_pct': 3, 'outliers_up_pct': 97,
 
     # xgboost with almost all features + precise geo filling: cv 0.0646354220721, lb: 0.0643522
     # same parameter with 5 features + target features + precise geo filling: cv 0.0645577144428, lb: 0.0643933
@@ -93,10 +100,16 @@ test_config = {
     # further tuning of the above one: cv 0.0646223502383, lb: 0.0643487
     # changed order of features (put missing values first): cv 0.0647246470924, lb: 0.0643368
     # plus target: cv: 0.0645315564755 lb: 0.0643622
-    'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
-        'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
-        'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
-    'outliers_lw_pct': 4, 'outliers_up_pct': 97
+    # 'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
+    #     'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
+    #     'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
+
+    # xgboost with all features + target: cv: 0.06471489259722292
+    # 'model_params': {'alpha': 0.3, 'colsample_bylevel': 0.8, 'colsample_bytree': 0.6, 'eta': 0.25201740672908923,
+    #     'eval_metric': 'mae', 'gamma': 0.07267778606386353, 'lambda': 0.2, 'max_depth': 6,
+    #     'min_child_weight': 5.132433771755823, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.5},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97
 
     # xgboost with almost all features + precise geo filling + target features: cv 0.064534428294, lb: 0.0643728
     # 'model_params': {'alpha': 0.4, 'colsample_bylevel': 0.5, 'colsample_bytree': 0.5, 'eta': 0.13806545489668282,

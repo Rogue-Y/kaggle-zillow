@@ -22,8 +22,8 @@ import time
 space_lightgbm = {
     'model_params': {
         'learning_rate': hp.loguniform('learning_rate', -2, 0),
-        'boosting_type': 'gbdt',
-        'objective': 'regression',
+        'boosting_type': 'rf',
+        'objective': hp.choice('objective', ['huber', 'fair', 'poisson']),
         'metric': hp.choice('metric', ['mae', 'mse']),
         'sub_feature': hp.uniform('sub_feature', 0.1, 0.5),
         'num_leaves': hp.choice('num_leaves', list(range(10, 151, 15))),
@@ -31,8 +31,8 @@ space_lightgbm = {
         'min_hessian': hp.loguniform('min_hessian', -3, 1),
         'num_boost_round': hp.choice('num_boost_round', [200, 300, 500]),
         'max_bin': hp.choice('max_bin', list(range(50, 151, 10))),
-        # 'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
-        # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
+        'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
+        'bagging_freq': hp.choice('bagging_freq', list(range(10, 100, 10))),
         'verbose': -1
     },
     'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
@@ -99,8 +99,8 @@ space_rf = {
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
 configuration = test_config
 experiments = [
-    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
-    # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
+    # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 150, {}),
+    (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
     # (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}),
 ]
 
