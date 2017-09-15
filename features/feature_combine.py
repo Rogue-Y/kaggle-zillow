@@ -34,6 +34,9 @@ def original_feature_clean(df, feature_module, global_force_generate=True, pickl
     functions = [o for o in inspect.getmembers(feature_module) if inspect.isfunction(o[1])]
     features = []
     for name, generator in functions:
+        name_lower = name.lower()
+        if 'bin' in name_lower or 'cross' in name_lower or 'encoder' in name_lower or 'helper' in name_lower:
+            continue
         pickle_path = pickle_folder + str(name) + '_pickle'
         if not global_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)

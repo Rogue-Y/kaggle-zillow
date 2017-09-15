@@ -18,10 +18,10 @@ def airconditioningtypeid(df):
     df.loc[row_indexer, col_indexer] = 5
 
     # After 1965 set to "Other"
-    row_indexer = (df['airconditioningtypeid'].isnull()) & (df['yearbuilt'] > 1965)
-    col_indexer = ['airconditioningtypeid']
-    df.loc[row_indexer, col_indexer] = 6
-    return df['airconditioningtypeid']
+    # row_indexer = (df['airconditioningtypeid'].isnull()) & (df['yearbuilt'] > 1965)
+    # col_indexer = ['airconditioningtypeid']
+    # df.loc[row_indexer, col_indexer] = 6
+    return df['airconditioningtypeid'].fillna(6)
 
 def architecturalstyletypeid(df):
     # Low non-nan ratio, fill "Other"
@@ -99,35 +99,41 @@ def fullbathcnt(df):
 ############
 
 def fill_median_and_clip_helper(df, column, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
-    feature = df[column]
-    result = feature.fillna(feature.median())
+    result = pd.DataFrame()
+    feature = df[column].fillna(df[column].median())
+    result[column] = feature
     if lo_pct > 0:
         # the percentile is based the values before fill nan
         lolimit = feature.quantile(lo_pct)
-        result.loc[result < lolimit] = lolimit
+        result[column + '_undercap'] = feature < lolimit
+        result.loc[result[column] < lolimit, column] = lolimit
     if up_pct < 1:
         uplimit = feature.quantile(up_pct)
-        result.loc[result > uplimit] = uplimit
+        result[column + '_overcap'] = feature > uplimit
+        result.loc[result[column] > uplimit, column] = uplimit
     if lo_cap is not None:
-        result.loc[result < lo_cap] = lo_cap
+        result.loc[result[column] < lo_cap, column] = lo_cap
     if up_cap is not None:
-        result.loc[result > up_cap] = up_cap
+        result.loc[result[column] > up_cap, column] = up_cap
     return result
 
 def fill_value_and_clip_helper(df, column, value=0, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
-    feature = df[column]
-    result = feature.fillna(value)
+    result = pd.DataFrame()
+    feature = df[column].fillna(value)
+    result[column] = feature
     if lo_pct > 0:
         # the percentile is based the values before fill nan
         lolimit = feature.quantile(lo_pct)
-        result.loc[result < lolimit] = lolimit
+        result[column + '_undercap'] = feature < lolimit
+        result.loc[result[column] < lolimit, column] = lolimit
     if up_pct < 1:
         uplimit = feature.quantile(up_pct)
-        result.loc[result > uplimit] = uplimit
+        result[column + '_overcap'] = feature > uplimit
+        result.loc[result[column] > uplimit, column] = uplimit
     if lo_cap is not None:
-        result.loc[result < lo_cap] = lo_cap
+        result.loc[result[column] < lo_cap, column] = lo_cap
     if up_cap is not None:
-        result.loc[result > up_cap] = up_cap
+        result.loc[result[column] > up_cap, column] = up_cap
     return result
 
 
@@ -145,12 +151,15 @@ def garagecarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
 # 1500 (~quantile 0.9985) seems a good place to clip
 # 182804 rows has garagecnt > 0 but garagesqft = 0 are 0
 # could create a is zero feature
-def garagetotalsqft(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+def garagetotalsqft(df, lo_pct=0, up_pct=0.99, lo_cap=None, up_cap=None):
     return fill_median_and_clip_helper(df, 'garagetotalsqft', lo_pct, up_pct, lo_cap, up_cap)
 
 def is_garagetotalsqft_zero(df):
     return df['garagetotalsqft'] == 0
 
+# Some garage has 0 carcnt but non-zero sqft
+def has_partial_garagecarcnt(df):
+    return (df['garagetotalsqft'] > 0) & (df['garagecarcnt'] == 0)
 
 
 # low non-nan ratio: 0.023119

@@ -272,3 +272,16 @@ def clean_strange_value(df, value=0):
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
     df.fillna(value, inplace=True)
     return df
+
+def clip_create_outlier_bool(feature, name, lo_pct=0, up_pct=1):
+    result = pd.DataFrame()
+    result[name] = feature
+    if lo_pct > 0:
+        lolimit = feature.quantile(lo_pct)
+        result[name + '_undercap'] = feature < lolimit
+        result.loc[feature < lolimit, name] = lolimit
+    if up_pct < 1:
+        uplimit = feature.quantile(up_pct)
+        result[name + '_overcap'] = feature > uplimit
+        result.loc[feature > uplimit, name] = uplimit
+    return result

@@ -9,6 +9,7 @@ from .utils import *
 import numpy as np
 import math
 from sklearn.preprocessing import LabelEncoder
+from features.data_clean import clip_create_outlier_bool
 
 labelEncoder = LabelEncoder()
 
@@ -80,7 +81,9 @@ def total_rooms(df):
 def average_room_size(df):
     #Average room size
     total = total_rooms(df)
-    return df['calculatedfinishedsquarefeet']/total
+    feature = df['calculatedfinishedsquarefeet']/total
+    result = clip_create_outlier_bool(feature, 'average_room_size', 0, 0.99)
+    return result
 
 # # roomcnt is mostly 0
 # def average_room_size_2(df):
