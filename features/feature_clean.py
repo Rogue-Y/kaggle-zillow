@@ -98,78 +98,106 @@ def fullbathcnt(df):
 
 ############
 
+def fill_median_and_clip_helper(df, column, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    feature = df[column]
+    result = feature.fillna(feature.median())
+    if lo_pct > 0:
+        # the percentile is based the values before fill nan
+        lolimit = feature.quantile(lo_pct)
+        result.loc[result < lolimit] = lolimit
+    if up_pct < 1:
+        uplimit = feature.quantile(up_pct)
+        result.loc[result > uplimit] = uplimit
+    if lo_cap is not None:
+        result.loc[result < lo_cap] = lo_cap
+    if up_cap is not None:
+        result.loc[result > up_cap] = up_cap
+    return result
 
-def garagecarcnt(df):
-    return df['garagecarcnt']
+def fill_value_and_clip_helper(df, column, value=0, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    feature = df[column]
+    result = feature.fillna(value)
+    if lo_pct > 0:
+        # the percentile is based the values before fill nan
+        lolimit = feature.quantile(lo_pct)
+        result.loc[result < lolimit] = lolimit
+    if up_pct < 1:
+        uplimit = feature.quantile(up_pct)
+        result.loc[result > uplimit] = uplimit
+    if lo_cap is not None:
+        result.loc[result < lo_cap] = lo_cap
+    if up_cap is not None:
+        result.loc[result > up_cap] = up_cap
+    return result
 
-def garagetotalsqft(df):
-    return df['garagetotalsqft']
 
+# garage
+
+# up_pct and lo_pct are used to clipping with percentile, should be
+# number between 0 and 1
+# up_cap and lo_cap are used to clipping with max and min
+# should just choose one clipping method
+# Non-nan ratio: 0.32966
+def garagecarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'garagecarcnt', lo_pct, up_pct, lo_cap, up_cap)
+
+# Non-nan ratio: 0.32966
+# 1500 (~quantile 0.9985) seems a good place to clip
+# 182804 rows has garagecnt > 0 but garagesqft = 0 are 0
+# could create a is zero feature
+def garagetotalsqft(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'garagetotalsqft', lo_pct, up_pct, lo_cap, up_cap)
+
+def is_garagetotalsqft_zero(df):
+    return df['garagetotalsqft'] == 0
+
+
+
+# low non-nan ratio: 0.023119
 def hashottuborspa(df):
-    return df['hashottuborspa']
+    return df['hashottuborspa'] == True
 
-def heatingorsystemtypeid(df):
-    return df['heatingorsystemtypeid']
+# non-nan ratio: 0.907511
+def lotsizesquarefeet(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'lotsizesquarefeet', lo_pct, up_pct, lo_cap, up_cap)
 
-def latitude(df):
-    return df['latitude']
 
-def longitude(df):
-    return df['longitude']
+# Pool
 
-def lotsizesquarefeet(df):
-    return df['lotsizesquarefeet']
-
+# 0.173
+# all 1, like has pool
 def poolcnt(df):
-    return df['poolcnt']
+    return df['poolcnt'] == 1
 
-def poolsizesum(df):
-    return df['poolsizesum']
+# low ratio: 0.009
+def poolsizesum(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'poolsizesum', lo_pct, up_pct, lo_cap, up_cap)
 
+# low ratio: 0.0123
+# all 1, means is the pool a spa
 def pooltypeid10(df):
-    return df['pooltypeid10']
+    return df['pooltypeid10'] == 1
 
+# low ratio: 0.0107
+# all 1, means is the pool with spa
 def pooltypeid2(df):
-    return df['pooltypeid2']
+    return df['pooltypeid2'] == 1
 
+# 0.162621
+# all 1, means is the pool without hot tub
 def pooltypeid7(df):
-    return df['pooltypeid7']
+    return df['pooltypeid7'] == 1
 
-def propertycountylandusecode(df):
-    return df['propertycountylandusecode']
 
-def propertylandusetypeid(df):
-    return df['propertylandusetypeid']
-
-def propertyzoningdesc(df):
-    return df['propertyzoningdesc']
-
-def rawcensustractandblock(df):
-    return df['rawcensustractandblock']
-
-def regionidcity(df):
-    return df['regionidcity']
-
-def regionidcounty(df):
-    return df['regionidcounty']
-
-def regionidneighborhood(df):
-    return df['regionidneighborhood']
-
-def regionidzip(df):
-    return df['regionidzip']
-
-def roomcnt(df):
-    return df['roomcnt']
-
+# extremly low ratio: 0.000544
+# all 7 basically a is basement flag
 def storytypeid(df):
-    return df['storytypeid']
+    return df['storytypeid'] == 7
 
-def threequarterbathnbr(df):
-    return df['threequarterbathnbr']
-
-def typeconstructiontypeid(df):
-    return df['typeconstructiontypeid']
+# 0.104
+# fill 0 (assume nan means no 3/4 bathrooms)
+def threequarterbathnbr(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_value_and_clip_helper(df, threequarterbathnbr, 0, lo_pct, up_pct, lo_cap, up_cap)
 
 def unitcnt(df):
     return df['unitcnt']
@@ -212,3 +240,61 @@ def taxdelinquencyyear(df):
 
 def censustractandblock(df):
     return df['censustractandblock']
+
+
+# Categorical:
+# non-nan ratio: 0.605115
+def heatingorsystemtypeid(df):
+    return df['heatingorsystemtypeid']
+
+def propertycountylandusecode(df):
+    return df['propertycountylandusecode']
+
+def propertylandusetypeid(df):
+    return df['propertylandusetypeid']
+
+def propertyzoningdesc(df):
+    return df['propertyzoningdesc']
+
+def rawcensustractandblock(df):
+    return df['rawcensustractandblock']
+
+# low ratio: 0.002260
+def typeconstructiontypeid(df):
+    return df['typeconstructiontypeid']
+
+# Geo
+def latitude(df):
+    return df['latitude']
+
+def longitude(df):
+    return df['longitude']
+
+def regionidcity(df):
+    return df['regionidcity']
+
+def regionidcounty(df):
+    return df['regionidcounty']
+
+def regionidneighborhood(df):
+    return df['regionidneighborhood']
+
+def regionidzip(df):
+    return df['regionidzip']
+
+
+# Really wired
+# 0.996
+# mostly 0 and median is 0,
+# could replace this with the sum of bedroom and bathroom
+def roomcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'roomcnt', lo_pct, up_pct, lo_cap, up_cap)
+
+def is_roomcnt_zero(df):
+    return df['roomcnt'] == 0
+
+def total_room_fill_nan(df):
+    return bedroomcnt(df) + bathroomcnt(df)
+
+def total_room_with_nan(df):
+    return df['bathroomcnt'] + df['bedroomcnt']

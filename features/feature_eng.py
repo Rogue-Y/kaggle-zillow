@@ -82,8 +82,9 @@ def average_room_size(df):
     total = total_rooms(df)
     return df['calculatedfinishedsquarefeet']/total
 
-def average_room_size_2(df):
-    return df['calculatedfinishedsquarefeet']/df['roomcnt']
+# # roomcnt is mostly 0
+# def average_room_size_2(df):
+#     return df['calculatedfinishedsquarefeet']/df['roomcnt']
 
 def average_bathroom_size(df):
     return df['finishedsquarefeet12']/df['bathroomcnt']
@@ -91,18 +92,19 @@ def average_bathroom_size(df):
 def average_bedroom_size(df):
     return df['finishedsquarefeet12']/df['bedroomcnt']
 
-def average_pool_size(df):
-    return df['poolsizesum']/df['poolcnt']
+# poolcnt all 1
+# def average_pool_size(df):
+#     return df['poolsizesum']/df['poolcnt']
 
 def extra_rooms(df):
     # Number of Extra rooms
     # most roomcnt are 0
     total = total_rooms(df)
-    return df['roomcnt'] - total
+    return total - df['roomcnt']
 
-def boolean_has_garage_pool_or_ac(df):
+def boolean_has_garage_pool_and_ac(df):
     #Does property have a garage, pool or hot tub and AC?
-    return (df['garagecarcnt']>0) & (df['pooltypeid10']>0) & (df['airconditioningtypeid']!=5)
+    return (df['garagecarcnt']>0) & (df['poolcnt']>0) & (df['airconditioningtypeid']!=5)
 
 # Tax related
 def ratio_tax_value_to_structure_value(df):
@@ -151,7 +153,8 @@ def geo_neighborhood(df, columns=None):
             'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
             # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            # 'roomcnt',
+            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
             'taxamount',
             'taxvaluedollarcnt']
     #Number of properties in the neighborhood
@@ -182,7 +185,8 @@ def geo_city(df, columns=None):
             'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
             # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            # 'roomcnt',
+            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
             'taxamount',
             'taxvaluedollarcnt']
     #Number of properties in the city
@@ -211,7 +215,8 @@ def geo_zip(df, columns=None):
             'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
             # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            # 'roomcnt',
+            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
             'taxamount',
             'taxvaluedollarcnt']
     #Number of properties in the zip
@@ -240,7 +245,8 @@ def geo_county(df, columns=None):
             'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
             # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            # 'roomcnt',
+            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
             'taxamount',
             'taxvaluedollarcnt']
     #Number of properties in the county
@@ -375,7 +381,8 @@ def geo_lat_lon_block_features(df, columns=None):
             'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
             'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
             'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            'roomcnt', 'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            # 'roomcnt',
+            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
             'taxamount',
             'taxvaluedollarcnt']
     lat_lon_block = pd.DataFrame()
