@@ -87,9 +87,20 @@ def fips(df):
     # fill in mode "6037"
     return df['fips'].fillna(df['fips'].mode()[0])
 
+# fireplace
+# 0.104728
 def fireplacecnt(df):
     # Can fill na with 0
     return df['fireplacecnt'].fillna(0)
+
+# extremly low ratio: 0.001730
+# seems has way more data than fireplacecnt
+def fireplaceflag(df):
+    return df['fireplaceflag'] == True
+
+def has_fireplace(df):
+    return df['fireplacecnt'].notnull()
+
 
 def fullbathcnt(df):
     # Fill in median = 2
@@ -151,7 +162,7 @@ def garagecarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
 # 1500 (~quantile 0.9985) seems a good place to clip
 # 182804 rows has garagecnt > 0 but garagesqft = 0 are 0
 # could create a is zero feature
-def garagetotalsqft(df, lo_pct=0, up_pct=0.99, lo_cap=None, up_cap=None):
+def garagetotalsqft(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
     return fill_median_and_clip_helper(df, 'garagetotalsqft', lo_pct, up_pct, lo_cap, up_cap)
 
 def is_garagetotalsqft_zero(df):
@@ -197,7 +208,6 @@ def pooltypeid2(df):
 def pooltypeid7(df):
     return df['pooltypeid7'] == 1
 
-
 # extremly low ratio: 0.000544
 # all 7 basically a is basement flag
 def storytypeid(df):
@@ -206,49 +216,91 @@ def storytypeid(df):
 # 0.104
 # fill 0 (assume nan means no 3/4 bathrooms)
 def threequarterbathnbr(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
-    return fill_value_and_clip_helper(df, threequarterbathnbr, 0, lo_pct, up_pct, lo_cap, up_cap)
+    return fill_value_and_clip_helper(df, 'threequarterbathnbr', 0, lo_pct, up_pct, lo_cap, up_cap)
 
-def unitcnt(df):
-    return df['unitcnt']
+# 0.662428
+# mostly 1
+def unitcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'unitcnt', lo_pct, up_pct, lo_cap, up_cap)
 
-def yardbuildingsqft17(df):
-    return df['yardbuildingsqft17']
+# 4 has 39877 count, 5 has only 588
+def is_unitcnt_gt_four(df):
+    return df['unitcnt'] > 4
 
-def yardbuildingsqft26(df):
-    return df['yardbuildingsqft26']
 
-def yearbuilt(df):
-    return df['yearbuilt']
+# yard
+# low ratio: 0.026918
+def yardbuildingsqft17(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'yardbuildingsqft17', lo_pct, up_pct, lo_cap, up_cap)
 
-def numberofstories(df):
-    return df['numberofstories']
+# low ratio: 0.000887
+# Storage shed/building in yard
+def yardbuildingsqft26(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_value_and_clip_helper(df, 'yardbuildingsqft26', 0, lo_pct, up_pct, lo_cap, up_cap)
 
-def fireplaceflag(df):
-    return df['fireplaceflag']
+# This could be replicate of the above one, since we fill 0 for the above one.
+def has_shed_in_yard(df):
+    return df['yardbuildingsqft26'].notnull()
 
-def structuretaxvaluedollarcnt(df):
-    return df['structuretaxvaluedollarcnt']
+# 0.228482
+# range from 1 to 41, but only 1 to 4 in the training data
+def numberofstories(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'numberofstories', lo_pct, up_pct, lo_cap, up_cap)
 
-def taxvaluedollarcnt(df):
-    return df['taxvaluedollarcnt']
+def is_numberofstories_gt_three(df):
+    return df['numberofstories'] > 3
 
+# tax
+# 0.981582
+def structuretaxvaluedollarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'structuretaxvaluedollarcnt', lo_pct, up_pct, lo_cap, up_cap)
+
+# 0.985746
+def taxvaluedollarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'taxvaluedollarcnt', lo_pct, up_pct, lo_cap, up_cap)
+
+# 0.996168
+# assume nan value means not assess yet, so fill 2016 (the current year of data)
 def assessmentyear(df):
-    return df['assessmentyear']
+    return df['assessmentyear'].fillna(2016)
 
-def landtaxvaluedollarcnt(df):
-    return df['landtaxvaluedollarcnt']
+def is_tax_assessed(df):
+    return df['assessmentyear'].notnull()
 
-def taxamount(df):
-    return df['taxamount']
+# 0.977311
+def landtaxvaluedollarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'landtaxvaluedollarcnt', lo_pct, up_pct, lo_cap, up_cap)
 
+# 0.989532
+def taxamount(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
+    return fill_median_and_clip_helper(df, 'taxamount', lo_pct, up_pct, lo_cap, up_cap)
+
+# 0.018914
+# boolean
 def taxdelinquencyflag(df):
-    return df['taxdelinquencyflag']
+    return df['taxdelinquencyflag'] == 'Y'
 
+# 0.018915
+# nan means tax is paid, so put in 2016 to represent that.
+# Also change the value to YYYY format
 def taxdelinquencyyear(df):
-    return df['taxdelinquencyyear']
+    tmp = df['taxdelinquencyyear'].fillna(16)
+    result = tmp + 1900
+    # get the right year for 2000 to 2017
+    return result.where(tmp > 17, result + 100)
 
-def censustractandblock(df):
-    return df['censustractandblock']
+# Also try buckets for this one.
+def is_taxdelinquencyyear_before_2014(df):
+    return taxdelinquencyyear(df) < 2014
+
+# The difference between the sum of structure and land tax with total tax
+def tax_difference_with_nan(df):
+    return (df['structuretaxvaluedollarcnt'] + df['landtaxvaluedollarcnt']
+        - df['taxvaluedollarcnt'])
+
+def tax_difference_fill_nan(df):
+    return (structuretaxvaluedollarcnt(df) + landtaxvaluedollarcnt(df)
+        - taxvaluedollarcnt(df))
 
 
 # Categorical:
@@ -267,6 +319,9 @@ def propertyzoningdesc(df):
 
 def rawcensustractandblock(df):
     return df['rawcensustractandblock']
+
+def censustractandblock(df):
+    return df['censustractandblock']
 
 # low ratio: 0.002260
 def typeconstructiontypeid(df):
@@ -292,6 +347,8 @@ def regionidzip(df):
     return df['regionidzip']
 
 
+# Other features that need discussion
+
 # Really wired
 # 0.996
 # mostly 0 and median is 0,
@@ -307,3 +364,10 @@ def total_room_fill_nan(df):
 
 def total_room_with_nan(df):
     return df['bathroomcnt'] + df['bedroomcnt']
+
+
+# 0.979925
+# There's no dominant mode in data. Maybe we could 1. infer the year from other
+# features; 2. for each parcel, randomly choose a year from the top n counts.
+def yearbuilt(df):
+    return df['yearbuilt']
