@@ -178,7 +178,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         if submit:
             print('predicting on testing data...')
             test_preds = []
-            # Split testing dataframe 
+            # Split testing dataframe
             for df_test_split in np.array_split(df_test, 30):
                 test_preds.append(model.predict(df_test_split))
             model_preds.append(np.concatenate(test_preds))
@@ -205,22 +205,27 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # make prediction
         print("make prediction...")
         # model_preds = list(map(lambda model: model.predict(df_test), models))
-        avg_pred = np.mean(model_preds, axis=0)
+        avg_pred = pd.Series(np.mean(model_preds, axis=0), name=('%s_%s' %(Model.__name__, time)))
         print(len(avg_pred))
 
-        # add resale
-        sales = transactions[['parcelid', 'logerror']].groupby('parcelid').mean()
-        predict_df = predict_df.join(sales, on='parcelid', how='left')
-        predict_df['predict'] = avg_pred
-        # predict = predict_df['predict'].where(predict_df['logerror'].isnull(), predict_df['logerror'])
-        predict = predict_df['predict'].where(
-            predict_df['logerror'].isnull(), predict_df['predict'] + resale_offset)
+        # Save one in history
+        avg_pred.to_pickle('data/predictions/history/%s_%s_pickle' %(time, Model.__name__))
+        # Update the most recent pickle for this model
+        avg_pred.to_pickle('data/predictions/%s_latest_pickle' %Model.__name__)
+
+        # # add resale
+        # sales = transactions[['parcelid', 'logerror']].groupby('parcelid').mean()
+        # predict_df = predict_df.join(sales, on='parcelid', how='left')
+        # predict_df['predict'] = avg_pred
+        # # predict = predict_df['predict'].where(predict_df['logerror'].isnull(), predict_df['logerror'])
+        # predict = predict_df['predict'].where(
+        #     predict_df['logerror'].isnull(), predict_df['predict'] + resale_offset)
 
         # Save prediction(a Series object) to a pickle for ensembling use
         # Save one in history
-        predict.to_pickle('data/predictions/history/%s_%s_pickle' %(time, Model.__name__))
+        # predict.to_pickle('data/predictions/history/%s_%s_pickle' %(time, Model.__name__))
         # Update the most recent pickle for this model
-        predict.to_pickle('data/predictions/%s_latest_pickle' %Model.__name__)
+        # predict.to_pickle('data/predictions/%s_latest_pickle' %Model.__name__)
         print("Prediction made.")
 
         # # generate submission
@@ -234,24 +239,8 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
 
     return avg_cv_errors
 
-
-if __name__ == '__main__':
-    t1 = time.time()
-    # Get configuration
-    # parser to parse cmd line option
-    parser = OptionParser()
-    # add options to parser, currently only config file
-    parser.add_option('-c', '--config', action='store', type='string', dest='config_file')
-    # parse cmd line arguments
-    (options, args) = parser.parse_args()
-
-    config_file = options.config_file
-    # default to test config
-    if not config_file:
-        config_file = 'test_config'
-
-    # Configuration:
-    config_dict = getattr(config, config_file)
+# Training model according to a specific configuration dictionary
+def train_config_wrapper(config_dict, submit=None):
     # print configuration for confirmation
     for key, value in config_dict.items():
         if key == 'feature_list':
@@ -273,7 +262,9 @@ if __name__ == '__main__':
     # if record training
     record = config_dict['record'] if 'record' in config_dict else False
     # if generate submission or not
-    submit = config_dict['submit'] if 'submit' in config_dict else False
+    # when submit is not provided as a method parameter, go to the config_dict
+    if submit is None:
+        submit = config_dict['submit'] if 'submit' in config_dict else False
     # outliers removal upper and lower percentile
     outliers_up_pct = config_dict['outliers_up_pct'] if 'outliers_up_pct' in config_dict else 99
     outliers_lw_pct = config_dict['outliers_lw_pct'] if 'outliers_lw_pct' in config_dict else 1
@@ -311,6 +302,28 @@ if __name__ == '__main__':
             Model=Model, model_params=model_params, FOLDS = FOLDS,
             record=record, submit=False, outliers_up_pct=outliers_up_pct,
             outliers_lw_pct=outliers_lw_pct, resale_offset=resale_offset, pca_components=pca_components)
+
+
+
+if __name__ == '__main__':
+    t1 = time.time()
+    # Get configuration
+    # parser to parse cmd line option
+    parser = OptionParser()
+    # add options to parser, currently only config file
+    parser.add_option('-c', '--config', action='store', type='string', dest='config_file')
+    # parse cmd line arguments
+    (options, args) = parser.parse_args()
+
+    config_file = options.config_file
+    # default to test config
+    if not config_file:
+        config_file = 'test_config'
+
+    # Configuration:
+    config_dict = getattr(config, config_file)
+    # Training
+    train_config_wrapper(config_dict)
 
     t2 = time.time()
     print((t2 - t1) / 60)
