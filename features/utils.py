@@ -2,10 +2,14 @@ from collections import defaultdict
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 
+import inspect
 import json
 import os
 import pickle
+
+from features import feature_clean
 
 # utility functions
 def plot_score(y, y_hat):
@@ -33,6 +37,8 @@ def load_transaction_data(data_folder='data/', force_read=False):
     else:
         train = pd.read_csv(
             data_folder + 'train_2016_v2.csv', parse_dates=['transactiondate'])
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
         train.to_pickle(train_data_pickle)
     return train
 
@@ -53,8 +59,78 @@ def load_properties_data(data_folder='data/', force_read=False):
         for col in prop.columns:
             if prop[col].dtype == 'float64':
                 prop[col] = prop[col].astype('float32')
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
         prop.to_pickle(prop_data_pickle)
     return prop
+
+
+def load_properties_data_preprocessed(data_folder='data/', force_read=False):
+    """ Load properties data and do some simple preprocess, mainly on boolean
+        and categorical data.
+        Returns:
+            properties_df_preprocessed
+    """
+    prop_preprocessed_pickle_path = data_folder + 'properties_2016_pickle_preprocessed'
+    if not force_read and os.path.exists(prop_preprocessed_pickle_path):
+        prop_preprocessed = pd.read_pickle(prop_preprocessed_pickle_path)
+    else:
+        prop_preprocessed = load_properties_data()
+
+        # boolean columns
+        prop_preprocessed['fireplaceflag'] = feature_clean.fireplacecnt(prop_preprocessed)
+        prop_preprocessed['hashottuborspa'] = feature_clean.hashottuborspa(prop_preprocessed)
+        prop_preprocessed['pooltypeid10'] = feature_clean.pooltypeid10(prop_preprocessed)
+        prop_preprocessed['pooltypeid2'] = feature_clean.pooltypeid2(prop_preprocessed)
+        prop_preprocessed['pooltypeid7'] = feature_clean.pooltypeid7(prop_preprocessed)
+        prop_preprocessed['taxdelinquencyflag'] = feature_clean.taxdelinquencyflag(prop_preprocessed)
+
+        # encode some categorical features that are not represented with numbers
+        labelEncoder = LabelEncoder()
+        prop_preprocessed['propertycountylandusecode'] = (
+            labelEncoder.fit_transform(prop_preprocessed['propertycountylandusecode'].astype(str)))
+        prop_preprocessed['propertyzoningdesc'] = (
+            labelEncoder.fit_transform(prop_preprocessed['propertyzoningdesc'].astype(str)))
+
+        # change taxdelinquencyyear to YYYY format
+        tmp = prop_preprocessed['taxdelinquencyyear'] + 1900
+        prop_preprocessed['taxdelinquencyyear'] = tmp.where(
+            prop_preprocessed['taxdelinquencyyear'] > 17,
+            tmp + 100)
+
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
+        prop_preprocessed.to_pickle(prop_preprocessed_pickle_path)
+
+    return prop_preprocessed
+
+
+def load_properties_data_cleaned(data_folder='data/', force_read=False):
+    """ Load properties data and clean data.
+        Returns:
+            properties_df_cleaned
+    """
+    prop_cleaned_pickle_path = data_folder + 'properties_2016_pickle_cleaned'
+    if not force_read and os.path.exists(prop_cleaned_pickle_path):
+        prop_cleaned = pd.read_pickle(prop_cleaned_pickle_path)
+    else:
+        # (name, function)
+        functions = [o for o in inspect.getmembers(feature_clean) if inspect.isfunction(o[1])]
+        # convert to a dictionary
+        functions_dict = dict(functions)
+        prop = load_properties_data()
+        # filter out parcels that have unknown lat or lon
+        prop = prop[prop['latitude'].notnull() & prop['longitude'].notnull()]
+        # create a new df as some feature filling may depend on other features
+        prop_cleaned = pd.DataFrame()
+        for col in prop.columns:
+            prop_cleaned[col] = functions_dict[col](prop)
+
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
+        prop_cleaned.to_pickle(prop_cleaned_pickle_path)
+
+    return prop_cleaned
 
 # Load the reduced size properties data
 def load_properties_data_minimize(data_folder='data/', force_read=False):

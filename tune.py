@@ -110,9 +110,9 @@ def tune():
         tune_single_model(Model, feature_list, parameter_space, max_evals, exp_params)
 
 def tune_single_model(Model, feature_list, parameter_space, max_evals, exp_params, trials=None):
-    prop = prepare_features(feature_list)
     clean_na = exp_params['clean_na'] if 'clean_na' in exp_params else False
-    train_df, transactions = prepare_training_data(prop, clean_na)
+    prop = prepare_features(feature_list, clean_na)
+    train_df, transactions = prepare_training_data(prop)
     del transactions; del prop; gc.collect()
 
     def train_wrapper(params):

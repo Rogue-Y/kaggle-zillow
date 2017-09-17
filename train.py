@@ -46,37 +46,23 @@ def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
     train_recorder.write('Validation label stats: ' + y_valid.describe().to_string(float_format='{:.5f}'.format) + '\n')
     train_recorder.write('Validation predict stats: ' + y_valid_pred.describe().to_string(float_format='{:.5f}'.format) + '\n')
 
-def prepare_features(feature_list = [], force_prepare=True, save_pickle=False):
-    feature_eng_pickle = 'data/feature_eng_pickle'
-    if not force_prepare and not save_pickle and os.path.exists(feature_eng_pickle):
-        prop = pd.read_pickle(feature_eng_pickle)
+def prepare_features(feature_list = [], clean=False):
+    # use minimized version of properties data when memory is a concern
+    # prop = utils.load_properties_data_minimize()
+    # feature engineering
+    print('Feature engineering')
+    if clean:
+        prop = feature_combine.feature_combine_cleaned(feature_list)
     else:
-        prop = utils.load_properties_data()
-        # use minimized version of properties data when memory is a concern
-        # prop = utils.load_properties_data_minimize()
-        # feature engineering
-        print('Feature engineering')
-        prop = feature_combine.original_feature_clean(prop, feature_clean, False, 'features/feature_pickles/')
-        prop = feature_combine.feature_combine(
-            prop, feature_list, False, 'features/feature_pickles/')
-        print(prop.shape)
-        # for col in prop.columns:
-        #     print(col)
+        prop = feature_combine.feature_combine_with_nan(feature_list)
+    print(prop.shape)
+    # for col in prop.columns:
+    #     print(col)
 
-        # fill nan, inf
-        # prop = data_clean.clean_boolean_data(prop)
-        # convert string value to boolean
-        # prop = data_clean.drop_low_ratio_columns(prop)
-        prop = data_clean.clean_boolean_data(prop)
-        # prop = data_clean.drop_categorical_data(prop)
-        prop = data_clean.cat2num(prop)
-        if save_pickle:
-            # Only save pickle when necessary, as this takes some time
-            prop.to_pickle(feature_eng_pickle)
     print(prop.shape)
     return prop
 
-def prepare_training_data(prop, clean_na = False):
+def prepare_training_data(prop):
     # Process:
     # load training data
     print('Load training data...')
@@ -86,10 +72,6 @@ def prepare_training_data(prop, clean_na = False):
     train_df = transactions.merge(prop, how='left', on='parcelid')
     # df.to_csv('test_df.csv')
     # del train_df; gc.collect()
-
-    if clean_na:
-        #TODO: Configurize processing nan for different columns
-        train_df = data_clean.clean_strange_value(train_df)
 
     return train_df, transactions
 
@@ -179,7 +161,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         if submit:
             print('predicting on testing data...')
             test_preds = []
-            # Split testing dataframe 
+            # Split testing dataframe
             for df_test_split in np.array_split(df_test, 30):
                 test_preds.append(model.predict(df_test_split))
             model_preds.append(np.concatenate(test_preds))
@@ -289,9 +271,9 @@ if __name__ == '__main__':
         clean_na = True
 
 
-    prop = prepare_features(feature_list)
+    prop = prepare_features(feature_list, clean_na)
 
-    train_df, transactions = prepare_training_data(prop, clean_na)
+    train_df, transactions = prepare_training_data(prop)
     if submit:
         cv_error = train(train_df,
             prop=prop, transactions=transactions, Model=Model, model_params=model_params, FOLDS = FOLDS,

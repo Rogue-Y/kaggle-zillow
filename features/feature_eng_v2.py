@@ -33,41 +33,65 @@ def built_before_year(df, year=1900):
 def error_rate_calculated_finished_living_sqft(df):
     # error in calculation of the finished living area of home
     # this 2 values has correlation 1
-    return df['calculatedfinishedsquarefeet']/df['finishedsquarefeet12']
+    return ratio_helper(
+        df['calculatedfinishedsquarefeet'],
+        df['finishedsquarefeet12'])
 
 def error_rate_first_floor_living_sqft(df):
-    return df['finishedsquarefeet50']/df['finishedfloor1squarefeet']
+    return ratio_helper(
+        df['finishedsquarefeet50'],
+        df['finishedfloor1squarefeet'])
 
 def error_rate_bathroom(df):
-    return df['calculatedbathnbr']/df['bathroomcnt']
+    return ratio_helper(
+        df['calculatedbathnbr'],
+        df['bathroomcnt'])
 
 def error_rate_count_bathroom(df):
-    return (df['threequarterbathnbr'] + df['fullbathcnt'])/df['bathroomcnt']
+    return ratio_helper(
+        df['threequarterbathnbr'] + df['fullbathcnt'],
+        df['bathroomcnt'])
 
 def ratio_living_area(df):
     #proportion of living area
-    return df['calculatedfinishedsquarefeet']/df['lotsizesquarefeet']
+    return ratio_helper(
+        df['calculatedfinishedsquarefeet'],
+        df['lotsizesquarefeet'])
 
 def ratio_living_area_2(df):
-    return df['finishedsquarefeet12']/df['finishedsquarefeet15']
+    return ratio_helper(
+        df['finishedsquarefeet12'],
+        df['finishedsquarefeet15'])
 
 def ratio_bedroom_bathroom(df):
-    return df['bedroomcnt']/df['bathroomcnt']
+    return ratio_helper(
+        df['bedroomcnt'],
+        df['bathroomcnt'])
 
 def ratio_basement(df):
-    return df['basementsqft']/df['finishedsquarefeet12']
+    return ratio_helper(
+        df['basementsqft'],
+        df['finishedsquarefeet12'])
 
 def ratio_pool_yard(df):
-    return df['poolsizesum']/df['yardbuildingsqft17']
+    return ratio_helper(
+        df['poolsizesum'],
+        df['yardbuildingsqft17'])
 
 def ratio_pool_shed(df):
-    return df['yardbuildingsqft26']/df['yardbuildingsqft17']
+    return ratio_helper(
+        df['yardbuildingsqft26'],
+        df['yardbuildingsqft17'])
 
 def ratio_floor_shape(df):
-    return df['finishedsquarefeet13']/df['calculatedfinishedsquarefeet']
+    return ratio_helper(
+        df['finishedsquarefeet13'],
+        df['calculatedfinishedsquarefeet'])
 
 def ratio_fireplace(df):
-    return df['fireplacecnt']/df['finishedsquarefeet15']
+    return ratio_helper(
+        df['fireplacecnt'],
+        df['finishedsquarefeet15'])
 
 def extra_space(df):
     #Amout of extra space
@@ -80,7 +104,9 @@ def total_rooms(df):
 def average_room_size(df):
     #Average room size
     total = total_rooms(df)
-    return df['calculatedfinishedsquarefeet']/total
+    # To deal with inf and nan (when both denominator and nominator is 0),
+    # when total is zero, default it to 1.
+    return ratio_helper(df['calculatedfinishedsquarefeet'], total)
 
 def clipped_average_room_size(df):
     feature = average_room_size(df)
@@ -91,10 +117,14 @@ def clipped_average_room_size(df):
 #     return df['calculatedfinishedsquarefeet']/df['roomcnt']
 
 def average_bathroom_size(df):
-    return df['finishedsquarefeet12']/df['bathroomcnt']
+    return ratio_helper(
+        df['finishedsquarefeet12'],
+        df['bathroomcnt'])
 
 def average_bedroom_size(df):
-    return df['finishedsquarefeet12']/df['bedroomcnt']
+    return ratio_helper(
+        df['finishedsquarefeet12'],
+        df['bedroomcnt'])
 
 # poolcnt all 1
 # def average_pool_size(df):
@@ -117,15 +147,21 @@ def ratio_tax_value_to_structure_value(df):
 
 def ratio_tax_value_to_land_tax_value(df):
     #Ratio of the total value to land area
-    return df['taxvaluedollarcnt']/df['landtaxvaluedollarcnt']
+    return ratio_helper(
+        df['taxvaluedollarcnt'],
+        df['landtaxvaluedollarcnt'])
 
 def ratio_structure_tax_value_to_land_tax_value(df):
     #Ratio of the built structure value to land area
-    return df['structuretaxvaluedollarcnt']/df['landtaxvaluedollarcnt']
+    return ratio_helper(
+        df['structuretaxvaluedollarcnt'],
+        df['landtaxvaluedollarcnt'])
 
 def ratio_tax(df):
     #Ratio of tax of property over parcel
-    return df['taxamount']/df['taxvaluedollarcnt']
+    return ratio_helper(
+        df['taxamount'],
+        df['taxvaluedollarcnt'])
 
     # #TotalTaxScore
     # df['N-TaxScore'] = df['taxvaluedollarcnt']*df['taxamount']
@@ -171,13 +207,24 @@ def geo_neighborhood(df, columns=None):
 
     for col in columns:
         neighborhood[col + '_neighborhood_mean'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'mean')])
-        neighborhood[col + '_neighborhood_mean_ratio'] = df[col] / neighborhood[col + '_neighborhood_mean']
         neighborhood[col + '_neighborhood_std'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'std')])
-        neighborhood[col + '_neighborhood_std_ratio'] = (df[col] - neighborhood[col + '_neighborhood_mean']) / neighborhood[col + '_neighborhood_std']
+        # For those 2 ratios, when the denominator is zero, the nominator must be 0 too.
+        neighborhood[col + '_neighborhood_mean_ratio'] = ratio_helper(
+            df[col],
+            neighborhood[col + '_neighborhood_mean'],
+            1)
+        neighborhood[col + '_neighborhood_mean_ratio'] = ratio_helper(
+            (df[col] - neighborhood[col + '_neighborhood_mean']),
+            neighborhood[col + '_neighborhood_std'],
+            1)
         # neighborhood.drop(col + '_neighborhood_mean', axis=1, inplace=True)
         # neighborhood.drop(col + '_neighborhood_std', axis=1, inplace=True)
         # neighborhood[col + '_neighborhood_max'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'max')])
         # neighborhood[col + '_neighborhood_min'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'min')])
+
+    # For the parcels where the neighborhood_id is unknown(nan in origianl dataset,
+    # denoted by 0 after fillna), fill all values with zero.
+    neighborhood[df['regionidneighborhood'] == 0] = 0
 
     return neighborhood
 
@@ -204,10 +251,18 @@ def geo_city(df, columns=None):
     for col in columns:
         city[col + '_city_mean'] = df['regionidcity'].map(city_dict[(col, 'mean')])
         city[col + '_city_std'] = df['regionidcity'].map(city_dict[(col, 'std')])
-        city[col + '_city_mean_ratio'] = df[col] / city[col + '_city_mean']
-        city[col + '_city_std_ratio'] = (df[col] - city[col + '_city_mean']) / city[col + '_city_std']
+        city[col + '_city_mean_ratio'] = ratio_helper(
+            df[col],
+            city[col + '_city_mean'],
+            1)
+        city[col + '_city_std_ratio'] = ratio_helper(
+            (df[col] - city[col + '_city_mean']),
+            city[col + '_city_std'],
+            1)
         # city[col + '_city_max'] = df['regionidcity'].map(city_dict[(col, 'max')])
         # city[col + '_city_min'] = df['regionidcity'].map(city_dict[(col, 'min')])
+
+    city[df['regionidcity'] == 0] = 0
 
     return city
 
@@ -234,10 +289,18 @@ def geo_zip(df, columns=None):
     for col in columns:
         zip[col + '_zip_mean'] = df['regionidzip'].map(zip_dict[(col, 'mean')])
         zip[col + '_zip_std'] = df['regionidzip'].map(zip_dict[(col, 'std')])
-        zip[col + '_zip_mean_ratio'] = df[col] / zip[col + '_zip_mean']
-        zip[col + '_zip_std_ratio'] = (df[col] - zip[col + '_zip_mean']) / zip[col + '_zip_std']
+        zip[col + '_zip_mean_ratio'] = ratio_helper(
+            df[col],
+            zip[col + '_zip_mean'],
+            1)
+        zip[col + '_zip_std_ratio'] = ratio_helper(
+            (df[col] - zip[col + '_zip_mean']),
+            zip[col + '_zip_std'],
+            1)
         # zip[col + '_zip_max'] = df['regionidzip'].map(zip_dict[(col, 'max')])
         # zip[col + '_zip_min'] = df['regionidzip'].map(zip_dict[(col, 'min')])
+
+    zip[df['regionidzip'] == 0] = 0
 
     return zip
 
@@ -264,10 +327,18 @@ def geo_county(df, columns=None):
     for col in columns:
         county[col + '_county_mean'] = df['regionidcounty'].map(county_dict[(col, 'mean')])
         county[col + '_county_std'] = df['regionidcounty'].map(county_dict[(col, 'std')])
-        county[col + '_county_mean_ratio'] = df[col] / county[col + '_county_mean']
-        county[col + '_county_std_ratio'] = (df[col] - county[col + '_county_mean']) / county[col + '_county_std']
+        county[col + '_county_mean_ratio'] = ratio_helper(
+            df[col],
+            county[col + '_county_mean'],
+            1)
+        county[col + '_county_std_ratio'] = ratio_helper(
+            (df[col] - county[col + '_county_mean']),
+            county[col + '_county_std'],
+            1)
         # county[col + '_county_max'] = df['regionidcounty'].map(county_dict[(col, 'max')])
         # county[col + '_county_min'] = df['regionidcounty'].map(county_dict[(col, 'min')])
+
+    county[df['regionidcounty'] == 0] = 0
 
     return county
 
@@ -403,9 +474,15 @@ def geo_lat_lon_block_features(df, columns=None):
 
     for col in columns:
         lat_lon_block[col + '_lat_lon_block_mean'] = blocks.map(lat_lon_block_dict[(col, 'mean')])
-        lat_lon_block[col + '_lat_lon_block_mean_ratio'] = df[col] / lat_lon_block[col + '_lat_lon_block_mean']
+        lat_lon_block[col + '_lat_lon_block_mean_ratio'] = ratio_helper(
+            df[col],
+            lat_lon_block[col + '_lat_lon_block_mean'],
+            1)
         lat_lon_block[col + '_lat_lon_block_std'] = blocks.map(lat_lon_block_dict[(col, 'std')])
-        lat_lon_block[col + '_lat_lon_block_std_ratio'] = (df[col] - lat_lon_block[col + '_lat_lon_block_mean']) / lat_lon_block[col + '_lat_lon_block_std']
+        lat_lon_block[col + '_lat_lon_block_std_ratio'] = ratio_helper(
+            (df[col] - lat_lon_block[col + '_lat_lon_block_mean']),
+            lat_lon_block[col + '_lat_lon_block_std'],
+            1)
         # lat_lon_block.drop(col + '_lat_lon_block_mean', axis=1, inplace=True)
         # lat_lon_block.drop(col + '_lat_lon_block_std', axis=1, inplace=True)
         # lat_lon_block[col + '_lat_lon_block_max'] = df['regionidlat_lon_block'].map(lat_lon_block_dict[(col, 'max')])
@@ -498,6 +575,18 @@ def poly_2_structure_tax_value(df):
 
 def poly_3_structure_tax_value(df):
     return df["structuretaxvaluedollarcnt"] ** 3
+
+
+########### Help functions #############
+# replace the 0s in denominator with the given default_value value,
+# if no default value is provided, used the minimum non-zero value of the
+# denominator instead. This is because the data we are deal with are all
+# non-nega
+def ratio_helper(nominator, denominator, default_value=None):
+    if default_value is None:
+        default_value = denominator.iloc[denominator.nonzero()[0]].min()
+    result = nominator / denominator
+    return result.where(denominator != 0, nominator / default_value)
 
 # def get_distance(p1, p2):
 #     """ This use a rough calculation of distance, will overestimate the distance

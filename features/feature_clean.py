@@ -83,10 +83,6 @@ def finishedsquarefeet6(df):
     # TODO: see notebook
     return df['finishedsquarefeet6'].fillna(0)
 
-def fips(df):
-    # fill in mode "6037"
-    return df['fips'].fillna(df['fips'].mode()[0])
-
 # fireplace
 # 0.104728
 def fireplacecnt(df):
@@ -94,7 +90,7 @@ def fireplacecnt(df):
     return df['fireplacecnt'].fillna(0)
 
 # extremly low ratio: 0.001730
-# seems has way more data than fireplacecnt
+# seems has way less data than fireplacecnt
 def fireplaceflag(df):
     return df['fireplaceflag'] == True
 
@@ -328,24 +324,29 @@ def typeconstructiontypeid(df):
     return df['typeconstructiontypeid']
 
 # Geo
+# nan latitude and longitude should be removed when loading properties dataset
 def latitude(df):
     return df['latitude']
 
 def longitude(df):
     return df['longitude']
 
+# use 0 to mean nan geo features
 def regionidcity(df):
-    return df['regionidcity']
+    return df['regionidcity'].fillna(0)
 
 def regionidcounty(df):
-    return df['regionidcounty']
+    return df['regionidcounty'].fillna(0)
 
 def regionidneighborhood(df):
-    return df['regionidneighborhood']
+    return df['regionidneighborhood'].fillna(0)
 
 def regionidzip(df):
-    return df['regionidzip']
+    return df['regionidzip'].fillna(0)
 
+def fips(df):
+    # fill in mode "6037"
+    return df['fips'].fillna(df['fips'].mode()[0])
 
 # Other features that need discussion
 
