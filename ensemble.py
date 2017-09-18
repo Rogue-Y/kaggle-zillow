@@ -26,8 +26,8 @@ from train import prepare_features, prepare_training_data
 
 # tuples of format (pickle_path, weight)
 prediction_list = [
-    ('XGBoost_latest_pickle', 7),
-    # ('Lightgbm_latest_pickle', 3)
+    ('XGBoost_latest_pickle', 5),
+    ('Lightgbm_latest_pickle', 5)
 ]
 
 def ensemble(prediction_list=prediction_list):

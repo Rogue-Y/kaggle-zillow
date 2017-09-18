@@ -82,12 +82,27 @@ test_config = {
     #     'objective': 'poisson', 'sub_feature': 0.18462105358643505, 'verbose': -1},
     # 'outliers_lw_pct': 4, 'outliers_up_pct': 96
 
-    # lightgbm: cv 0.06468674762475103, lb:0.0645447
-    'model_params': {'bagging_fraction': 0.9455409606086613, 'bagging_freq': 10,
-        'boosting_type': 'rf', 'learning_rate': 0.20932001112145668, 'max_bin': 255,
-        'metric': 'mse', 'min_data': 165, 'min_hessian': 0.22173251831188498,
-        'num_leaves': 130, 'objective': 'poisson', 'sub_feature': 0.13272436629811, 'verbose': -1},
-    'outliers_lw_pct': 3, 'outliers_up_pct': 97,
+    # # lightgbm: cv 0.06468674762475103, lb:0.0645447
+    # 'model_params': {'bagging_fraction': 0.9455409606086613, 'bagging_freq': 10,
+    #     'boosting_type': 'rf', 'learning_rate': 0.20932001112145668, 'max_bin': 255,
+    #     'metric': 'mse', 'min_data': 165, 'min_hessian': 0.22173251831188498,
+    #     'num_leaves': 130, 'objective': 'poisson', 'sub_feature': 0.13272436629811, 'verbose': -1},
+    # 'outliers_lw_pct': 3, 'outliers_up_pct': 97,
+
+    # lightgbm + all features including target: cv 0.06455706855499158, lb: 0.0643475, the best from lightgbm so for
+    # TODO(hzn): cv in tuning and train for this are different, need to investigate why.
+    # 'model_params': {'bagging_fraction': 0.9085136204663229, 'bagging_freq': 40,
+    #     'boosting_type': 'dart', 'learning_rate': 0.15160730705101896, 'max_bin': 255,
+    #     'metric': 'mse', 'min_data': 195, 'min_hessian': 0.5800218871053343,
+    #     'num_leaves': 25, 'objective': 'huber', 'sub_feature': 0.4509442739055211, 'verbose': -1},
+    # 'outliers_lw_pct': 4, 'outliers_up_pct': 97,
+
+     # lightgbm + all features including target: cv 0.06450162188043643,, lb:0.0643608
+    'model_params': {'bagging_fraction': 0.9229955513541285, 'bagging_freq': 70,
+        'boosting_type': 'dart', 'learning_rate': 0.13533800691793713, 'max_bin': 255,
+        'metric': 'mse', 'min_data': 300, 'min_hessian': 0.4241402982241054,
+        'num_leaves': 25, 'objective': 'huber', 'sub_feature': 0.4562523388896966, 'verbose': -1},
+    'outliers_lw_pct': 4, 'outliers_up_pct': 97,
 
     # xgboost with almost all features + precise geo filling: cv 0.0646354220721, lb: 0.0643522
     # same parameter with 5 features + target features + precise geo filling: cv 0.0645577144428, lb: 0.0643933

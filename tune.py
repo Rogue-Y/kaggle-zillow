@@ -22,7 +22,7 @@ import time
 space_lightgbm = {
     'model_params': {
         'learning_rate': hp.loguniform('learning_rate', -2, 0),
-        'boosting_type': 'rf',
+        'boosting_type': 'dart',
         'objective': hp.choice('objective', ['huber', 'fair', 'poisson']),
         'metric': hp.choice('metric', ['mae', 'mse']),
         'sub_feature': hp.uniform('sub_feature', 0.1, 0.5),
