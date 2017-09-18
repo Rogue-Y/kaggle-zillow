@@ -2,10 +2,13 @@
 
 # dummy name generator in notebook "Original data cleaning"
 
+# All the method accept a raw properties datafram (the one load using
+# utils.load_properties_data())
+
 import pandas as pd
 import numpy as np
 import math
-
+from sklearn.preprocessing import LabelEncoder
 
 def parcelid(df):
     return df['parcelid']
@@ -298,30 +301,54 @@ def tax_difference_fill_nan(df):
     return (structuretaxvaluedollarcnt(df) + landtaxvaluedollarcnt(df)
         - taxvaluedollarcnt(df))
 
-
 # Categorical:
 # non-nan ratio: 0.605115
 def heatingorsystemtypeid(df):
-    return df['heatingorsystemtypeid']
-
-def propertycountylandusecode(df):
-    return df['propertycountylandusecode']
-
-def propertylandusetypeid(df):
-    return df['propertylandusetypeid']
-
-def propertyzoningdesc(df):
-    return df['propertyzoningdesc']
-
-def rawcensustractandblock(df):
-    return df['rawcensustractandblock']
-
-def censustractandblock(df):
-    return df['censustractandblock']
+    # Consider this is LA, fill with None(code 13)
+    return df['heatingorsystemtypeid'].fillna(13)
 
 # low ratio: 0.002260
 def typeconstructiontypeid(df):
-    return df['typeconstructiontypeid']
+    # fill 0 to mean unknown
+    return df['typeconstructiontypeid'].fillna(0)
+
+def has_construction_type(df):
+    return df['typeconstructiontypeid'].notnull()
+
+# Geo related categorical
+# 0.99410
+def propertycountylandusecode(df):
+    # fill with mode for now, look into if we could use geo to fill it
+    filled = df['propertycountylandusecode'].fillna(
+        df['propertycountylandusecode'].mode()[0])
+    labelEncoder = LabelEncoder()
+    return pd.Series(labelEncoder.fit_transform(filled.astype(str)))
+
+# 0.64214
+def propertylandusetypeid(df):
+    return df['propertylandusetypeid'].fillna(df['propertylandusetypeid'].mode()[0])
+
+def propertyzoningdesc(df):
+    # Use to mode in the land use type id group to fill most, than fill the rest
+    # with global mode
+    # TODO: try a easier way to fill and compare
+    mode = df['propertyzoningdesc'].mode()[0]
+    id_desc = df['propertyzoningdesc'].groupby(df['propertylandusetypeid']).value_counts()
+    group_mode_df = id_desc.groupby(level=0).nlargest(1)
+    group_mode_dict = dict(group_mode_df.reset_index(level=1).index)
+    # id 265, 270, 275's corresponding desc are all nan, so create fake desc for
+    # those parcels
+    group_mode_dict[265.0] = '265'
+    group_mode_dict[270.0] = '270'
+    group_mode_dict[275.0] = '275'
+    id_desc_map = df['propertylandusetypeid'].map(group_mode_dict)
+
+    desc_list = df['propertyzoningdesc'].where(
+        df['propertyzoningdesc'].notnull(), id_desc_map).fillna(mode)
+    labelEncoder = LabelEncoder()
+    return pd.Series(labelEncoder.fit_transform(desc_list.astype(str)))
+
+
 
 # Geo
 # nan latitude and longitude should be removed when loading properties dataset
@@ -348,6 +375,19 @@ def fips(df):
     # fill in mode "6037"
     return df['fips'].fillna(df['fips'].mode()[0])
 
+# TODO:
+#   1. parse censustractandblock features
+#   2. No dominant modes, could use geo to help fill, fill 0 for now.
+# 0.99410
+def rawcensustractandblock(df):
+    return df['rawcensustractandblock'].fillna(0)
+
+# 0.98744
+def censustractandblock(df):
+    return df['censustractandblock'].fillna(0)
+
+
+
 # Other features that need discussion
 
 # Really wired
@@ -368,7 +408,8 @@ def total_room_with_nan(df):
 
 
 # 0.979925
-# There's no dominant mode in data. Maybe we could 1. infer the year from other
+# TODO: There's no dominant mode in data. Maybe we could 1. infer the year from other
 # features; 2. for each parcel, randomly choose a year from the top n counts.
 def yearbuilt(df):
-    return df['yearbuilt']
+    # For know, fill 0 to mean unknown.
+    return df['yearbuilt'].fillna(0)

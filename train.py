@@ -52,14 +52,17 @@ def prepare_features(feature_list = [], clean=False):
     # feature engineering
     print('Feature engineering')
     if clean:
+        print('Using cleaned prop')
         prop = feature_combine.feature_combine_cleaned(feature_list)
     else:
+        print('Using prop with nan')
         prop = feature_combine.feature_combine_with_nan(feature_list)
     print(prop.shape)
-    # for col in prop.columns:
-    #     print(col)
+    for col in prop.columns:
+        if prop[col].isnull().sum() > 0:
+            print(col)
+    print('Nan cells: ' + str(prop.isnull().sum().sum()))
 
-    print(prop.shape)
     return prop
 
 def prepare_training_data(prop):

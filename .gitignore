@@ -103,6 +103,7 @@ ENV/
 # data, pickles
 data/
 features/feature_pickles/
+features/feature_pickles_cleaned/
 features/aux_pickles/
 *.csv
 *.txt

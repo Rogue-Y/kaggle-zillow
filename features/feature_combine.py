@@ -5,8 +5,13 @@ import inspect
 import pandas as pd
 
 from .utils import *
-from .feature_eng import *
+# from .feature_eng import *
+from features import feature_eng
+from features import feature_eng_v2
 # from .feature_clean import *
+
+feature_eng_with_nan_dict = dict([o for o in inspect.getmembers(feature_eng) if inspect.isfunction(o[1])])
+feature_eng_no_nan_dict = dict([o for o in inspect.getmembers(feature_eng_v2) if inspect.isfunction(o[1])])
 
 def list_features(feature_module):
     # Iterate through functions to generate a feature list
@@ -59,7 +64,7 @@ def original_feature_clean(df, feature_module, global_force_generate=True, pickl
 # and values are lists of features.
 # filled feature pickes are put in a different folder
 def feature_combine_cleaned(
-    feature_list, global_force_generate=False, pickle_folder='features/feature_pickles_fillna/'):
+    feature_list, global_force_generate=False, pickle_folder='features/feature_pickles_cleaned/'):
 
     generated_features = []
 
@@ -73,7 +78,10 @@ def feature_combine_cleaned(
             print(pickle_path)
             if prop is None:
                 prop = load_properties_data(force_read=global_force_generate)
-            feature = generator(prop, **kwparams)
+                # need to remove parcels which does not have either lat or lon,
+                # to keep consistent with the following cleaned dataset.
+                prop = prop[prop['latitude'].notnull() & prop['longitude'].notnull()]
+            feature = feature_eng_no_nan_dict[name](prop, **kwparams)
             # Rename Series so that they have proper names in the resulting
             # dataframe
             if isinstance(feature, pd.Series):
@@ -107,7 +115,7 @@ def feature_combine_cleaned(
             feature = pd.read_pickle(pickle_path)
         else:
             print(pickle_path)
-            feature = generator(prop_cleaned, **kwparams)
+            feature = feature_eng_no_nan_dict[name](prop_cleaned, **kwparams)
             # Rename Series so that they have proper names in the resulting
             # dataframe
             if isinstance(feature, pd.Series):
@@ -134,14 +142,14 @@ def feature_combine_with_nan(
     # and the generated list.
     generated_feature_list = feature_list['generated'] if 'generated' in feature_list else []
     before_fill_feature_list = feature_list['before_fill'] if 'before_fill' in feature_list else []
-    generated_feature_list += before_fill_feature_list
+    generated_feature_list = before_fill_feature_list + generated_feature_list
     for name, generator, kwparams, pickle_path, feature_force_generate in generated_feature_list:
         pickle_path = pickle_folder + pickle_path
         if not global_force_generate and not feature_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)
         else:
             print(pickle_path)
-            feature = generator(prop, **kwparams)
+            feature = feature_eng_with_nan_dict[name](prop, **kwparams)
             # Rename Series so that they have proper names in the resulting
             # dataframe
             if isinstance(feature, pd.Series):

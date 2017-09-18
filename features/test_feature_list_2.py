@@ -67,10 +67,10 @@ feature_list = {
         ('sum_lat_lon', sum_lat_lon, {}, 'sum_lat_lon_pickle', False),
         ('total_rooms', total_rooms, {}, 'total_rooms_pickle', False),
 
-        ('target_neighborhood_feature', target_region_feature, {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
-        ('target_zip_feature', target_region_feature, {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),
-        ('target_city_feature', target_region_feature, {'id_name':'regionidcity'}, 'target_city_feature_pickle', False),
-        ('target_county_feature', target_region_feature, {'id_name':'regionidcounty'}, 'target_county_feature_pickle', False),
+        # ('target_neighborhood_feature', target_region_feature, {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
+        # ('target_zip_feature', target_region_feature, {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),
+        # ('target_city_feature', target_region_feature, {'id_name':'regionidcity'}, 'target_city_feature_pickle', False),
+        # ('target_county_feature', target_region_feature, {'id_name':'regionidcounty'}, 'target_county_feature_pickle', False),
 
         # ('target_neighborhood_feature', target_region_feature, {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', True),
         # ('target_zip_feature', target_region_feature, {'id_name':'regionidzip'}, 'target_zip_feature_pickle', True),
