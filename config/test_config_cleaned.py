@@ -42,7 +42,7 @@ test_config_cleaned = {
     #     'sub_feature': 0.06638755200543586, 'verbose': -1},
     # rf parameters
     'model_params': {'max_features': 0.2, 'max_leaf_nodes': None,
-            'min_samples_leaf': 70, 'n_estimators': 10},
+            'min_samples_leaf': 70, 'n_estimators': 50},
     'clean_na': True,
     'submit': submit,
     'record': record,

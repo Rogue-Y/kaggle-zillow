@@ -58,10 +58,10 @@ def prepare_features(feature_list = [], clean=False):
         print('Using prop with nan')
         prop = feature_combine.feature_combine_with_nan(feature_list)
     print(prop.shape)
-    for col in prop.columns:
-        if prop[col].isnull().sum() > 0:
-            print(col)
-    print('Nan cells: ' + str(prop.isnull().sum().sum()))
+    # for col in prop.columns:
+    #     if prop[col].isnull().sum() > 0:
+    #         print(col)
+    # print('Nan cells: ' + str(prop.isnull().sum().sum()))
 
     return prop
 

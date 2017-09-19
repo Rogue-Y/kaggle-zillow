@@ -6,9 +6,8 @@
 
 from hyperopt import hp, fmin, tpe, space_eval, STATUS_OK, Trials
 
-from config import test_config
 from train import train, prepare_features, prepare_training_data
-from features import utils, data_clean
+from features import utils, data_clean, test_feature_list_2
 from models import XGBoost, Lightgbm, RFRegressor
 
 import datetime
@@ -84,7 +83,7 @@ space_xgb = {
 
 space_rf = {
     'model_params': {
-        'n_estimators': hp.choice('n_estimators', list(range(10, 151, 30))),
+        'n_estimators': hp.choice('n_estimators', list(range(30, 71, 20))),
         'criterion': hp.choice('criterion', ['mae', 'mse']),
         'max_features': hp.uniform('max_features', 0.1, 0.6),
         'max_depth': hp.choice('max_depth', [None, *list(range(1, 10, 2))]),
@@ -92,16 +91,17 @@ space_rf = {
         'min_samples_leaf': hp.choice('min_samples_leaf', [30, 70, 100, 150, 300]),
         'n_jobs': -1
     },
-    'outliers_up_pct': hp.choice('outliers_up_pct', [98, 99, 100]),
-    'outliers_lw_pct': hp.choice('outliers_lw_pct', [2, 1, 0])
+    'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+    'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+    'folds': 3 #RF takes long time to train
 }
 
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
-configuration = test_config
+feature_list = test_feature_list_2.feature_list
 experiments = [
-    (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
+    # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
     # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
-    # (RFRegressor.RFRegressor, configuration['feature_list'], space_rf, 100, {'clean_na': True}),
+    (RFRegressor.RFRegressor, feature_list, space_rf, 100, {'clean_na': True}),
 ]
 
 def tune():

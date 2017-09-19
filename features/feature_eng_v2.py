@@ -207,7 +207,8 @@ def geo_neighborhood(df, columns=None):
 
     for col in columns:
         neighborhood[col + '_neighborhood_mean'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'mean')])
-        neighborhood[col + '_neighborhood_std'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'std')])
+        # when there's only one item in the group. the std method returns nan, fill it with 0.
+        neighborhood[col + '_neighborhood_std'] = df['regionidneighborhood'].map(neighborhood_dict[(col, 'std')]).fillna(0)
         # For those 2 ratios, when the denominator is zero, the nominator must be 0 too.
         neighborhood[col + '_neighborhood_mean_ratio'] = ratio_helper(
             df[col],
@@ -250,7 +251,8 @@ def geo_city(df, columns=None):
 
     for col in columns:
         city[col + '_city_mean'] = df['regionidcity'].map(city_dict[(col, 'mean')])
-        city[col + '_city_std'] = df['regionidcity'].map(city_dict[(col, 'std')])
+        # when there's only one item in the group. the std method returns nan, fill it with 0.
+        city[col + '_city_std'] = df['regionidcity'].map(city_dict[(col, 'std')]).fillna(0)
         city[col + '_city_mean_ratio'] = ratio_helper(
             df[col],
             city[col + '_city_mean'],
@@ -288,7 +290,8 @@ def geo_zip(df, columns=None):
 
     for col in columns:
         zip[col + '_zip_mean'] = df['regionidzip'].map(zip_dict[(col, 'mean')])
-        zip[col + '_zip_std'] = df['regionidzip'].map(zip_dict[(col, 'std')])
+        # when there's only one item in the group. the std method returns nan, fill it with 0.
+        zip[col + '_zip_std'] = df['regionidzip'].map(zip_dict[(col, 'std')]).fillna(0)
         zip[col + '_zip_mean_ratio'] = ratio_helper(
             df[col],
             zip[col + '_zip_mean'],
@@ -326,7 +329,8 @@ def geo_county(df, columns=None):
 
     for col in columns:
         county[col + '_county_mean'] = df['regionidcounty'].map(county_dict[(col, 'mean')])
-        county[col + '_county_std'] = df['regionidcounty'].map(county_dict[(col, 'std')])
+        # when there's only one item in the group. the std method returns nan, fill it with 0.
+        county[col + '_county_std'] = df['regionidcounty'].map(county_dict[(col, 'std')]).fillna(0)
         county[col + '_county_mean_ratio'] = ratio_helper(
             df[col],
             county[col + '_county_mean'],
@@ -478,7 +482,8 @@ def geo_lat_lon_block_features(df, columns=None):
             df[col],
             lat_lon_block[col + '_lat_lon_block_mean'],
             1)
-        lat_lon_block[col + '_lat_lon_block_std'] = blocks.map(lat_lon_block_dict[(col, 'std')])
+        # when there's only one item in the group. the std method returns nan, fill it with 0.
+        lat_lon_block[col + '_lat_lon_block_std'] = blocks.map(lat_lon_block_dict[(col, 'std')]).fillna(0)
         lat_lon_block[col + '_lat_lon_block_std_ratio'] = ratio_helper(
             (df[col] - lat_lon_block[col + '_lat_lon_block_mean']),
             lat_lon_block[col + '_lat_lon_block_std'],
