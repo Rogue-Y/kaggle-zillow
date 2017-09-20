@@ -260,6 +260,7 @@ def taxvaluedollarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
 
 # 0.996168
 # assume nan value means not assess yet, so fill 2016 (the current year of data)
+# TODO: one hot encode this or remove this and only use the boolean feature.
 def assessmentyear(df):
     return df['assessmentyear'].fillna(2016)
 
@@ -351,6 +352,7 @@ def propertyzoningdesc(df):
 
 
 # Geo
+# TODO: besides lat and lon, other geo features need to be one-hot encoded
 # nan latitude and longitude should be removed when loading properties dataset
 def latitude(df):
     return df['latitude']
