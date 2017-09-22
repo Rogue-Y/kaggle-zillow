@@ -100,7 +100,7 @@ space_ridge = {
     'model_params': {
         'alpha': hp.loguniform('alpha', -2, 2),
         'fit_intercept': hp.choice('fit_intercept', [True, False]),
-        'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag', 'saga']),
+        'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
         'random_state': 42
     },
     'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
@@ -122,8 +122,8 @@ experiments = [
     # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
     # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
     # (RFRegressor.RFRegressor, test_feature_list_2.feature_list, space_rf, 5, {'clean_na': True}),
-    # (LinearModel.RidgeRegressor, test_feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
-    (LinearModel.LassoRegressor, test_feature_list_linear.feature_list, space_lasso, 3, {'clean_na': True}),
+    (LinearModel.RidgeRegressor, test_feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
+    # (LinearModel.LassoRegressor, test_feature_list_linear.feature_list, space_lasso, 1000, {'clean_na': True}),
 ]
 
 def tune():

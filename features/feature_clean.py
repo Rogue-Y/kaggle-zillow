@@ -54,9 +54,10 @@ def calculatedbathnbr(df):
     # 1-20, fill in median or mean = 2
     return df['calculatedbathnbr'].fillna(df['calculatedbathnbr'].median())
 
+# 0.005727, All 66, like a has deck flag
 def decktypeid(df):
     # Low non-nan ratio, fill 0 (Not in dict)
-    return df['decktypeid'].fillna(0)
+    return df['decktypeid'] == 66
 
 def finishedfloor1squarefeet(df):
     # Long tail distribution

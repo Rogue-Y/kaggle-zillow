@@ -532,11 +532,14 @@ def category_land_use_type_encode(df):
 def category_land_use_type_one_hot(df):
     return pd.get_dummies(category_land_use_type_helper(df), prefix='land_use_type')
 
-def category_ac_type_encode(df):
-    return pd.Series(labelEncoder.fit_transform(df['airconditioningtypeid']))
+# def category_ac_type_encode(df):
+#     return pd.Series(labelEncoder.fit_transform(df['airconditioningtypeid']))
 
 def category_ac_type_one_hot(df):
     return pd.get_dummies(df['airconditioningtypeid'])
+
+def category_architecture_style_one_hot(df):
+    return pd.get_dummies(df['architecturalstyletypeid'])
 
 def category_fips_type_encode(df):
     return pd.Series(labelEncoder.fit_transform(df['fips']))
