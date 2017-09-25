@@ -7,8 +7,8 @@
 from hyperopt import hp, fmin, tpe, space_eval, STATUS_OK, Trials
 
 from train import train, prepare_features, prepare_training_data
-from features import utils, data_clean, test_feature_list_2
-from models import XGBoost, Lightgbm, RFRegressor, ETRegressor
+from features import utils, data_clean, test_feature_list_2, test_feature_list_linear
+from models import XGBoost, Lightgbm, RFRegressor, LinearModel, ETRegressor
 
 import datetime
 import gc
@@ -83,17 +83,38 @@ space_xgb = {
 
 space_rf = {
     'model_params': {
-        'n_estimators': hp.choice('n_estimators', list(range(30, 71, 20))),
+        'n_estimators': hp.choice('n_estimators', list(range(10, 31, 10))),
         'criterion': hp.choice('criterion', ['mae', 'mse']),
-        'max_features': hp.uniform('max_features', 0.1, 0.6),
-        'max_depth': hp.choice('max_depth', [None, *list(range(1, 10, 2))]),
-        'min_samples_split': hp.choice('min_samples_split', [3, 10, 30, 100, 300]),
-        'min_samples_leaf': hp.choice('min_samples_leaf', [30, 70, 100, 150, 300]),
-        'n_jobs': -1
+        'max_features': hp.loguniform('max_features', -2, -1),
+        'max_depth': hp.choice('max_depth', list(range(3, 8))),
+        'min_samples_split': hp.loguniform('min_samples_split', -4, -2),
+        'min_samples_leaf': hp.loguniform('min_samples_leaf', -4, -2),
+        # 'n_jobs': -1
     },
     'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
     'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
-    'folds': 3 #RF takes long time to train
+    'FOLDS': 3 #RF takes long time to train
+}
+
+space_ridge = {
+    'model_params': {
+        'alpha': hp.loguniform('alpha', -2, 2),
+        'fit_intercept': hp.choice('fit_intercept', [True, False]),
+        'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
+        'random_state': 42
+    },
+    'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+    'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+}
+
+space_lasso = {
+    'model_params': {
+        'alpha': hp.loguniform('alpha', -2, 2),
+        'fit_intercept': hp.choice('fit_intercept', [True, False]),
+        # 'random_state': 42
+    },
+    'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+    'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
 }
 
 # parameter space for extra tree regressor
@@ -115,12 +136,15 @@ space_et = {
 }
 
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
-feature_list = test_feature_list_2.feature_list
 experiments = [
     # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
     # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
     # (RFRegressor.RFRegressor, feature_list, space_rf, 100, {'clean_na': True}),
-    (ETRegressor.ETRegressor, feature_list, space_et, 150, {'clean_na': True}),
+    # (ETRegressor.ETRegressor, feature_list, space_et, 150, {'clean_na': True}),
+
+    # (RFRegressor.RFRegressor, test_feature_list_2.feature_list, space_rf, 5, {'clean_na': True}),
+    (LinearModel.RidgeRegressor, test_feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
+    # (LinearModel.LassoRegressor, test_feature_list_linear.feature_list, space_lasso, 1000, {'clean_na': True}),
 ]
 
 def tune():
@@ -135,6 +159,7 @@ def tune_single_model(Model, feature_list, parameter_space, max_evals, exp_param
     del transactions; del prop; gc.collect()
 
     def train_wrapper(params):
+        print(params)
         loss = train(train_df, Model, **params)
         # return an object to be recorded in hyperopt trials for future uses
         return {
