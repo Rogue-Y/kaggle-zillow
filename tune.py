@@ -8,7 +8,7 @@ from hyperopt import hp, fmin, tpe, space_eval, STATUS_OK, Trials
 
 from train import train, prepare_features, prepare_training_data
 from features import utils, data_clean, test_feature_list_2
-from models import XGBoost, Lightgbm, RFRegressor
+from models import XGBoost, Lightgbm, RFRegressor, ETRegressor
 
 import datetime
 import gc
@@ -96,12 +96,31 @@ space_rf = {
     'folds': 3 #RF takes long time to train
 }
 
+# parameter space for extra tree regressor
+space_et = {
+    'model_params': {
+        'n_estimators': hp.choice('n_estimators', list(range(30, 51, 10))),
+        'criterion': hp.choice('criterion', ['mae', 'mse']),
+        'max_features': hp.uniform('max_features', 0.1, 0.6),
+        'max_depth': hp.choice('max_depth', list(range(3, 8, 2))),
+        'min_samples_split': hp.loguniform('min_samples_split', -4, -1),
+        'min_samples_leaf': hp.loguniform('min_samples_leaf', -4, -2),
+        # 'bootstrap': hp.choice('bootstrap', [True, False]),
+        # 'oob_score': hp.choice('oob_score', [True, False]),
+        'n_jobs': -1
+    },
+    'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+    'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+    'FOLDS': 3 #RF takes long time to train
+}
+
 # experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
 feature_list = test_feature_list_2.feature_list
 experiments = [
     # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
     # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
-    (RFRegressor.RFRegressor, feature_list, space_rf, 100, {'clean_na': True}),
+    # (RFRegressor.RFRegressor, feature_list, space_rf, 100, {'clean_na': True}),
+    (ETRegressor.ETRegressor, feature_list, space_et, 150, {'clean_na': True}),
 ]
 
 def tune():
