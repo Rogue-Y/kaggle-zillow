@@ -265,6 +265,9 @@ def taxvaluedollarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
 def assessmentyear(df):
     return df['assessmentyear'].fillna(2016)
 
+def is_assessmentyear_2015(df):
+    return df['assessmentyear'] == 2015
+
 def is_tax_assessed(df):
     return df['assessmentyear'].notnull()
 

@@ -77,13 +77,23 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
     else:
         prop_preprocessed = load_properties_data()
 
+        # Preprocessing some columns so that all columns are numbers/booleans and has concrete meanings
         # boolean columns
-        prop_preprocessed['fireplaceflag'] = feature_clean.fireplacecnt(prop_preprocessed)
-        prop_preprocessed['hashottuborspa'] = feature_clean.hashottuborspa(prop_preprocessed)
-        prop_preprocessed['pooltypeid10'] = feature_clean.pooltypeid10(prop_preprocessed)
-        prop_preprocessed['pooltypeid2'] = feature_clean.pooltypeid2(prop_preprocessed)
-        prop_preprocessed['pooltypeid7'] = feature_clean.pooltypeid7(prop_preprocessed)
+        # prop_preprocessed['fireplaceflag'] = feature_clean.fireplacecnt(prop_preprocessed)
+        # prop_preprocessed['hashottuborspa'] = feature_clean.hashottuborspa(prop_preprocessed)
+        # prop_preprocessed['pooltypeid10'] = feature_clean.pooltypeid10(prop_preprocessed)
+        # prop_preprocessed['pooltypeid2'] = feature_clean.pooltypeid2(prop_preprocessed)
+        # prop_preprocessed['pooltypeid7'] = feature_clean.pooltypeid7(prop_preprocessed)
+        # prop_preprocessed['storytypeid'] = feature_clean.storytypeid(prop_preprocessed)
+        # prop_preprocessed['decktypeid'] = feature_clean.decktypeid(prop_preprocessed)
+        # prop_preprocessed['poolcnt'] = feature_clean.poolcnt(prop_preprocessed)
         prop_preprocessed['taxdelinquencyflag'] = feature_clean.taxdelinquencyflag(prop_preprocessed)
+
+        # change taxdelinquencyyear to YYYY format
+        tmp = prop_preprocessed['taxdelinquencyyear'] + 1900
+        prop_preprocessed['taxdelinquencyyear'] = tmp.where(
+            prop_preprocessed['taxdelinquencyyear'] > 17,
+            tmp + 100)
 
         # encode some categorical features that are not represented with numbers
         labelEncoder = LabelEncoder()
@@ -91,12 +101,6 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
             labelEncoder.fit_transform(prop_preprocessed['propertycountylandusecode'].astype(str)))
         prop_preprocessed['propertyzoningdesc'] = (
             labelEncoder.fit_transform(prop_preprocessed['propertyzoningdesc'].astype(str)))
-
-        # change taxdelinquencyyear to YYYY format
-        tmp = prop_preprocessed['taxdelinquencyyear'] + 1900
-        prop_preprocessed['taxdelinquencyyear'] = tmp.where(
-            prop_preprocessed['taxdelinquencyyear'] > 17,
-            tmp + 100)
 
         if not os.path.exists(data_folder):
             os.makedirs(data_folder)

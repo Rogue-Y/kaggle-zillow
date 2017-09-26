@@ -35,6 +35,7 @@ from features import data_clean
 # 2. Go through features one by one to see which should be include/exclude/modified, create a feature list for linear models
 
 # columns that need to be scaled for certain predictors
+# TODO: think of a better way to specify this
 SCALING_COLUMNS = [
     'basementsqft',
     'bathroomcnt',
