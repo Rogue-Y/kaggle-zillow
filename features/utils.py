@@ -79,8 +79,8 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
 
         # Preprocessing some columns so that all columns are numbers/booleans and has concrete meanings
         # boolean columns
-        # prop_preprocessed['fireplaceflag'] = feature_clean.fireplacecnt(prop_preprocessed)
-        # prop_preprocessed['hashottuborspa'] = feature_clean.hashottuborspa(prop_preprocessed)
+        prop_preprocessed['fireplaceflag'] = feature_clean.fireplacecnt(prop_preprocessed)
+        prop_preprocessed['hashottuborspa'] = feature_clean.hashottuborspa(prop_preprocessed)
         # prop_preprocessed['pooltypeid10'] = feature_clean.pooltypeid10(prop_preprocessed)
         # prop_preprocessed['pooltypeid2'] = feature_clean.pooltypeid2(prop_preprocessed)
         # prop_preprocessed['pooltypeid7'] = feature_clean.pooltypeid7(prop_preprocessed)

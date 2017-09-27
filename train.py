@@ -324,6 +324,10 @@ SCALING_COLUMNS = [
     'round_lon',
     'sum_lat_lon',
     'total_rooms',
+    'target_neighborhood_feature',
+    'target_zip_feature',
+    'target_city_feature',
+    'target_county_feature',
 ]
 
 # Helper functions:

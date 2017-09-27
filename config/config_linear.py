@@ -9,8 +9,8 @@ if module_path not in sys.path:
 FOLDS = 5
 
 # Feature list
-from features import test_feature_list_linear
-feature_list = test_feature_list_linear.feature_list
+from features import feature_list_linear
+feature_list = feature_list_linear.feature_list
 
 # model
 from models import LinearModel
@@ -21,7 +21,7 @@ submit = False
 
 record = False
 
-test_config_linear = {
+config_linear = {
     # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
     # 'resale_offset': 0,
     'folds': FOLDS,

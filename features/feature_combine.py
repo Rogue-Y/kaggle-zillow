@@ -7,11 +7,11 @@ import pandas as pd
 from .utils import *
 # from .feature_eng import *
 from features import feature_eng
-from features import feature_eng_v2
+from features import feature_eng_cleaned
 # from .feature_clean import *
 
 feature_eng_with_nan_dict = dict([o for o in inspect.getmembers(feature_eng) if inspect.isfunction(o[1])])
-feature_eng_no_nan_dict = dict([o for o in inspect.getmembers(feature_eng_v2) if inspect.isfunction(o[1])])
+feature_eng_no_nan_dict = dict([o for o in inspect.getmembers(feature_eng_cleaned) if inspect.isfunction(o[1])])
 
 def list_features(feature_module):
     # Iterate through functions to generate a feature list
@@ -35,30 +35,30 @@ def list_features(feature_module):
 #   3. Add a poly generator for the features, so when a feature is added, also
 #      add its up to nth poly
 
-def original_feature_clean(df, feature_module, global_force_generate=True, pickle_folder='feature_pickles/'):
-    functions = [o for o in inspect.getmembers(feature_module) if inspect.isfunction(o[1])]
-    features = []
-    for name, generator in functions:
-        name_lower = name.lower()
-        if 'bin' in name_lower or 'cross' in name_lower or 'encoder' in name_lower or 'helper' in name_lower:
-            continue
-        pickle_path = pickle_folder + str(name) + '_pickle'
-        if not global_force_generate and os.path.exists(pickle_path):
-            feature = pd.read_pickle(pickle_path)
-        else:
-            print(pickle_path)
-            # Let the original feature generators have no arguments in the definition. If different cleaning methods are
-            # needed, just make a new feature.
-            feature = generator(df)
-            # Rename Series so that they have proper names in the resulting
-            # dataframe
-            if isinstance(feature, pd.Series):
-                feature.rename(name, inplace=True)
-
-            # TODO: Currently contains strings. Need insert one-hot encodings and other preprocess.
-            feature.to_pickle(pickle_path)
-        features.append(feature)
-    return pd.concat([*features], axis=1)
+# def original_feature_clean(df, feature_module, global_force_generate=True, pickle_folder='feature_pickles/'):
+#     functions = [o for o in inspect.getmembers(feature_module) if inspect.isfunction(o[1])]
+#     features = []
+#     for name, generator in functions:
+#         name_lower = name.lower()
+#         if 'bin' in name_lower or 'cross' in name_lower or 'encoder' in name_lower or 'helper' in name_lower:
+#             continue
+#         pickle_path = pickle_folder + str(name) + '_pickle'
+#         if not global_force_generate and os.path.exists(pickle_path):
+#             feature = pd.read_pickle(pickle_path)
+#         else:
+#             print(pickle_path)
+#             # Let the original feature generators have no arguments in the definition. If different cleaning methods are
+#             # needed, just make a new feature.
+#             feature = generator(df)
+#             # Rename Series so that they have proper names in the resulting
+#             # dataframe
+#             if isinstance(feature, pd.Series):
+#                 feature.rename(name, inplace=True)
+#
+#             # TODO: Currently contains strings. Need insert one-hot encodings and other preprocess.
+#             feature.to_pickle(pickle_path)
+#         features.append(feature)
+#     return pd.concat([*features], axis=1)
 
 # feature_list should be a dictionary with key: before_fill, original, generated,
 # and values are lists of features.
@@ -70,7 +70,7 @@ def feature_combine_cleaned(
 
     before_fill_feature_list = feature_list['before_fill'] if 'before_fill' in feature_list else []
     prop = None
-    for name, generator, kwparams, pickle_path, feature_force_generate in before_fill_feature_list:
+    for name, generator_name, kwparams, pickle_path, feature_force_generate in before_fill_feature_list:
         pickle_path = pickle_folder + pickle_path
         if not global_force_generate and not feature_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)
@@ -81,7 +81,7 @@ def feature_combine_cleaned(
                 # need to remove parcels which does not have either lat or lon,
                 # to keep consistent with the following cleaned dataset.
                 prop = prop[prop['latitude'].notnull() & prop['longitude'].notnull()]
-            feature = feature_eng_no_nan_dict[name](prop, **kwparams)
+            feature = feature_eng_no_nan_dict[generator_name](prop, **kwparams)
             # Rename Series so that they have proper names in the resulting
             # dataframe
             if isinstance(feature, pd.Series):
@@ -109,13 +109,13 @@ def feature_combine_cleaned(
     prop_cleaned = load_properties_data_cleaned(force_read=global_force_generate)
 
     generated_feature_list = feature_list['generated'] if 'generated' in feature_list else []
-    for name, generator, kwparams, pickle_path, feature_force_generate in generated_feature_list:
+    for name, generator_name, kwparams, pickle_path, feature_force_generate in generated_feature_list:
         pickle_path = pickle_folder + pickle_path
         if not global_force_generate and not feature_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)
         else:
             print(pickle_path)
-            feature = feature_eng_no_nan_dict[name](prop_cleaned, **kwparams)
+            feature = feature_eng_no_nan_dict[generator_name](prop_cleaned, **kwparams)
             # Rename Series so that they have proper names in the resulting
             # dataframe
             if isinstance(feature, pd.Series):
@@ -143,13 +143,13 @@ def feature_combine_with_nan(
     generated_feature_list = feature_list['generated'] if 'generated' in feature_list else []
     before_fill_feature_list = feature_list['before_fill'] if 'before_fill' in feature_list else []
     generated_feature_list = before_fill_feature_list + generated_feature_list
-    for name, generator, kwparams, pickle_path, feature_force_generate in generated_feature_list:
+    for name, generator_name, kwparams, pickle_path, feature_force_generate in generated_feature_list:
         pickle_path = pickle_folder + pickle_path
         if not global_force_generate and not feature_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)
         else:
             print(pickle_path)
-            feature = feature_eng_with_nan_dict[name](prop, **kwparams)
+            feature = feature_eng_with_nan_dict[generator_name](prop, **kwparams)
             # Rename Series so that they have proper names in the resulting
             # dataframe
             if isinstance(feature, pd.Series):
@@ -209,6 +209,6 @@ if __name__ == "__main__":
         ('sum_lat_lon', sum_lat_lon, {}, 'sum_lat_lon_pickle'),
         ('total_rooms', total_rooms, {}, 'total_rooms_pickle')
     ]
-    prop = load_properties_data(data_folder='../data/')
-    features = feature_combine(prop, feature_list)
+    prop = load_properties_data_preprocessed(data_folder='../data/')
+    features = feature_combine_cleaned(prop, feature_list)
     print(features.shape)
