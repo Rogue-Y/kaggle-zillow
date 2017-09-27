@@ -256,9 +256,7 @@ def get_dimension_reduction_df(df):
     """
     # non-feature columns, in case need to put them back after dimension reduction
     non_feature_columns = ['parcelid', 'transactiondate', 'logerror']
-    non_feature_df = df[non_feature_columns]
-    df.drop(non_feature_columns, axis=1, inplace=True)
-    return (df, non_feature_df)
+    return (df.drop(non_feature_columns, axis=1), df[non_feature_columns])
 
 def split_by_date(df, split_date = '2016-10-01'):
     """ Split the transaction data into two part, those before split_date as

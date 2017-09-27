@@ -381,12 +381,13 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     # Optional dimension reduction.
     if pca_components > 0:
         print('PCA...')
-        pca = PCA(n_components=pca_components, copy=False)
+        pca = PCA(n_components=pca_components)
         feature_df, non_feature_df = utils.get_dimension_reduction_df(train_df)
         # Note that the features pca produces is some combination of the original features, not retain/discard some columns
         feature_df = pca.fit_transform(feature_df)
-        train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1, copy=False)
+        train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
 
+    print('Train df dimensions: ' + str(train_df.shape))
     # split by date
     train_q1_q3, train_q4 = utils.split_by_date(train_df)
     # train_q4.to_csv('test_train_q4.csv')

@@ -105,7 +105,8 @@ space_ridge = {
     },
     'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
     'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
-    'scaling': True
+    'scaling': True,
+    'pca_components': hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
 }
 
 space_lasso = {
@@ -116,7 +117,8 @@ space_lasso = {
     },
     'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
     'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
-    'scaling': True
+    'scaling': True,
+    'pca_components': hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
 }
 
 # parameter space for extra tree regressor
@@ -145,8 +147,8 @@ experiments = [
     # (ETRegressor.ETRegressor, feature_list, space_et, 150, {'clean_na': True}),
 
     # (RFRegressor.RFRegressor, test_feature_list_2.feature_list, space_rf, 5, {'clean_na': True}),
-    (LinearModel.RidgeRegressor, test_feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
-    # (LinearModel.LassoRegressor, test_feature_list_linear.feature_list, space_lasso, 1000, {'clean_na': True}),
+    # (LinearModel.RidgeRegressor, test_feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
+    (LinearModel.LassoRegressor, test_feature_list_linear.feature_list, space_lasso, 1000, {'clean_na': True}),
 ]
 
 def tune():
