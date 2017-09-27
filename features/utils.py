@@ -60,6 +60,7 @@ def load_properties_data(data_folder='data/', force_read=False):
         prop = pd.read_csv(data_folder + 'properties_2016.csv', dtype=infered_type)
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
+        prop = preprocess_add_geo_features(prop)
         # Convert float64 to float32 to save memory
         for col in prop.columns:
             if prop[col].dtype == 'float64':
@@ -80,15 +81,25 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
     if not force_read and os.path.exists(prop_preprocessed_pickle_path):
         prop_preprocessed = pd.read_pickle(prop_preprocessed_pickle_path)
     else:
-        prop_preprocessed = load_properties_data()
+        prop_preprocessed = load_properties_data(force_read)
 
+        # Preprocessing some columns so that all columns are numbers/booleans and has concrete meanings
         # boolean columns
         prop_preprocessed['fireplaceflag'] = feature_clean.fireplacecnt(prop_preprocessed)
         prop_preprocessed['hashottuborspa'] = feature_clean.hashottuborspa(prop_preprocessed)
-        prop_preprocessed['pooltypeid10'] = feature_clean.pooltypeid10(prop_preprocessed)
-        prop_preprocessed['pooltypeid2'] = feature_clean.pooltypeid2(prop_preprocessed)
-        prop_preprocessed['pooltypeid7'] = feature_clean.pooltypeid7(prop_preprocessed)
+        # prop_preprocessed['pooltypeid10'] = feature_clean.pooltypeid10(prop_preprocessed)
+        # prop_preprocessed['pooltypeid2'] = feature_clean.pooltypeid2(prop_preprocessed)
+        # prop_preprocessed['pooltypeid7'] = feature_clean.pooltypeid7(prop_preprocessed)
+        # prop_preprocessed['storytypeid'] = feature_clean.storytypeid(prop_preprocessed)
+        # prop_preprocessed['decktypeid'] = feature_clean.decktypeid(prop_preprocessed)
+        # prop_preprocessed['poolcnt'] = feature_clean.poolcnt(prop_preprocessed)
         prop_preprocessed['taxdelinquencyflag'] = feature_clean.taxdelinquencyflag(prop_preprocessed)
+
+        # change taxdelinquencyyear to YYYY format
+        tmp = prop_preprocessed['taxdelinquencyyear'] + 1900
+        prop_preprocessed['taxdelinquencyyear'] = tmp.where(
+            prop_preprocessed['taxdelinquencyyear'] > 17,
+            tmp + 100)
 
         # encode some categorical features that are not represented with numbers
         labelEncoder = LabelEncoder()
@@ -96,12 +107,6 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
             labelEncoder.fit_transform(prop_preprocessed['propertycountylandusecode'].astype(str)))
         prop_preprocessed['propertyzoningdesc'] = (
             labelEncoder.fit_transform(prop_preprocessed['propertyzoningdesc'].astype(str)))
-
-        # change taxdelinquencyyear to YYYY format
-        tmp = prop_preprocessed['taxdelinquencyyear'] + 1900
-        prop_preprocessed['taxdelinquencyyear'] = tmp.where(
-            prop_preprocessed['taxdelinquencyyear'] > 17,
-            tmp + 100)
 
         if not os.path.exists(data_folder):
             os.makedirs(data_folder)
@@ -123,7 +128,7 @@ def load_properties_data_cleaned(data_folder='data/', force_read=False):
         functions = [o for o in inspect.getmembers(feature_clean) if inspect.isfunction(o[1])]
         # convert to a dictionary
         functions_dict = dict(functions)
-        prop = load_properties_data()
+        prop = load_properties_data(force_read)
         # filter out parcels that have unknown lat or lon
         prop = prop[prop['latitude'].notnull() & prop['longitude'].notnull()]
         # create a new df as some feature filling may depend on other features
@@ -151,6 +156,7 @@ def load_properties_data_minimize(data_folder='data/', force_read=False):
         prop = pd.read_csv(data_folder + 'properties_2016.csv')
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
+        prop = preprocess_add_geo_features(prop)
         # Convert float64 to float32 to save memory
         prop, na_list = reduce_mem_usage(prop)
         prop.to_pickle(prop_data_pickle)
@@ -257,9 +263,7 @@ def get_dimension_reduction_df(df):
     """
     # non-feature columns, in case need to put them back after dimension reduction
     non_feature_columns = ['parcelid', 'transactiondate', 'logerror']
-    non_feature_df = df[non_feature_columns]
-    df.drop(non_feature_columns, axis=1, inplace=True)
-    return (df, non_feature_df)
+    return (df.drop(non_feature_columns, axis=1), df[non_feature_columns])
 
 def split_by_date(df, split_date = '2016-10-01'):
     """ Split the transaction data into two part, those before split_date as
@@ -440,7 +444,50 @@ def aggregate_by_region(id_name, column='logerror', force_generate=False):
 
 ##### Geo cleaning functions
 
-def create_catagory(df, name):
+def preprocess_add_geo_features(df):
+    print('Process add Geo Features...')
+    geodf = geo_everything(df)
+    return pd.concat([df.drop(['regionidcity', 'regionidcounty', 'regionidzip', 'rawcensustractandblock', 'censustractandblock'], axis=1), geodf], axis=1)
+
+
+def geo_everything(df):
+    # split the geo part
+    geocolumns = ['parcelid', 'latitude', 'longitude'
+        , 'propertycountylandusecode', 'propertylandusetypeid', 'propertyzoningdesc'
+        , 'regionidcity', 'regionidcounty', 'regionidneighborhood', 'regionidzip'
+        , 'censustractandblock', 'rawcensustractandblock', 'fips']
+    geoprop = df[geocolumns]
+    parcelid = df.parcelid
+
+    geoprop.dropna(axis=0, subset=['latitude', 'longitude'], inplace=True)
+    geoprop.loc[:, 'latitude'] = geoprop.loc[:, 'latitude'] / 1e6
+    geoprop.loc[:, 'longitude'] = geoprop.loc[:, 'longitude'] / 1e6
+
+    # fill the nan
+    fillna_knn_inplace(df=geoprop,
+                       base=['latitude', 'longitude'],
+                       target='regionidcity', fraction=0.15)
+    fillna_knn_inplace(df=geoprop,
+                       base=['latitude', 'longitude'],
+                       target='regionidzip', fraction=0.15)
+    geoprop = create_category(geoprop, 'propertycountylandusecode')
+    fillna_knn_inplace(df=geoprop,
+                       base=['latitude', 'longitude'],
+                       target='propertycountylandusecode_cat', fraction=0.30)
+    geoprop = add_census_block_feature(geoprop)
+
+    # combine back
+    geoprop = pd.merge(pd.DataFrame(parcelid), geoprop, how='outer', on='parcelid')
+
+    # First liners are modified/cleaned features. Remove them from single feature functions.
+    # Second line are new generated features.
+    newfeatures = ['regionidcity', 'regionidcounty', 'regionidzip',
+                   'propertycountylandusecode_cat', 'fips_census_1', 'block_1', 'fips_census_block']
+    return geoprop[newfeatures].astype(float)
+
+
+# TODO: replace this by labelencoder
+def create_category(df, name):
     df[name+'_cat']=pd.factorize(df[name])[0]
     df.loc[df[name+'_cat']<0, name+'_cat'] = np.nan
     return df

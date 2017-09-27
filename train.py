@@ -35,6 +35,7 @@ from features import data_clean
 # 2. Go through features one by one to see which should be include/exclude/modified, create a feature list for linear models
 
 # columns that need to be scaled for certain predictors
+# TODO: think of a better way to specify this
 SCALING_COLUMNS = [
     'basementsqft',
     'bathroomcnt',
@@ -323,6 +324,10 @@ SCALING_COLUMNS = [
     'round_lon',
     'sum_lat_lon',
     'total_rooms',
+    'target_neighborhood_feature',
+    'target_zip_feature',
+    'target_city_feature',
+    'target_county_feature',
 ]
 
 # Helper functions:
@@ -380,12 +385,13 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     # Optional dimension reduction.
     if pca_components > 0:
         print('PCA...')
-        pca = PCA(n_components=pca_components, copy=False)
+        pca = PCA(n_components=pca_components)
         feature_df, non_feature_df = utils.get_dimension_reduction_df(train_df)
         # Note that the features pca produces is some combination of the original features, not retain/discard some columns
         feature_df = pca.fit_transform(feature_df)
-        train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1, copy=False)
+        train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
 
+    print('Train df dimensions: ' + str(train_df.shape))
     # split by date
     train_q1_q3, train_q4 = utils.split_by_date(train_df)
     # train_q4.to_csv('test_train_q4.csv')
@@ -548,7 +554,8 @@ if __name__ == '__main__':
     # print configuration for confirmation
     for key, value in config_dict.items():
         if key == 'feature_list':
-            print('%s: %s' %(key, len(value)))
+            for k, v in value.items():
+                print('%s: %s' %(k, len(v)))
         else:
             print('%s: %s' %(key, value))
 

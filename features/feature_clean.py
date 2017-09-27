@@ -55,9 +55,10 @@ def calculatedbathnbr(df):
     # 1-20, fill in median or mean = 2
     return df['calculatedbathnbr'].fillna(df['calculatedbathnbr'].median())
 
+# 0.005727, All 66, like a has deck flag
 def decktypeid(df):
     # Low non-nan ratio, fill 0 (Not in dict)
-    return df['decktypeid'].fillna(0)
+    return df['decktypeid'] == 66
 
 def finishedfloor1squarefeet(df):
     # Long tail distribution
@@ -265,6 +266,9 @@ def taxvaluedollarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
 def assessmentyear(df):
     return df['assessmentyear'].fillna(2016)
 
+def is_assessmentyear_2015(df):
+    return df['assessmentyear'] == 2015
+
 def is_tax_assessed(df):
     return df['assessmentyear'].notnull()
 
@@ -379,6 +383,8 @@ def fips(df):
     return df['fips'].fillna(df['fips'].mode()[0])
 
 # TODO:
+#   OBSOLETED
+
 #   1. parse censustractandblock features
 #   2. No dominant modes, could use geo to help fill, fill 0 for now.
 # 0.99410
@@ -418,44 +424,14 @@ def yearbuilt(df):
     return df['yearbuilt'].fillna(0)
 
 
-##### Geo cleaning
+def propertycountylandusecode_cat(df):
+    return df['propertycountylandusecode_cat'].fillna(0)
 
-def geo_everything(df):
-    # split the geo part
+def fips_census_1(df):
+    return df['fips_census_1'].fillna(df['fips_census_1'].mode()[0])
 
-    geocolumns = ['parcelid', 'latitude', 'longitude'
-        , 'propertycountylandusecode', 'propertylandusetypeid', 'propertyzoningdesc'
-        , 'regionidcity', 'regionidcounty', 'regionidneighborhood', 'regionidzip'
-        , 'censustractandblock', 'rawcensustractandblock', 'fips']
-    geoprop = df[geocolumns]
-    parcelid = df.parcelid
+def block_1(df):
+    return df['block_1'].fillna(0)
 
-    geoprop.dropna(axis=0, subset=['latitude', 'longitude'], inplace=True)
-    geoprop.loc[:, 'latitude'] = geoprop.loc[:, 'latitude'] / 1e6
-    geoprop.loc[:, 'longitude'] = geoprop.loc[:, 'longitude'] / 1e6
-
-
-    # fill the nan
-    fillna_knn_inplace(df=geoprop,
-                       base=['latitude', 'longitude'],
-                       target='regionidcity', fraction=0.15)
-    fillna_knn_inplace(df=geoprop,
-                       base=['latitude', 'longitude'],
-                       target='regionidzip', fraction=0.15)
-    geoprop = create_catagory(geoprop, 'propertycountylandusecode')
-    fillna_knn_inplace(df=geoprop,
-                       base=['latitude', 'longitude'],
-                       target='propertycountylandusecode_cat', fraction=0.30)
-    geoprop = add_census_block_feature(geoprop)
-
-    # combine back
-    geoprop = pd.merge(pd.DataFrame(parcelid), geoprop, how='outer', on='parcelid')
-
-    # First liners are modified/cleaned features. Remove them from single feature functions.
-    # Second line are new generated features.
-    newfeatures = ['regionidcity', 'regionidcounty', 'regionidzip',
-                   'propertycountylandusecode_cat', 'fips_census_1', 'block_1', 'fips_census_block']
-
-    return geoprop[newfeatures]
-
-
+def fips_census_block(df):
+    return df['fips_census_block'].fillna(0)

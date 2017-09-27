@@ -9,8 +9,8 @@ if module_path not in sys.path:
 FOLDS = 5
 
 # Feature list
-from features import test_feature_list_2
-feature_list = test_feature_list_2.feature_list
+from features import feature_list_non_linear
+feature_list = feature_list_non_linear.feature_list
 
 # model
 from models import XGBoost, Lightgbm, RFRegressor
@@ -20,7 +20,7 @@ Model = XGBoost.XGBoost
 # Model = RFRegressor.RFRegressor
 
 
-submit = False
+submit = True
 
 record = False
 
