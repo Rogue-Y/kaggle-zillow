@@ -9,6 +9,7 @@ import pandas as pd
 import numpy as np
 import math
 from sklearn.preprocessing import LabelEncoder
+from .utils import *
 
 def parcelid(df):
     return df['parcelid']
@@ -361,17 +362,17 @@ def longitude(df):
     return df['longitude']
 
 # use 0 to mean nan geo features
-def regionidcity(df):
-    return df['regionidcity'].fillna(0)
-
-def regionidcounty(df):
-    return df['regionidcounty'].fillna(0)
+# def regionidcity(df):
+#     return df['regionidcity'].fillna(0)
+#
+# def regionidcounty(df):
+#     return df['regionidcounty'].fillna(0)
 
 def regionidneighborhood(df):
     return df['regionidneighborhood'].fillna(0)
 
-def regionidzip(df):
-    return df['regionidzip'].fillna(0)
+# def regionidzip(df):
+#     return df['regionidzip'].fillna(0)
 
 def fips(df):
     # fill in mode "6037"
@@ -415,3 +416,46 @@ def total_room_with_nan(df):
 def yearbuilt(df):
     # For know, fill 0 to mean unknown.
     return df['yearbuilt'].fillna(0)
+
+
+##### Geo cleaning
+
+def geo_everything(df):
+    # split the geo part
+
+    geocolumns = ['parcelid', 'latitude', 'longitude'
+        , 'propertycountylandusecode', 'propertylandusetypeid', 'propertyzoningdesc'
+        , 'regionidcity', 'regionidcounty', 'regionidneighborhood', 'regionidzip'
+        , 'censustractandblock', 'rawcensustractandblock', 'fips']
+    geoprop = df[geocolumns]
+    parcelid = df.parcelid
+
+    geoprop.dropna(axis=0, subset=['latitude', 'longitude'], inplace=True)
+    geoprop.loc[:, 'latitude'] = geoprop.loc[:, 'latitude'] / 1e6
+    geoprop.loc[:, 'longitude'] = geoprop.loc[:, 'longitude'] / 1e6
+
+
+    # fill the nan
+    fillna_knn_inplace(df=geoprop,
+                       base=['latitude', 'longitude'],
+                       target='regionidcity', fraction=0.15)
+    fillna_knn_inplace(df=geoprop,
+                       base=['latitude', 'longitude'],
+                       target='regionidzip', fraction=0.15)
+    geoprop = create_catagory(geoprop, 'propertycountylandusecode')
+    fillna_knn_inplace(df=geoprop,
+                       base=['latitude', 'longitude'],
+                       target='propertycountylandusecode_cat', fraction=0.30)
+    geoprop = add_census_block_feature(geoprop)
+
+    # combine back
+    geoprop = pd.merge(pd.DataFrame(parcelid), geoprop, how='outer', on='parcelid')
+
+    # First liners are modified/cleaned features. Remove them from single feature functions.
+    # Second line are new generated features.
+    newfeatures = ['regionidcity', 'regionidcounty', 'regionidzip',
+                   'propertycountylandusecode_cat', 'fips_census_1', 'block_1', 'fips_census_block']
+
+    return geoprop[newfeatures]
+
+

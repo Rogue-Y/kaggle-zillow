@@ -47,12 +47,17 @@ def load_properties_data(data_folder='data/', force_read=False):
         Returns:
             properties_df
     """
+    infered_type = {
+        "rawcensustractandblock": str,
+        "censustractandblock": str,
+        "propertycountylandusecode": str
+    }
     prop_data_pickle = data_folder + 'properties_2016_pickle'
 
     if not force_read and os.path.exists(prop_data_pickle):
         prop = pd.read_pickle(prop_data_pickle)
     else:
-        prop = pd.read_csv(data_folder + 'properties_2016.csv')
+        prop = pd.read_csv(data_folder + 'properties_2016.csv', dtype=infered_type)
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
         # Convert float64 to float32 to save memory
@@ -432,3 +437,54 @@ def aggregate_by_region(id_name, column='logerror', force_generate=False):
     region_dict['default'] = default_value_dict
     dump_aux(region_dict, region_dict_name)
     return region_dict
+
+##### Geo cleaning functions
+
+def create_catagory(df, name):
+    df[name+'_cat']=pd.factorize(df[name])[0]
+    df.loc[df[name+'_cat']<0, name+'_cat'] = np.nan
+    return df
+
+def add_census_block_feature(df):
+    df2 = df.rawcensustractandblock.str.extract('(?P<fips_census_1>\d{9})\.(?P<block_1>\d*)')
+    df2['fips_census_block'] = df2['fips_census_1'] + df2['block_1']
+    return pd.concat([df, df2], axis=1)
+
+
+from sklearn import neighbors
+from sklearn.preprocessing import OneHotEncoder
+
+
+def fillna_knn_inplace(df, base, target, fraction=1, threshold=10):
+    assert isinstance(base, list) or isinstance(base, np.ndarray) and isinstance(target, str)
+    whole = [target] + base  # [regionidcity, lat, lon]
+
+    miss = df[target].isnull()
+    notmiss = ~miss
+    nummiss = miss.sum()
+
+    enc = OneHotEncoder()
+    X_target = df.loc[notmiss, whole].sample(frac=fraction)
+
+    enc.fit(X_target[target].unique().reshape((-1, 1)))
+
+    Y = enc.transform(X_target[target].values.reshape((-1, 1))).toarray()
+    X = X_target[base]
+
+    print('fitting')
+    n_neighbors = 5
+    clf = neighbors.KNeighborsClassifier(n_neighbors, weights='uniform')
+    clf.fit(X, Y)
+
+    print('the shape of active features: ', enc.active_features_.shape)
+
+    print('perdicting')
+    Z = clf.predict(df.loc[miss, base])
+
+    numunperdicted = Z[:, 0].sum()
+    if numunperdicted / nummiss * 100 < threshold:
+        print('writing result to df')
+        df.loc[miss, target] = np.dot(Z, enc.active_features_)
+        print('num of unperdictable data: ', numunperdicted)
+    else:
+        print('out of threshold: {}% > {}%'.format(numunperdicted / nummiss * 100, threshold))

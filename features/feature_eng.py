@@ -641,17 +641,17 @@ def target_region_feature(df, id_name, column='logerror', minthres=10):
     print(list(newdf))
     return newdf
 
-def target_region_ratio(df):
-    newdf = pd.DataFrame()
-    column = 'logerror'
-    stats = ['std', 'mean', 'max', 'min']
-    cases = [('regionidneighborhood', 'regionidcity'), ('regionidneighborhood', 'regionidzip'), ('regionidneighborhood', 'regionidcounty')]
-    for (r1, r2) in cases:
-        dfr1 = target_region_feature(df, r1, column)
-        dfr2 = target_region_feature(df, r2, column)
-        for stat in stats:
-            newdf[column + '_' + stat + '_' + 'ratio' + r1 + '_' + r2] = dfr1[column + '_' + r1 + '_' + stat] / dfr2[column + '_' + r2 + '_' + stat]
-    return newdf
+# def target_region_ratio(df):
+#     newdf = pd.DataFrame()
+#     column = 'logerror'
+#     stats = ['std', 'mean', 'max', 'min']
+#     cases = [('regionidneighborhood', 'regionidcity'), ('regionidneighborhood', 'regionidzip'), ('regionidneighborhood', 'regionidcounty')]
+#     for (r1, r2) in cases:
+#         dfr1 = target_region_feature(df, r1, column)
+#         dfr2 = target_region_feature(df, r2, column)
+#         for stat in stats:
+#             newdf[column + '_' + stat + '_' + 'ratio' + r1 + '_' + r2] = dfr1[column + '_' + r1 + '_' + stat] / dfr2[column + '_' + r2 + '_' + stat]
+#     return newdf
 
 def clip_create_outlier_bool_helper(feature, name, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
     result = pd.DataFrame()
