@@ -8,12 +8,12 @@ if module_path not in sys.path:
 from features import feature_list_linear
 # model
 from models import LinearModel
+# for defining tunning parameters
+from hyperopt import hp
 
 # Configuration
 config_linear = {
     'name': 'config_linear',
-    # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
-    # 'resale_offset': 0,
     'Model': LinearModel.RidgeRegressor,
     'feature_list': feature_list_linear.feature_list,
     'clean_na': True,
@@ -38,5 +38,20 @@ config_linear = {
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'alpha': hp.loguniform('alpha', -2, 2),
+                'fit_intercept': hp.choice('fit_intercept', [True, False]),
+                'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
+                'random_state': 42
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+            'scaling': True,
+            'pca_components': hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
+        },
+        'max_evals': 500
     }
 }
