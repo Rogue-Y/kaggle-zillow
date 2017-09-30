@@ -347,7 +347,7 @@ def record_train(train_recorder, y_train, y_train_pred, y_valid, y_valid_pred):
     train_recorder.write('Validation label stats: ' + y_valid.describe().to_string(float_format='{:.5f}'.format) + '\n')
     train_recorder.write('Validation predict stats: ' + y_valid_pred.describe().to_string(float_format='{:.5f}'.format) + '\n')
 
-def prepare_features(feature_list = [], clean=False):
+def prepare_features(feature_list, clean=False):
     # use minimized version of properties data when memory is a concern
     # prop = utils.load_properties_data_minimize()
     # feature engineering
@@ -410,6 +410,11 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         train_recorder.write(Model.__name__ + '\n')
     # If need to generate submission, prepare prop df for testing
     if submit:
+        # When we clean data, we removed the rows where lat and lon are null,
+        # so we have to preserve the parcelid of the prop here to join with that
+        # of the sample submission
+        # training data(transactions) don't have this problem as all of them
+        # have valid lat and lon
         df_test_parcelid = prop['parcelid']
         df_test = data_clean.drop_id_column(prop)
     else:
@@ -509,9 +514,11 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # predict = predict_df['predict'].where(predict_df['logerror'].isnull(), predict_df['logerror'])
         predict = predict_df['predict'].where(
             predict_df['logerror'].isnull(), predict_df['predict'] + resale_offset)
+        # Sanity check
+        print('nan in predictions: %d' %test_pred.isnull().sum())
         # For those we do not predict (parcels whose lat and lon are nan), fill
         # the median logerror
-        predict.fillna(0.011)
+        predict.fillna(0.011, inplace=True)
 
         # # Save prediction(a Series object) to a pickle for ensembling use
         # # Save one in history
@@ -537,7 +544,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
 
 def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
     outliers_up_pct = 100, outliers_lw_pct = 0,
-    submit=False, prop = None, transactions = None, # if submit is true, than must provide transactions and prop
+    submit=False, config_name='', prop = None,  # if submit is true, than must provide prop and config_name
     pca_components=-1, scaling=False, scaler=RobustScaler(quantile_range=(0, 99)),
     scaling_columns=SCALING_COLUMNS):
     # Optional dimension reduction.
@@ -563,6 +570,12 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
 
     # If need to generate submission, prepare prop df for testing
     if submit:
+        # When we clean data, we removed the rows where lat and lon are null,
+        # so we have to preserve the parcelid of the prop here to join with that
+        # of the sample submission
+        # training data(transactions) don't have this problem as all of them
+        # have valid lat and lon
+        df_test_parcelid = prop['parcelid']
         df_test = data_clean.drop_id_column(prop)
     else:
         del prop; gc.collect()
@@ -621,10 +634,22 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
             model_preds.append(np.concatenate(test_preds))
         print("--------------------------------------------------------")
 
-    validation_pred = pd.concat(validate_fold_preds).sort_index()
-    test_pred = pd.Series(np.mean(model_preds))
-
-    return validation_pred, y_train_q4, test_pred # this is an empty list when not submitting
+    pred_col_name = 'predict_%s' %config_name
+    validation_pred = pd.concat(validate_fold_preds).sort_index().rename(pred_col_name)
+    if submit:
+        # need to merge to the full properties set and fill na for the cleaned
+        # data set
+        test_pred = pd.Series(np.mean(model_preds, axis=0), name=pred_col_name, index=df_test_parcelid)
+        print('Prediction describe for %s' %config_name)
+        print(test_pred.describe())
+        prop_full = utils.load_properties_data(add_geo_feature=False)
+        test_pred = prop_full.join(test_pred, on='parcelid', how='left')[pred_col_name]
+        # Sanity check
+        print('nan in predictions: %d' %test_pred.isnull().sum())
+        test_pred.fillna(0.011, inplace=True)
+    else:
+        test_pred = None
+    return validation_pred, y_train_q4, test_pred # this is None when not submitting
 
 if __name__ == '__main__':
     t1 = time.time()
@@ -661,7 +686,7 @@ if __name__ == '__main__':
     # Feature list
     feature_list = config_dict['feature_list']
     # # model
-    # Model = config_dict['model']
+    Model = config_dict['Model']
     #
     # # Optional configurations:
     # # model params:
@@ -692,7 +717,7 @@ if __name__ == '__main__':
 
     train_df, transactions = prepare_training_data(prop)
     if submit:
-        cv_error = train(train_df,
+        cv_error = train(train_df, Model=Model,
             submit=True, prop=prop, transactions=transactions,
             **config_dict['training_params'])
         folder = 'data/experiments'
@@ -706,7 +731,7 @@ if __name__ == '__main__':
             record.write('leaderboard:________________PLEASE FILL____________________\n')
     else:
         del transactions; del prop; gc.collect()
-        train(train_df, submit=False, **config_dict['training_params'])
+        train(train_df, Model=Model, submit=False, **config_dict['training_params'])
 
     t2 = time.time()
     print((t2 - t1) / 60)

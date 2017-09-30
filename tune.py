@@ -7,14 +7,14 @@
 from hyperopt import hp, fmin, tpe, space_eval, STATUS_OK, Trials
 
 from train import train, prepare_features, prepare_training_data
-from features import utils, data_clean, feature_list_non_linear, feature_list_linear
-from models import XGBoost, Lightgbm, RFRegressor, LinearModel, ETRegressor
+from ensemble import get_first_layer, stacking
 
 import datetime
 import gc
 import os
 import pickle
 import time
+from optparse import OptionParser
 
 # parameter space
 # lightgbm parameter space
@@ -139,25 +139,30 @@ space_et = {
     'FOLDS': 3 #RF takes long time to train
 }
 
-# experiments are tuples of format (Model, feature_list, parameter_space, max_run_times, experiment_params)
-experiments = [
-    # (XGBoost.XGBoost, configuration['feature_list'], space_xgb, 350, {}),
-    # (Lightgbm.Lightgbm, configuration['feature_list'], space_lightgbm, 300, {}),
-    # (RFRegressor.RFRegressor, feature_list, space_rf, 100, {'clean_na': True}),
-    # (ETRegressor.ETRegressor, feature_list, space_et, 150, {'clean_na': True}),
 
-    # (RFRegressor.RFRegressor, feature_list_non_linear.feature_list, space_rf, 5, {'clean_na': True}),
-    (LinearModel.RidgeRegressor, feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
-    # (LinearModel.LassoRegressor, feature_list_linear.feature_list, space_lasso, 1000, {'clean_na': True}),
+### Tune models ###
+
+from config import lightgbm_config
+# experiments are a list of configs with tunning parameters defined
+model_experiments = [
+    lightgbm_config
 ]
 
-def tune():
-    # feature engineering
-    for Model, feature_list, parameter_space, max_evals, exp_params in experiments:
-        tune_single_model(Model, feature_list, parameter_space, max_evals, exp_params)
+def tune_models():
+    for config_dict in model_experiments:
+        tune_single_model_wrapper(config_dict)
 
-def tune_single_model(Model, feature_list, parameter_space, max_evals, exp_params, trials=None):
-    clean_na = exp_params['clean_na'] if 'clean_na' in exp_params else False
+# wrapper of tune_single_model that takes a config dict
+def tune_single_model_wrapper(config_dict):
+    # Feature list
+    feature_list = config_dict['feature_list']
+    # Model
+    Model = config_dict['Model']
+    # clean_na
+    clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
+    tune_single_model(Model, feature_list, clean_na, **config_dict['tuning_params'])
+
+def tune_single_model(Model, feature_list, clean_na, parameter_space, max_evals=100, trials=None):
     prop = prepare_features(feature_list, clean_na)
     train_df, transactions = prepare_training_data(prop)
     del transactions; del prop; gc.collect()
@@ -192,5 +197,93 @@ def tune_single_model(Model, feature_list, parameter_space, max_evals, exp_param
 
     return trials
 
+
+### Tune stacking ###
+
+from config import stacking_config_test
+stacking_experiments = [
+    stacking_config_test
+]
+
+def tune_stackings():
+    for config_dict in stacking_experiments:
+        tune_stacking_wrapper(config_dict)
+
+# wrapper of tune_single_model that takes a config dict
+def tune_stacking_wrapper(config_dict):
+    # Feature list
+    stacking_list = config_dict['stacking_list']
+    # Model
+    Meta_model = config_dict['Meta_model']
+    # Tune
+    tune_stacking(stacking_list, Meta_model, **config_dict['tuning_params'])
+
+def tune_stacking(stacking_list, Meta_model, parameter_space, max_evals=100, trials=None):
+    first_layer, target, _ = get_first_layer(stacking_list)
+
+    def train_wrapper(params):
+        meta_model = Meta_model(model_params=params['model_params'])
+        loss = stacking(first_layer, target, meta_model)
+        # return an object to be recorded in hyperopt trials for future uses
+        return {
+            'loss': loss,
+            'status': STATUS_OK,
+            'eval_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+            'params': params
+        }
+
+    if trials is None:
+        trials = Trials()
+    # tuning parameters
+    t1 = time.time()
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
+    t2 = time.time()
+    print(best)
+    print(space_eval(parameter_space, best))
+    print("time: %s" %((t2-t1) / 60))
+
+    # save the experiment trials in a pickle
+    folder = 'data/trials/stacking'
+    if not os.path.exists(folder):
+        os.makedirs(folder)
+    with open("%s/%s_%s_pickle" %(folder, Meta_model.__name__, timestamp), "wb") as trial_file:
+        pickle.dump(trials, trial_file)
+
+    return trials
+
+
 if __name__ == '__main__':
-    tune()
+    # Get configuration
+    # parser to parse cmd line option
+    parser = OptionParser()
+    # tune_model is true by default or when -e flag is present
+    parser.add_option('-m', '--model', action='store_true', dest='tune_model', default=True)
+    # tune_model is set to false when -s flag is present
+    parser.add_option('-t', '--stacking', action='store_false', dest='tune_model')
+    # configuration dictionary
+    parser.add_option('-c', '--config', action='store', type='string', dest='config_file', default='')
+    # parse cmd line arguments
+    (options, args) = parser.parse_args()
+
+    config_file = options.config_file
+    config_dict = None
+    if config_file != '':
+        config_dict = getattr(config, config_file)
+
+    if options.tune_model:
+        print('Tune models...')
+        if config_dict is None:
+            # Tune pre-defined experiements if no config is specified on the cmd line
+            tune_models()
+        else:
+            print('Tune config: %s...' %config_dict['name'])
+            tune_single_model_wrapper(config_dict)
+    else:
+        print('Tune stacking...')
+        if config_dict is None:
+            # Tune pre-defined experiements if no config is specified on the cmd line
+            tune_stackings()
+        else:
+            print('Tune config: %s...' %config_dict['name'])
+            tune_stacking_wrapper(config_dict)

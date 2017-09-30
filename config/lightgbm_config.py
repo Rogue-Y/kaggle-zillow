@@ -9,12 +9,17 @@ if module_path not in sys.path:
 from features import feature_list_non_linear
 # model
 from models import Lightgbm
+# for tunning parameters
+from hyperopt import hp
+
 
 # Configuration:
 lightgbm_config = {
+    'name': 'lightgbm_config',
     # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
     # 'resale_offset': 0,
     'feature_list': feature_list_non_linear.feature_list,
+    'Model': Lightgbm.Lightgbm,
     # Best lightgbm param with geo_neighborhood and geo_zip, 0.0646722050526
     # 'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.012923556870735842,
     #     'metric': 'mse', 'min_data': 200, 'min_hessian': 0.232705809294419,
@@ -25,15 +30,49 @@ lightgbm_config = {
     #     'metric': 'mae', 'min_data': 260, 'min_hessian': 0.57579034653711,
     #     'num_boost_round': 300, 'num_leaves': 70, 'objective': 'regression_l1',
     #     'sub_feature': 0.06638755200543586, 'verbose': -1},
-    'submit': False,
-    'record': False,
-    'stacking_params': {
-        'Model': Lightgbm.Lightgbm,
+    'training_params': {
         'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.2100954943925603,
         	'max_bin': 255, 'metric': 'mse', 'min_data': 225, 'min_hessian': 0.06297429722636191,
         	'num_leaves': 10, 'objective': 'regression', 'sub_feature': 0.13114357843072696, 'verbose': -1},
-        'FOLDS': 5,
+        'FOLDS': 2,
+        'record': False,
         'outliers_lw_pct': 4,
         'outliers_up_pct': 97,
+        # 'resale_offset': 0.012
+        # 'pca_components': -1, # clean_na needs to be True to use PCA
+        # 'scaling': False,
+        # 'scaler': RobustScaler(quantile_range=(0, 99)),
+        # 'scaling_columns': SCALING_COLUMNS
+    },
+    'stacking_params': {
+        'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.2100954943925603,
+        	'max_bin': 255, 'metric': 'mse', 'min_data': 225, 'min_hessian': 0.06297429722636191,
+        	'num_leaves': 10, 'objective': 'regression', 'sub_feature': 0.13114357843072696, 'verbose': -1},
+        'FOLDS': 2,
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97,
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'learning_rate': hp.loguniform('learning_rate', -2, 0),
+                'boosting_type': 'gbdt',
+                'objective': 'regression',
+                'metric': hp.choice('metric', ['mae', 'mse']),
+                'sub_feature': hp.uniform('sub_feature', 0.1, 0.5),
+                'num_leaves': hp.choice('num_leaves', list(range(10, 151, 15))),
+                'min_data': hp.choice('min_data', list(range(150, 301, 15))),
+                'min_hessian': hp.loguniform('min_hessian', -3, 1),
+                'num_boost_round': hp.choice('num_boost_round', [200, 300, 500]),
+                'max_bin': hp.choice('max_bin', list(range(50, 151, 10))),
+                # 'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
+                # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
+                'verbose': -1
+            },
+            'FOLDS': 2,
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
+        },
+        'max_evals': 2
     }
 }
