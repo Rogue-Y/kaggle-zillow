@@ -147,8 +147,8 @@ experiments = [
     # (ETRegressor.ETRegressor, feature_list, space_et, 150, {'clean_na': True}),
 
     # (RFRegressor.RFRegressor, feature_list_non_linear.feature_list, space_rf, 5, {'clean_na': True}),
-    # (LinearModel.RidgeRegressor, feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
-    (LinearModel.LassoRegressor, feature_list_linear.feature_list, space_lasso, 1000, {'clean_na': True}),
+    (LinearModel.RidgeRegressor, feature_list_linear.feature_list, space_ridge, 1000, {'clean_na': True}),
+    # (LinearModel.LassoRegressor, feature_list_linear.feature_list, space_lasso, 1000, {'clean_na': True}),
 ]
 
 def tune():

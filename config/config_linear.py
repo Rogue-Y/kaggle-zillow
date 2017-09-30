@@ -4,32 +4,39 @@ module_path = os.path.abspath(os.path.join('..'))
 if module_path not in sys.path:
     sys.path.append(module_path)
 
-# Configuration:
-# folds number of K-Fold
-FOLDS = 5
-
 # Feature list
 from features import feature_list_linear
-feature_list = feature_list_linear.feature_list
-
 # model
 from models import LinearModel
-Model = LinearModel.RidgeRegressor
 
-
-submit = False
-
-record = False
-
+# Configuration
 config_linear = {
     # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
     # 'resale_offset': 0,
-    'folds': FOLDS,
-    'scaling': True,
-    'feature_list': feature_list,
-    'model': Model,
-    'model_params': {'alpha': 1.0, 'random_state': 42},
+    'feature_list': feature_list_linear.feature_list,
     'clean_na': True,
-    'submit': submit,
-    'record': record,
+    'training_params': {
+        'Model': LinearModel.RidgeRegressor,
+        'model_params': {'alpha': 1.0, 'random_state': 42},
+        'FOLDS': 5,
+        'record': False,
+        'outliers_up_pct': 99,
+        'outliers_lw_pct': 1,
+        # 'resale_offset': 0.012
+        'pca_components': -1, # clean_na needs to be True to use PCA
+        'scaling': True,
+        # 'scaler': RobustScaler(quantile_range=(0, 99)),
+        # 'scaling_columns': SCALING_COLUMNS
+    },
+    'stacking_params': {
+        'Model': LinearModel.RidgeRegressor,
+        'model_params': {'alpha': 1.0, 'random_state': 42},
+        'FOLDS': 5,
+        'outliers_up_pct': 99,
+        'outliers_lw_pct': 1,
+        'pca_components': -1, # clean_na needs to be True to use PCA
+        'scaling': True,
+        # 'scaler': RobustScaler(quantile_range=(0, 99)),
+        # 'scaling_columns': SCALING_COLUMNS
+    }
 }

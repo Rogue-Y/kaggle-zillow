@@ -366,17 +366,17 @@ def longitude(df):
     return df['longitude']
 
 # use 0 to mean nan geo features
-# def regionidcity(df):
-#     return df['regionidcity'].fillna(0)
-#
-# def regionidcounty(df):
-#     return df['regionidcounty'].fillna(0)
+def regionidcity(df):
+    return df['regionidcity'].fillna(0)
+
+def regionidcounty(df):
+    return df['regionidcounty'].fillna(0)
 
 def regionidneighborhood(df):
     return df['regionidneighborhood'].fillna(0)
 
-# def regionidzip(df):
-#     return df['regionidzip'].fillna(0)
+def regionidzip(df):
+    return df['regionidzip'].fillna(0)
 
 def fips(df):
     # fill in mode "6037"

@@ -42,7 +42,7 @@ def load_transaction_data(data_folder='data/', force_read=False):
         train.to_pickle(train_data_pickle)
     return train
 
-def load_properties_data(data_folder='data/', force_read=False):
+def load_properties_data(data_folder='data/', force_read=False, add_geo_feature=True):
     """ Load properties data.
         Returns:
             properties_df
@@ -60,7 +60,8 @@ def load_properties_data(data_folder='data/', force_read=False):
         prop = pd.read_csv(data_folder + 'properties_2016.csv', dtype=infered_type)
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
-        prop = preprocess_add_geo_features(prop)
+        if add_geo_feature:
+            prop = preprocess_add_geo_features(prop)
         # Convert float64 to float32 to save memory
         for col in prop.columns:
             if prop[col].dtype == 'float64':
@@ -81,7 +82,7 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
     if not force_read and os.path.exists(prop_preprocessed_pickle_path):
         prop_preprocessed = pd.read_pickle(prop_preprocessed_pickle_path)
     else:
-        prop_preprocessed = load_properties_data(force_read)
+        prop_preprocessed = load_properties_data(data_folder, force_read)
 
         # Preprocessing some columns so that all columns are numbers/booleans and has concrete meanings
         # boolean columns
@@ -128,7 +129,7 @@ def load_properties_data_cleaned(data_folder='data/', force_read=False):
         functions = [o for o in inspect.getmembers(feature_clean) if inspect.isfunction(o[1])]
         # convert to a dictionary
         functions_dict = dict(functions)
-        prop = load_properties_data(force_read)
+        prop = load_properties_data(data_folder, force_read)
         # filter out parcels that have unknown lat or lon
         prop = prop[prop['latitude'].notnull() & prop['longitude'].notnull()]
         # create a new df as some feature filling may depend on other features
