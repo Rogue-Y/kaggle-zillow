@@ -378,9 +378,9 @@ def prepare_training_data(prop):
 
     return train_df, transactions
 
-def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
+def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
     outliers_up_pct = 100, outliers_lw_pct = 0,
-    submit=False, prop = None, transactions = None, # if submit is true, than must provide transactions and prop
+    submit=False, prop = None, transactions = None, config_dict={}, # if submit is true, than must provide transactions and prop
     resale_offset = 0.012, pca_components=-1, scaling=False, scaler=RobustScaler(quantile_range=(0, 99)), scaling_columns=SCALING_COLUMNS):
     # Optional dimension reduction.
     if pca_components > 0:
@@ -520,12 +520,14 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # the median logerror
         predict.fillna(0.011, inplace=True)
 
-        # # Save prediction(a Series object) to a pickle for ensembling use
-        # # Save one in history
-        # predict.to_pickle('data/predictions/history/%s_%s_pickle' %(time, Model.__name__))
+        # Save prediction(a Series object) to a pickle for later use
+        # Save one in history
+        sub_history_folder = 'data/predictions/history'
+        if not os.path.exists(sub_history_folder):
+            os.makedirs(sub_history_folder)
+        predict.to_pickle('%s/%s_%s_pickle' %(sub_history_folder, time, Model.__name__))
         # # Update the most recent pickle for this model
         # predict.to_pickle('data/predictions/%s_latest_pickle' %Model.__name__)
-
 
         # generate submission
         print("generating submission...")
@@ -539,6 +541,16 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         sample.to_csv(
             '%s/Submission_%s.csv' %(submission_folder, time), index=False, float_format='%.4f')
         print("Prediction made.")
+
+        exp_record_folder = 'data/experiments'
+        if not os.path.exists(exp_record_folder):
+            os.makedirs(exp_record_folder)
+        with open('%s/%s.txt' %(exp_record_folder, 'experiments'), 'a') as record:
+             # Time is the same across submission csv, pickle and record for easy search
+            record.write('\n\nTime: %s\n' %time)
+            record.write('Config: %s\n' %config_dict)
+            record.write('cv_error:%s\n' %avg_cv_errors)
+            record.write('leaderboard:________________PLEASE FILL____________________\n')
 
     return avg_cv_errors
 
@@ -676,7 +688,7 @@ if __name__ == '__main__':
         if key == 'feature_list':
             for k, v in value.items():
                 print('%s: %s' %(k, len(v)))
-        elif key == 'stacking_params':
+        elif key == 'stacking_params' or key == 'tuning_params':
             continue
         else:
             print('%s: %s' %(key, value))
@@ -719,16 +731,8 @@ if __name__ == '__main__':
     if submit:
         cv_error = train(train_df, Model=Model,
             submit=True, prop=prop, transactions=transactions,
+            config_dict=config_dict, # config dict for record submission purpose
             **config_dict['training_params'])
-        folder = 'data/experiments'
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-        with open('%s/%s.txt' %(folder, 'experiments'), 'a') as record:
-            exp_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            record.write('\n\nTime: %s\n' %exp_time)
-            record.write('Config: %s\n' %config_dict)
-            record.write('cv_error:%s\n' %cv_error)
-            record.write('leaderboard:________________PLEASE FILL____________________\n')
     else:
         del transactions; del prop; gc.collect()
         train(train_df, Model=Model, submit=False, **config_dict['training_params'])

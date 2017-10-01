@@ -78,10 +78,10 @@ feature_list = {
         # ('built_before_year', 'built_before_year', {}, 'built_before_year_pickle', False),
         #
         # # # ('category_land_use_code', category_land_use_code, {}, 'category_land_use_code_pickle', False),
-        ('category_land_use_code_encode', 'category_land_use_code_encode', {}, 'category_land_use_code_encode_pickle', False),
+        # ('category_land_use_code_encode', 'category_land_use_code_encode', {}, 'category_land_use_code_encode_pickle', False),
         # # # ('category_land_use_desc', category_land_use_desc, {}, 'category_land_use_desc_pickle', False),
-        ('category_land_use_desc_encode', 'category_land_use_desc_encode', {}, 'category_land_use_desc_encode_pickle', False),
-        ('category_land_use_type_encode', 'category_land_use_type_encode', {}, 'category_land_use_type_encode_pickle', False),
+        # ('category_land_use_desc_encode', 'category_land_use_desc_encode', {}, 'category_land_use_desc_encode_pickle', False),
+        # ('category_land_use_type_encode', 'category_land_use_type_encode', {}, 'category_land_use_type_encode_pickle', False),
         #
         ('error_rate_bathroom', 'error_rate_bathroom', {}, 'error_rate_bathroom_pickle', False),
         ('error_rate_calculated_finished_living_sqft', 'error_rate_calculated_finished_living_sqft', {}, 'error_rate_calculated_finished_living_sqft_pickle', False),
@@ -118,12 +118,12 @@ feature_list = {
         # ('sum_lat_lon', 'sum_lat_lon', {}, 'sum_lat_lon_pickle', False),
         ('total_rooms', 'total_rooms', {}, 'total_rooms_pickle', False),
 
-        ('target_neighborhood_feature', 'target_region_feature', {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
-        ('target_zip_feature', 'target_region_feature', {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),
-        ('target_city_feature', 'target_region_feature', {'id_name':'regionidcity'}, 'target_city_feature_pickle', False),
-        ('target_county_feature', 'target_region_feature', {'id_name':'regionidcounty'}, 'target_county_feature_pickle', False),
-        ('target_census_feature', 'target_region_feature', {'id_name':'fips_census_1'}, 'target_census_feature_pickle', False),
-        ('target_censusblock_feature', 'target_region_feature', {'id_name':'fips_census_block'}, 'target_censusblock_feature_pickle', False),
+        # ('target_neighborhood_feature', 'target_region_feature', {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
+        # ('target_zip_feature', 'target_region_feature', {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),
+        # ('target_city_feature', 'target_region_feature', {'id_name':'regionidcity'}, 'target_city_feature_pickle', False),
+        # ('target_county_feature', 'target_region_feature', {'id_name':'regionidcounty'}, 'target_county_feature_pickle', False),
+        # ('target_census_feature', 'target_region_feature', {'id_name':'fips_census_1'}, 'target_census_feature_pickle', False),
+        # ('target_censusblock_feature', 'target_region_feature', {'id_name':'fips_census_block'}, 'target_censusblock_feature_pickle', False),
 
         ('has_fireplace', 'has_fireplace', {}, 'has_fireplace_pickle', False),
         ('is_garagetotalsqft_zero', 'is_garagetotalsqft_zero', {}, 'is_garagetotalsqft_zero_pickle', False),
