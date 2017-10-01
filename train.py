@@ -642,7 +642,7 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
         test_pred = pd.Series(np.mean(model_preds, axis=0), name=pred_col_name, index=df_test_parcelid)
         print('Prediction describe for %s' %config_name)
         print(test_pred.describe())
-        prop_full = utils.load_properties_data(add_geo_feature=False)
+        prop_full = utils.load_properties_data_raw()
         test_pred = prop_full.join(test_pred, on='parcelid', how='left')[pred_col_name]
         # Sanity check
         print('nan in predictions: %d' %test_pred.isnull().sum())

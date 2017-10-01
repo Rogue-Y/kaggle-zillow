@@ -125,5 +125,19 @@ feature_list = {
         ('target_county_feature', 'target_region_feature', {'id_name':'regionidcounty'}, 'target_county_feature_pickle', False),
         ('target_census_feature', 'target_region_feature', {'id_name':'fips_census_1'}, 'target_census_feature_pickle', False),
         ('target_censusblock_feature', 'target_region_feature', {'id_name':'fips_census_block'}, 'target_censusblock_feature_pickle', False),
+
+        # methods from feature clean_na
+        ('has_fireplace', 'has_fireplace', {}, 'has_fireplace_pickle', False),
+        ('is_garagetotalsqft_zero', 'is_garagetotalsqft_zero', {}, 'is_garagetotalsqft_zero_pickle', False),
+        ('has_partial_garagecarcnt', 'has_partial_garagecarcnt', {}, 'has_partial_garagecarcnt_pickle', False),
+        ('is_unitcnt_gt_four', 'is_unitcnt_gt_four', {}, 'is_unitcnt_gt_four_pickle', False),
+        ('has_shed_in_yard', 'has_shed_in_yard', {}, 'has_shed_in_yard_pickle', False),
+        ('is_numberofstories_gt_three', 'is_numberofstories_gt_three', {}, 'is_numberofstories_gt_three_pickle', False),
+        ('is_assessmentyear_2015', 'is_assessmentyear_2015', {}, 'is_assessmentyear_2015_pickle', False),
+        ('is_tax_assessed', 'is_tax_assessed', {}, 'is_tax_assessed_pickle', False),
+        ('is_taxdelinquencyyear_before_2014', 'is_taxdelinquencyyear_before_2014', {}, 'is_taxdelinquencyyear_before_2014_pickle', False),
+        ('tax_difference', 'tax_difference', {}, 'tax_difference_pickle', False),
+        ('has_construction_type', 'has_construction_type', {}, 'has_construction_type_pickle', False),
+        ('is_roomcnt_zero', 'is_roomcnt_zero', {}, 'is_roomcnt_zero_pickle', False),
     ]
 }

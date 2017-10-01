@@ -42,7 +42,26 @@ def load_transaction_data(data_folder='data/', force_read=False):
         train.to_pickle(train_data_pickle)
     return train
 
-def load_properties_data(data_folder='data/', force_read=False, add_geo_feature=True):
+def load_properties_data_raw(data_folder='data/', force_read=False):
+    """ Load raw properties data, for missing value calculation only now.
+        Returns:
+            properties_df
+    """
+    prop_data_pickle = data_folder + 'properties_2016_raw_pickle'
+
+    if not force_read and os.path.exists(prop_data_pickle):
+        prop = pd.read_pickle(prop_data_pickle)
+    else:
+        prop = pd.read_csv(data_folder + 'properties_2016.csv', dtype=infered_type)
+        for col in prop.columns:
+            if prop[col].dtype == 'float64':
+                prop[col] = prop[col].astype('float32')
+        if not os.path.exists(data_folder):
+            os.makedirs(data_folder)
+        prop.to_pickle(prop_data_pickle)
+    return prop
+
+def load_properties_data(data_folder='data/', force_read=False):
     """ Load properties data.
         Returns:
             properties_df
@@ -60,8 +79,7 @@ def load_properties_data(data_folder='data/', force_read=False, add_geo_feature=
         prop = pd.read_csv(data_folder + 'properties_2016.csv', dtype=infered_type)
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
-        if add_geo_feature:
-            prop = preprocess_add_geo_features(prop)
+        prop = preprocess_add_geo_features(prop)
         # Convert float64 to float32 to save memory
         for col in prop.columns:
             if prop[col].dtype == 'float64':
@@ -104,8 +122,8 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
 
         # encode some categorical features that are not represented with numbers
         labelEncoder = LabelEncoder()
-        prop_preprocessed['propertycountylandusecode'] = (
-            labelEncoder.fit_transform(prop_preprocessed['propertycountylandusecode'].astype(str)))
+        # prop_preprocessed['propertycountylandusecode'] = (
+        #     labelEncoder.fit_transform(prop_preprocessed['propertycountylandusecode'].astype(str)))
         prop_preprocessed['propertyzoningdesc'] = (
             labelEncoder.fit_transform(prop_preprocessed['propertyzoningdesc'].astype(str)))
 
@@ -448,7 +466,7 @@ def aggregate_by_region(id_name, column='logerror', force_generate=False):
 def preprocess_add_geo_features(df):
     print('Process add Geo Features...')
     geodf = geo_everything(df)
-    return pd.concat([df.drop(['regionidcity', 'regionidcounty', 'regionidzip', 'rawcensustractandblock', 'censustractandblock'], axis=1), geodf], axis=1)
+    return pd.concat([df.drop(['regionidcity', 'regionidcounty', 'regionidzip', 'rawcensustractandblock', 'censustractandblock', 'propertycountylandusecode'], axis=1), geodf], axis=1)
 
 
 def geo_everything(df):
@@ -457,7 +475,7 @@ def geo_everything(df):
         , 'propertycountylandusecode', 'propertylandusetypeid', 'propertyzoningdesc'
         , 'regionidcity', 'regionidcounty', 'regionidneighborhood', 'regionidzip'
         , 'censustractandblock', 'rawcensustractandblock', 'fips']
-    geoprop = df[geocolumns]
+    geoprop = df.loc[:, geocolumns]
     parcelid = df.parcelid
 
     geoprop.dropna(axis=0, subset=['latitude', 'longitude'], inplace=True)
@@ -471,10 +489,12 @@ def geo_everything(df):
     fillna_knn_inplace(df=geoprop,
                        base=['latitude', 'longitude'],
                        target='regionidzip', fraction=0.15)
-    geoprop = create_category(geoprop, 'propertycountylandusecode')
+    geoprop['propertycountylandusecode'] = (
+        labelEncoder.fit_transform(geoprop['propertycountylandusecode']))
+    # geoprop = create_category(geoprop, 'propertycountylandusecode')
     fillna_knn_inplace(df=geoprop,
                        base=['latitude', 'longitude'],
-                       target='propertycountylandusecode_cat', fraction=0.30)
+                       target='propertycountylandusecode', fraction=0.30)
     geoprop = add_census_block_feature(geoprop)
 
     # combine back
@@ -483,7 +503,7 @@ def geo_everything(df):
     # First liners are modified/cleaned features. Remove them from single feature functions.
     # Second line are new generated features.
     newfeatures = ['regionidcity', 'regionidcounty', 'regionidzip',
-                   'propertycountylandusecode_cat', 'fips_census_1', 'block_1', 'fips_census_block']
+                   'propertycountylandusecode', 'fips_census_1', 'block_1', 'fips_census_block']
     return geoprop[newfeatures].astype(float)
 
 

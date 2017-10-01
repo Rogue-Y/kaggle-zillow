@@ -12,6 +12,51 @@ from sklearn.preprocessing import LabelEncoder
 
 labelEncoder = LabelEncoder()
 
+# methods from feature clean
+def has_fireplace(df):
+    return df['fireplacecnt'].notnull()
+
+def is_garagetotalsqft_zero(df):
+    return df['garagetotalsqft'] == 0
+
+# Some garage has 0 carcnt but non-zero sqft
+def has_partial_garagecarcnt(df):
+    return (df['garagetotalsqft'] > 0) & (df['garagecarcnt'] == 0)
+
+# 4 has 39877 count, 5 has only 588
+def is_unitcnt_gt_four(df):
+    return df['unitcnt'] > 4
+
+# This could be replicate of the above one, since we fill 0 for the above one.
+def has_shed_in_yard(df):
+    return df['yardbuildingsqft26'].notnull()
+
+def is_numberofstories_gt_three(df):
+    return df['numberofstories'] > 3
+
+def is_assessmentyear_2015(df):
+    return df['assessmentyear'] == 2015
+
+def is_tax_assessed(df):
+    return df['assessmentyear'].notnull()
+
+# Also try buckets for this one.
+def is_taxdelinquencyyear_before_2014(df):
+    return df['taxdelinquencyyear'] < 2014
+
+# The difference between the sum of structure and land tax with total tax
+def tax_difference(df):
+    return (df['structuretaxvaluedollarcnt'] + df['landtaxvaluedollarcnt']
+        - df['taxvaluedollarcnt'])
+
+def has_construction_type(df):
+    return df['typeconstructiontypeid'].notnull()
+
+def is_roomcnt_zero(df):
+    return df['roomcnt'] == 0
+
+    
+
 def missing_value_count(df):
     return df.isnull().sum(axis=1)
 
@@ -184,6 +229,85 @@ def round_lon(df):
 
 # TODO(hzn): add more aggregation to neighborhood/zip/city/county/lat-lon-block:
 # https://pandas.pydata.org/pandas-docs/stable/api.html#id32
+def geo_fips_census_block(df, columns=None):
+    fips_census_block = pd.DataFrame()
+    if columns is None:
+        # Use default columns if col is None
+        columns = [
+            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
+            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            # 'roomcnt',
+            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            'taxamount',
+            'taxvaluedollarcnt']
+    #Number of properties in the fips_census_block
+    fips_census_block_count = df['fips_census_block'].value_counts().to_dict()
+    fips_census_block['fips_census_block_count'] = df['fips_census_block'].map(fips_census_block_count)
+
+    # stats of value estimate of properties grouped by fips_census_block
+    fips_census_block_dict = (df[['fips_census_block', *columns]].groupby('fips_census_block')
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+
+    for col in columns:
+        fips_census_block[col + '_fips_census_block_mean'] = df['fips_census_block'].map(fips_census_block_dict[(col, 'mean')])
+        # when there's only one item in the group. the std method returns nan, fill it with 0.
+        fips_census_block[col + '_fips_census_block_std'] = df['fips_census_block'].map(fips_census_block_dict[(col, 'std')]).fillna(0)
+        # For those 2 ratios, when the denominator is zero, the nominator must be 0 too.
+        fips_census_block[col + '_fips_census_block_mean_ratio'] = ratio_helper(
+            df[col],
+            fips_census_block[col + '_fips_census_block_mean'],
+            1)
+        fips_census_block[col + '_fips_census_block_mean_ratio'] = ratio_helper(
+            (df[col] - fips_census_block[col + '_fips_census_block_mean']),
+            fips_census_block[col + '_fips_census_block_std'],
+            1)
+
+    # For the parcels where the fips_census_block is unknown(nan in origianl dataset,
+    # denoted by 0 after fillna), fill all values with zero.
+    fips_census_block[df['fips_census_block'] == 0] = 0
+
+    return fips_census_block
+
+def geo_fips_census_1(df, columns=None):
+    fips_census_1 = pd.DataFrame()
+    if columns is None:
+        # Use default columns if col is None
+        columns = [
+            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
+            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
+            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
+            # 'roomcnt',
+            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
+            'taxamount',
+            'taxvaluedollarcnt']
+    #Number of properties in the fips_census_1
+    fips_census_1_count = df['fips_census_1'].value_counts().to_dict()
+    fips_census_1['fips_census_1_count'] = df['fips_census_1'].map(fips_census_1_count)
+
+    # stats of value estimate of properties grouped by fips_census_1
+    fips_census_1_dict = (df[['fips_census_1', *columns]].groupby('fips_census_1')
+        .agg(['max', 'min', 'std', 'mean']).to_dict())
+
+    for col in columns:
+        fips_census_1[col + '_fips_census_1_mean'] = df['fips_census_1'].map(fips_census_1_dict[(col, 'mean')])
+        # when there's only one item in the group. the std method returns nan, fill it with 0.
+        fips_census_1[col + '_fips_census_1_std'] = df['fips_census_1'].map(fips_census_1_dict[(col, 'std')]).fillna(0)
+        # For those 2 ratios, when the denominator is zero, the nominator must be 0 too.
+        fips_census_1[col + '_fips_census_1_mean_ratio'] = ratio_helper(
+            df[col],
+            fips_census_1[col + '_fips_census_1_mean'],
+            1)
+        fips_census_1[col + '_fips_census_1_mean_ratio'] = ratio_helper(
+            (df[col] - fips_census_1[col + '_fips_census_1_mean']),
+            fips_census_1[col + '_fips_census_1_std'],
+            1)
+
+    # For the parcels where the fips_census_1 is unknown(nan in origianl dataset,
+    # denoted by 0 after fillna), fill all values with zero.
+    fips_census_1[df['fips_census_1'] == 0] = 0
+
+    return fips_census_1
 
 def geo_neighborhood(df, columns=None):
     neighborhood = pd.DataFrame()
