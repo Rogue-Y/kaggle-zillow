@@ -80,7 +80,7 @@ feature_list = {
         ('geo_city', 'geo_city', {}, 'geo_city_pickle', False),
         ('geo_county', 'geo_county', {}, 'geo_county_pickle', False),
         ('category_geo_county_one_hot', 'category_geo_county_one_hot', {}, 'category_geo_county_one_hot_pickle', False),
-        ('geo_lat_lon_block_features', geo_lat_lon_block_features, {}, 'geo_lat_lon_block_features_pickle', False),
+        # ('geo_lat_lon_block_features', geo_lat_lon_block_features, {}, 'geo_lat_lon_block_features_pickle', False),
         ('geo_fips_census_1', 'geo_fips_census_1', {}, 'geo_fips_census_1_pickle', False),
         ('geo_fips_census_block', 'geo_fips_census_block', {}, 'geo_fips_census_block_pickle', False),
         ('geo_neighborhood', 'geo_neighborhood', {}, 'geo_neighborhood_pickle', False),

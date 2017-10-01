@@ -505,7 +505,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         print("make prediction...")
         # model_preds = list(map(lambda model: model.predict(df_test), models))
         avg_pred = pd.Series(np.mean(model_preds, axis=0), name='predict', index=df_test_parcelid)
-        print('prediction length: %s' + str(len(avg_pred)))
+        print('prediction length: %d' %len(avg_pred))
 
         # add resale
         sales = transactions[['parcelid', 'logerror']].groupby('parcelid').mean()
@@ -515,7 +515,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         predict = predict_df['predict'].where(
             predict_df['logerror'].isnull(), predict_df['predict'] + resale_offset)
         # Sanity check
-        print('nan in predictions: %d' %test_pred.isnull().sum())
+        print('nan in predictions: %d' %predict.isnull().sum())
         # For those we do not predict (parcels whose lat and lon are nan), fill
         # the median logerror
         predict.fillna(0.011, inplace=True)

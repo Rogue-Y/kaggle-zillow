@@ -6,6 +6,7 @@
 
 from hyperopt import hp, fmin, tpe, space_eval, STATUS_OK, Trials
 
+import config
 from train import train, prepare_features, prepare_training_data
 from ensemble import get_first_layer, stacking
 

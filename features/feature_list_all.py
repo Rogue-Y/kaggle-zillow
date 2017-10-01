@@ -62,7 +62,6 @@ feature_list = {
         'taxamount',
         'taxdelinquencyflag',
         'taxdelinquencyyear',
-        'propertycountylandusecode_cat',
         'fips_census_1',
         'block_1',
         'fips_census_block',

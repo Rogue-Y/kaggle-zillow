@@ -528,10 +528,10 @@ def geo_lat_lon_block_features(df, columns=None):
 # others
 def boolean_has_ac(df):
     #Indicator whether it has AC or not
-    return df['airconditioningtypeid']!=5
+    return df['airconditioningtypeid'] != 5
 
 def boolean_has_heat(df):
-    return df['heatingorsystemtypeid']!=13
+    return df['heatingorsystemtypeid'] != 13 & df['heatingorsystemtypeid'].notnull()
 
 # categories
 def category_land_use_type_helper(df):

@@ -19,7 +19,7 @@ config_linear = {
     'clean_na': True,
     'training_params': {
         'model_params': {'alpha': 1.0, 'random_state': 42},
-        'FOLDS': 5,
+        'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 99,
         'outliers_lw_pct': 1,

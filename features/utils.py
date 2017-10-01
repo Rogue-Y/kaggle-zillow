@@ -52,7 +52,7 @@ def load_properties_data_raw(data_folder='data/', force_read=False):
     if not force_read and os.path.exists(prop_data_pickle):
         prop = pd.read_pickle(prop_data_pickle)
     else:
-        prop = pd.read_csv(data_folder + 'properties_2016.csv', dtype=infered_type)
+        prop = pd.read_csv(data_folder + 'properties_2016.csv')
         for col in prop.columns:
             if prop[col].dtype == 'float64':
                 prop[col] = prop[col].astype('float32')
@@ -489,9 +489,7 @@ def geo_everything(df):
     fillna_knn_inplace(df=geoprop,
                        base=['latitude', 'longitude'],
                        target='regionidzip', fraction=0.15)
-    geoprop['propertycountylandusecode'] = (
-        labelEncoder.fit_transform(geoprop['propertycountylandusecode']))
-    # geoprop = create_category(geoprop, 'propertycountylandusecode')
+    geoprop = create_category(geoprop, 'propertycountylandusecode')
     fillna_knn_inplace(df=geoprop,
                        base=['latitude', 'longitude'],
                        target='propertycountylandusecode', fraction=0.30)
@@ -509,8 +507,8 @@ def geo_everything(df):
 
 # TODO: replace this by labelencoder
 def create_category(df, name):
-    df[name+'_cat']=pd.factorize(df[name])[0]
-    df.loc[df[name+'_cat']<0, name+'_cat'] = np.nan
+    df[name]=pd.factorize(df[name])[0]
+    df.loc[df[name]<0, name] = np.nan
     return df
 
 def add_census_block_feature(df):
