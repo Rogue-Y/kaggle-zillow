@@ -754,7 +754,9 @@ def target_region_feature(df, id_name, column='logerror', minthres=10):
         newdf[column + '_' + id_name + '_' + stat].fillna(default_value_dict[stat])
     newdf[column + '_' + id_name + '_std_over_mean'] = newdf[column + '_' + id_name + '_std'] / newdf[column + '_' + id_name + '_mean']
     newdf[column + '_' + id_name + '_range'] = newdf[column + '_' + id_name + '_max'] - newdf[column + '_' + id_name + '_min']
-
+    newdf = newdf.replace([np.inf, -np.inf], np.nan)
+    newdf = newdf.fillna(0)
+    print('Target: Fill NaN and Inf with 0')
     print(list(newdf))
     return newdf
 

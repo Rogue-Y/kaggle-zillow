@@ -10,6 +10,7 @@ from features import feature_list_linear
 from models import LinearModel
 
 # Configuration
+
 config_linear = {
     # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
     # 'resale_offset': 0,
@@ -17,11 +18,11 @@ config_linear = {
     'clean_na': True,
     'training_params': {
         'Model': LinearModel.RidgeRegressor,
-        'model_params': {'alpha': 1.0, 'random_state': 42},
+        'model_params': {'alpha': 4.334985418227981, 'random_state': 42},
         'FOLDS': 5,
         'record': False,
-        'outliers_up_pct': 99,
-        'outliers_lw_pct': 1,
+        'outliers_up_pct': 97,
+        'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
         'pca_components': -1, # clean_na needs to be True to use PCA
         'scaling': True,
