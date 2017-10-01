@@ -20,4 +20,4 @@ def load_full_data(config_file):
 
     prop = prepare_features(feature_list, clean_na)
     train_df, transactions = prepare_training_data(prop)
-    return train_df, transactions
+    return train_df, prop, transactions

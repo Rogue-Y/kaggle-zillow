@@ -328,6 +328,43 @@ SCALING_COLUMNS = [
     'target_zip_feature',
     'target_city_feature',
     'target_county_feature',
+    'poolcnt',
+    'logerror_regionidneighborhood_max',
+    'logerror_regionidneighborhood_min',
+    'logerror_regionidneighborhood_std',
+    'logerror_regionidneighborhood_mean',
+    'logerror_regionidneighborhood_std_over_mean',
+    'logerror_regionidneighborhood_range',
+    'logerror_regionidzip_max',
+    'logerror_regionidzip_min',
+    'logerror_regionidzip_std',
+    'logerror_regionidzip_mean',
+    'logerror_regionidzip_std_over_mean',
+    'logerror_regionidzip_range',
+    'logerror_regionidcity_max',
+    'logerror_regionidcity_min',
+    'logerror_regionidcity_std',
+    'logerror_regionidcity_mean',
+    'logerror_regionidcity_std_over_mean',
+    'logerror_regionidcity_range',
+    'logerror_regionidcounty_max',
+    'logerror_regionidcounty_min',
+    'logerror_regionidcounty_std',
+    'logerror_regionidcounty_mean',
+    'logerror_regionidcounty_std_over_mean',
+    'logerror_regionidcounty_range',
+    'logerror_fips_census_1_max',
+    'logerror_fips_census_1_min',
+    'logerror_fips_census_1_std',
+    'logerror_fips_census_1_mean',
+    'logerror_fips_census_1_std_over_mean',
+    'logerror_fips_census_1_range',
+    'logerror_fips_census_block_max',
+    'logerror_fips_census_block_min',
+    'logerror_fips_census_block_std' ,
+    'logerror_fips_census_block_mean' ,
+    'logerror_fips_census_block_std_over_mean',
+    'logerror_fips_census_block_range',
 ]
 
 # Helper functions:
@@ -378,6 +415,11 @@ def prepare_training_data(prop):
 
     return train_df, transactions
 
+def predict_cap(predict, thres=1.5):
+    predict[predict>thres] = thres
+    predict[predict<-thres] = -thres
+    return predict
+
 def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     outliers_up_pct = 100, outliers_lw_pct = 0,
     submit=False, prop = None, transactions = None, # if submit is true, than must provide transactions and prop
@@ -390,6 +432,36 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # Note that the features pca produces is some combination of the original features, not retain/discard some columns
         feature_df = pca.fit_transform(feature_df)
         train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
+    # If need to generate submission, prepare prop df for testing
+    if submit:
+        # When we clean data, we removed the rows where lat and lon are null,
+        # so we have to preserve the parcelid of the prop here to join with that
+        # of the sample submission
+        # training data(transactions) don't have this problem as all of them
+        # have valid lat and lon
+        df_test_parcelid = prop['parcelid']
+        df_test = data_clean.drop_id_column(prop)
+    else:
+        del prop; gc.collect()
+    for col in train_df.columns:
+        if col in scaling_columns:
+            # if submit:
+            #     df_test[col] = scaler.fit_transform(df_test[col].values.reshape(-1, 1))
+            #     X_train[col] = scaler.transform(X_train[col].values.reshape(-1, 1))
+            #     # transform both validating and testing data
+            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
+            # else:
+            #     # fit and transform training data
+            #     X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
+            #     # transform both validating and testing data
+            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
+
+            # fit and transform training data
+            train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
+            if submit:
+                df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
+        else:
+            pass
 
     print('Train df dimensions: ' + str(train_df.shape))
     # split by date
@@ -408,17 +480,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     if record:
         train_recorder = open('data/error/%s_%s_params.txt' %(Model.__name__, time), 'w')
         train_recorder.write(Model.__name__ + '\n')
-    # If need to generate submission, prepare prop df for testing
-    if submit:
-        # When we clean data, we removed the rows where lat and lon are null,
-        # so we have to preserve the parcelid of the prop here to join with that
-        # of the sample submission
-        # training data(transactions) don't have this problem as all of them
-        # have valid lat and lon
-        df_test_parcelid = prop['parcelid']
-        df_test = data_clean.drop_id_column(prop)
-    else:
-        del prop; gc.collect()
+
     # split train_q4 into k folds, each time combine k-1 folds with train_q1_q3
     # to train model and validate on the left out fold
     mean_errors = []
@@ -432,18 +494,6 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
 
         X_validate = X_train_q4.loc[validate_index]
         y_validate = y_train_q4.loc[validate_index]
-
-        # Fit scalers using the training data and transform both training, validating and testing data
-        if scaling:
-            print('Scaling...')
-            for col in scaling_columns:
-                if col in X_train.columns:
-                    # fit and transform training data
-                    X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
-                    # transform both validating and testing data
-                    X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
-                    if submit:
-                        df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
         # try remove outliers
         print(X_train.shape, y_train.shape)
@@ -486,6 +536,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
             # Split testing dataframe
             for df_test_split in np.array_split(df_test, 30):
                 test_preds.append(model.predict(df_test_split))
+            print(pd.DataFrame(np.concatenate(test_preds)).describe())
             model_preds.append(np.concatenate(test_preds))
         print("--------------------------------------------------------")
 
@@ -519,6 +570,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # For those we do not predict (parcels whose lat and lon are nan), fill
         # the median logerror
         predict.fillna(0.011, inplace=True)
+        predict = predict_cap(predict)
 
         # # Save prediction(a Series object) to a pickle for ensembling use
         # # Save one in history
@@ -556,6 +608,38 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
         feature_df = pca.fit_transform(feature_df)
         train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
 
+    # If need to generate submission, prepare prop df for testing
+    if submit:
+        # When we clean data, we removed the rows where lat and lon are null,
+        # so we have to preserve the parcelid of the prop here to join with that
+        # of the sample submission
+        # training data(transactions) don't have this problem as all of them
+        # have valid lat and lon
+        df_test_parcelid = prop['parcelid']
+        df_test = data_clean.drop_id_column(prop)
+    else:
+        del prop; gc.collect()
+
+    for col in train_df.columns:
+        if col in scaling_columns:
+            # if submit:
+            #     df_test[col] = scaler.fit_transform(df_test[col].values.reshape(-1, 1))
+            #     X_train[col] = scaler.transform(X_train[col].values.reshape(-1, 1))
+            #     # transform both validating and testing data
+            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
+            # else:
+            #     # fit and transform training data
+            #     X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
+            #     # transform both validating and testing data
+            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
+
+            # fit and transform training data
+            train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
+            if submit:
+                df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
+        else:
+            pass
+
     print('Train df dimensions: ' + str(train_df.shape))
     # split by date
     train_q1_q3, train_q4 = utils.split_by_date(train_df)
@@ -568,17 +652,6 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
     X_train_q4, y_train_q4 = utils.get_features_target(train_q4)
     del train_q1_q3; del train_q4; gc.collect()
 
-    # If need to generate submission, prepare prop df for testing
-    if submit:
-        # When we clean data, we removed the rows where lat and lon are null,
-        # so we have to preserve the parcelid of the prop here to join with that
-        # of the sample submission
-        # training data(transactions) don't have this problem as all of them
-        # have valid lat and lon
-        df_test_parcelid = prop['parcelid']
-        df_test = data_clean.drop_id_column(prop)
-    else:
-        del prop; gc.collect()
     # split train_q4 into k folds, each time combine k-1 folds with train_q1_q3
     # to train model and validate on the left out fold
     model_preds = [] # predictions on test set
@@ -594,16 +667,16 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
         y_validate = y_train_q4.loc[validate_index]
 
         # Fit scalers using the training data and transform both training, validating and testing data
-        if scaling:
-            print('Scaling...')
-            for col in scaling_columns:
-                if col in X_train.columns:
-                    # fit and transform training data
-                    X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
-                    # transform both validating and testing data
-                    X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
-                    if submit:
-                        df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
+        # if scaling:
+        #     print('Scaling...')
+        #     for col in scaling_columns:
+        #         if col in X_train.columns:
+        #             # fit and transform training data
+        #             X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
+        #             # transform both validating and testing data
+        #             X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
+        #             if submit:
+        #                 df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
         # try remove outliers
         print(X_train.shape, y_train.shape)

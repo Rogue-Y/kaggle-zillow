@@ -880,6 +880,9 @@ def target_region_feature(df, id_name, column='logerror', minthres=10):
     newdf[column + '_' + id_name + '_range'] = newdf[column + '_' + id_name + '_max'] - newdf[column + '_' + id_name + '_min']
 
     print(list(newdf))
+    newdf = newdf.replace([np.inf, -np.inf], np.nan)
+    newdf = newdf.fillna(0)
+    print('Target: Fill NaN and Inf with 0')
     return newdf
 
 def target_region_ratio(df):
