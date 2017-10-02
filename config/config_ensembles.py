@@ -18,18 +18,20 @@ config_rf = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        'FOLDS': 3,
-        'model_params': {
-            'criterion': 'mse',
-            'max_depth': 3,
-            'max_features': 0.35373046429724236,
-            'min_samples_leaf': 0.029133482031154883,
-            'min_samples_split': 0.08476967706841676,
-            'n_estimators': 10,
-            'n_jobs': -1
-        },
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 99,
+        # 'FOLDS': 3,
+        # 'model_params': {
+        #     'criterion': 'mse',
+        #     'max_depth': 3,
+        #     'max_features': 0.35373046429724236,
+        #     'min_samples_leaf': 0.029133482031154883,
+        #     'min_samples_split': 0.08476967706841676,
+        #     'n_estimators': 10,
+        #     'n_jobs': -1
+        # },
+        # 'outliers_lw_pct': 4,
+        # 'outliers_up_pct': 99,
+    
+        'FOLDS': 3, 'model_params': {'criterion': 'mse', 'max_depth': 5, 'max_features': 0.29128611952923245, 'min_samples_leaf': 0.01834965011541529, 'min_samples_split': 0.025518924298922253, 'n_estimators': 90, 'n_jobs': -1}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97
     },
     'stacking_params': {
         'model_params': {'alpha': 1.0, 'random_state': 42},
@@ -50,13 +52,13 @@ config_rf = {
                 'max_depth': hp.choice('max_depth', list(range(3, 6))),
                 'min_samples_split': hp.loguniform('min_samples_split', -4, -2),
                 'min_samples_leaf': hp.loguniform('min_samples_leaf', -4, -2),
-                # 'n_jobs': -1
+                'n_jobs': -1
             },
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'FOLDS': 3 #RF takes long time to train
         },
-        'max_evals': 2
+        'max_evals': 75
     }
 }
 
@@ -68,6 +70,7 @@ config_extra_tree = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': True,
     'training_params': {
+        'FOLDS': 3, 'model_params': {'criterion': 'mse', 'max_depth': 7, 'max_features': 0.5527621519513952, 'min_samples_leaf': 0.0186596367173352, 'min_samples_split': 0.029402685599045443, 'n_estimators': 40, 'n_jobs': -1}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97
     },
     'stacking_params': {
     },
@@ -88,7 +91,7 @@ config_extra_tree = {
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'FOLDS': 3 #RF takes long time to train
         },
-        'max_evals': 2
+        'max_evals': 75
     }
 }
 
@@ -121,6 +124,6 @@ config_gb = {
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'FOLDS': 3 #RF takes long time to train
         },
-        'max_evals': 2
+        'max_evals': 75
     }
 }
