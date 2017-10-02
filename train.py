@@ -423,8 +423,10 @@ def predict_cap(predict, thres=1.5):
 
 def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     outliers_up_pct = 100, outliers_lw_pct = 0,
-    submit=False, prop = None, transactions = None, # if submit is true, than must provide transactions and prop
-    resale_offset = 0.012, pca_components=-1, scaling=False, scaler=RobustScaler(quantile_range=(0, 99)), scaling_columns=SCALING_COLUMNS):
+    submit=False, prop = None, transactions = None, config_dict={}, # if submit is true, than must provide transactions and prop
+    resale_offset = 0.012, pca_components=-1,
+    scaling=False, scaler=RobustScaler(quantile_range=(0, 99)), scaling_columns=SCALING_COLUMNS,
+    return_models=False):
     # Optional dimension reduction.
     if pca_components > 0:
         print('PCA...')
@@ -433,6 +435,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # Note that the features pca produces is some combination of the original features, not retain/discard some columns
         feature_df = pca.fit_transform(feature_df)
         train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
+
     # If need to generate submission, prepare prop df for testing
     if submit:
         # When we clean data, we removed the rows where lat and lon are null,
@@ -444,25 +447,15 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         df_test = data_clean.drop_id_column(prop)
     else:
         del prop; gc.collect()
-    for col in train_df.columns:
-        if col in scaling_columns:
-            # if submit:
-            #     df_test[col] = scaler.fit_transform(df_test[col].values.reshape(-1, 1))
-            #     X_train[col] = scaler.transform(X_train[col].values.reshape(-1, 1))
-            #     # transform both validating and testing data
-            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
-            # else:
-            #     # fit and transform training data
-            #     X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
-            #     # transform both validating and testing data
-            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
 
-            # fit and transform training data
-            train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
-            if submit:
-                df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
-        else:
-            pass
+    # Scaling train and test features if needed
+    if scaling:
+        for col in train_df.columns:
+            if col in scaling_columns:
+                # fit and transform training data
+                train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
+                if submit:
+                    df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
     print('Train df dimensions: ' + str(train_df.shape))
     # split by date
@@ -486,6 +479,8 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     # to train model and validate on the left out fold
     mean_errors = []
     model_preds = []
+    if return_models:
+        models = []
     kf = KFold(n_splits=FOLDS, shuffle=True, random_state=42)
     # X_train_q4.to_csv('test_train_q4.csv')
     for i, (train_index, validate_index) in enumerate(kf.split(X_train_q4)):
@@ -539,6 +534,8 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
                 test_preds.append(model.predict(df_test_split))
             print(pd.DataFrame(np.concatenate(test_preds)).describe())
             model_preds.append(np.concatenate(test_preds))
+        if return_models:
+            models.append(model)
         print("--------------------------------------------------------")
 
     avg_cv_errors = np.mean(mean_errors)
@@ -571,14 +568,19 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # For those we do not predict (parcels whose lat and lon are nan), fill
         # the median logerror
         predict.fillna(0.011, inplace=True)
-        predict = predict_cap(predict)
+        # Scaling could cause the model to have some wiredly large predictions
+        # cap them with largest abs in the trainning logerror
+        if scaling:
+            predict = predict_cap(predict, max(y_train_q4.abs().max(), y_train_q1_q3.abs().max()))
 
-        # # Save prediction(a Series object) to a pickle for ensembling use
-        # # Save one in history
-        # predict.to_pickle('data/predictions/history/%s_%s_pickle' %(time, Model.__name__))
+        # Save prediction(a Series object) to a pickle for later use
+        # Save one in history
+        sub_history_folder = 'data/predictions/history'
+        if not os.path.exists(sub_history_folder):
+            os.makedirs(sub_history_folder)
+        predict.to_pickle('%s/%s_%s_pickle' %(sub_history_folder, time, Model.__name__))
         # # Update the most recent pickle for this model
         # predict.to_pickle('data/predictions/%s_latest_pickle' %Model.__name__)
-
 
         # generate submission
         print("generating submission...")
@@ -592,6 +594,20 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         sample.to_csv(
             '%s/Submission_%s.csv' %(submission_folder, time), index=False, float_format='%.4f')
         print("Prediction made.")
+
+        exp_record_folder = 'data/experiments'
+        if not os.path.exists(exp_record_folder):
+            os.makedirs(exp_record_folder)
+        with open('%s/%s.txt' %(exp_record_folder, 'experiments'), 'a') as record:
+             # Time is the same across submission csv, pickle and record for easy search
+            record.write('\n\nTime: %s\n' %time)
+            record.write('Config: %s\n' %config_dict)
+            record.write('cv_error:%s\n' %avg_cv_errors)
+            record.write('leaderboard:________________PLEASE FILL____________________\n')
+
+    # if return models for investigation
+    if return_models:
+        return avg_cv_errors, models
 
     return avg_cv_errors
 
@@ -621,25 +637,15 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
     else:
         del prop; gc.collect()
 
-    for col in train_df.columns:
-        if col in scaling_columns:
-            # if submit:
-            #     df_test[col] = scaler.fit_transform(df_test[col].values.reshape(-1, 1))
-            #     X_train[col] = scaler.transform(X_train[col].values.reshape(-1, 1))
-            #     # transform both validating and testing data
-            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
-            # else:
-            #     # fit and transform training data
-            #     X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
-            #     # transform both validating and testing data
-            #     X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
+    # Scale train and test features if needed.
+    if scaling:
+        for col in train_df.columns:
+            if col in scaling_columns:
+                # fit and transform training data
+                train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
+                if submit:
+                    df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
-            # fit and transform training data
-            train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
-            if submit:
-                df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
-        else:
-            pass
 
     print('Train df dimensions: ' + str(train_df.shape))
     # split by date
@@ -666,18 +672,6 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
 
         X_validate = X_train_q4.loc[validate_index]
         y_validate = y_train_q4.loc[validate_index]
-
-        # Fit scalers using the training data and transform both training, validating and testing data
-        # if scaling:
-        #     print('Scaling...')
-        #     for col in scaling_columns:
-        #         if col in X_train.columns:
-        #             # fit and transform training data
-        #             X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
-        #             # transform both validating and testing data
-        #             X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
-        #             if submit:
-        #                 df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
         # try remove outliers
         print(X_train.shape, y_train.shape)
@@ -739,9 +733,6 @@ if __name__ == '__main__':
     config_file = options.config_file
     # if generate a submission
     submit = options.submit
-    # default to test config
-    # if not config_file:
-    #     config_file = 'test_config'
 
     # Configuration:
     config_dict = getattr(config, config_file)
@@ -750,7 +741,7 @@ if __name__ == '__main__':
         if key == 'feature_list':
             for k, v in value.items():
                 print('%s: %s' %(k, len(v)))
-        elif key == 'stacking_params':
+        elif key == 'stacking_params' or key == 'tuning_params':
             continue
         else:
             print('%s: %s' %(key, value))
@@ -761,31 +752,8 @@ if __name__ == '__main__':
     feature_list = config_dict['feature_list']
     # # model
     Model = config_dict['Model']
-    #
-    # # Optional configurations:
-    # # model params:
-    # model_params = config_dict['model_params'] if 'model_params' in config_dict else None
-    # # folds number of K-Fold
-    # FOLDS = config_dict['folds'] if 'folds' in config_dict else 5
-    # # if record training
-    # record = config_dict['record'] if 'record' in config_dict else False
-    # if generate submission or not
-    # submit = config_dict['submit'] if 'submit' in config_dict else False
-    # # outliers removal upper and lower percentile
-    # outliers_up_pct = config_dict['outliers_up_pct'] if 'outliers_up_pct' in config_dict else 99
-    # outliers_lw_pct = config_dict['outliers_lw_pct'] if 'outliers_lw_pct' in config_dict else 1
-    # # resale offset
-    # resale_offset = config_dict['resale_offset'] if 'resale_offset' in config_dict else 0.012
     # clean_na
     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-    # # scaling
-    # scaling = config_dict['scaling'] if 'scaling' in config_dict else False
-    # # PCA component
-    # pca_components = config_dict['pca_components'] if 'pca_components' in config_dict else -1
-    # # PCA cannot deal with infinite numbers
-    # if pca_components > 0:
-    #     clean_na = True
-
 
     prop = prepare_features(feature_list, clean_na)
 
@@ -793,16 +761,8 @@ if __name__ == '__main__':
     if submit:
         cv_error = train(train_df, Model=Model,
             submit=True, prop=prop, transactions=transactions,
+            config_dict=config_dict, # config dict for record submission purpose
             **config_dict['training_params'])
-        folder = 'data/experiments'
-        if not os.path.exists(folder):
-            os.makedirs(folder)
-        with open('%s/%s.txt' %(folder, 'experiments'), 'a') as record:
-            exp_time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            record.write('\n\nTime: %s\n' %exp_time)
-            record.write('Config: %s\n' %config_dict)
-            record.write('cv_error:%s\n' %cv_error)
-            record.write('leaderboard:________________PLEASE FILL____________________\n')
     else:
         del transactions; del prop; gc.collect()
         train(train_df, Model=Model, submit=False, **config_dict['training_params'])

@@ -14,8 +14,8 @@ from hyperopt import hp
 
 
 # Configuration:
-lightgbm_config = {
-    'name': 'lightgbm_config',
+config_lightgbm = {
+    'name': 'config_lightgbm',
     # 'pca_components': 15, # a pca_component greater than 0 will automatically set clean_na to True as pca cannot deal with infinite numbers.
     # 'resale_offset': 0,
     'feature_list': feature_list_non_linear.feature_list,
@@ -74,5 +74,49 @@ lightgbm_config = {
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
         },
         'max_evals': 2
+    }
+}
+
+
+# Configuration:
+config_lightgbm_new = {
+    'name': 'config_lightgbm_new',
+    'feature_list': feature_list_non_linear.feature_list,
+    'Model': Lightgbm.Lightgbm,
+    'training_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'learning_rate': 0.22198085859401054,
+            'max_bin': 60,
+            'metric': 'mse',
+            'min_data': 210,
+            'min_hessian': 0.7016584408191289,
+            'num_boost_round': 200,
+            'num_leaves': 10,
+            'objective': 'regression',
+            'sub_feature': 0.13346631904716155,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 2,
+        'outliers_up_pct': 98
+    },
+    'stacking_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'learning_rate': 0.22198085859401054,
+            'max_bin': 60,
+            'metric': 'mse',
+            'min_data': 210,
+            'min_hessian': 0.7016584408191289,
+            'num_boost_round': 200,
+            'num_leaves': 10,
+            'objective': 'regression',
+            'sub_feature': 0.13346631904716155,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 2,
+        'outliers_up_pct': 98
     }
 }

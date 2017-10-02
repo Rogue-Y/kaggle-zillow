@@ -67,3 +67,50 @@ config_xgboost = {
         'max_evals': 2
     }
 }
+
+
+# Configuration
+config_xgboost_new = {
+    'name': 'config_xgboost_new',
+    'Model': XGBoost.XGBoost,
+    'feature_list': feature_list_non_linear.feature_list,
+    'clean_na': False,
+    'training_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'alpha': 0.5,
+            'colsample_bylevel': 0.4,
+            'colsample_bytree': 0.8,
+            'eta': 0.19071472448799803,
+            'eval_metric': 'rmse',
+            'gamma': 0.05504791294083944,
+            'lambda': 0.2,
+            'max_depth': 3,
+            'min_child_weight': 5.3013678371644675,
+            'objective': 'reg:linear',
+            'silent': 1,
+            'subsample': 0.7
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 97
+    },
+    'stacking_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'alpha': 0.5,
+            'colsample_bylevel': 0.4,
+            'colsample_bytree': 0.8,
+            'eta': 0.19071472448799803,
+            'eval_metric': 'rmse',
+            'gamma': 0.05504791294083944,
+            'lambda': 0.2,
+            'max_depth': 3,
+            'min_child_weight': 5.3013678371644675,
+            'objective': 'reg:linear',
+            'silent': 1,
+            'subsample': 0.7
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 97
+    }
+}

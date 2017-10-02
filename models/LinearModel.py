@@ -1,29 +1,16 @@
-__author__ = 'peter'
-from sklearn.linear_model import Ridge, Lasso
+from abc import ABC # Abstract base class
+from sklearn.linear_model import Ridge, Lasso, ElasticNet, HuberRegressor
+#TODO: add other regressions in sklearn linear model module
 
-class RidgeRegressor():
+
+# abstract base class
+class LinearRegressor(ABC):
     def __init__(self, model_params = None, train_params = None):
-        # if model_params is None:
-        #     model_params = {
-        #         'eta': 0.037,
-        #         'max_depth': 1,
-        #         'subsample': 0.80,
-        #         'objective': 'reg:linear',
-        #         'eval_metric': 'mae',
-        #         'lambda': 0.8,
-        #         'alpha': 0.4,
-        #         # 'base_score': y_mean,
-        #         'silent': 1
-        #     }
-        # if train_params is None:
-        #     train_params = {
-        #         'num_boost_round': 250
-        #     }
         self.model_params = model_params
         self.train_params = train_params
-        self.model = Ridge(**self.model_params)
 
     def fit(self, X_train, y_train):
+        self.features = X_train.columns
         return self.model.fit(X_train, y_train)
 
     def predict(self, X):
@@ -37,42 +24,28 @@ class RidgeRegressor():
         return self.model_params if self.model_params is not None else {}
 
     def get_features_importances(self):
-        pass
+        feature_importances = list(zip(self.features, self.model.coef_))
+        return sorted(feature_importances, key=lambda x: -x[1])
 
-class LassoRegressor():
+
+class RidgeRegressor(LinearRegressor):
     def __init__(self, model_params = None, train_params = None):
-        # if model_params is None:
-        #     model_params = {
-        #         'eta': 0.037,
-        #         'max_depth': 1,
-        #         'subsample': 0.80,
-        #         'objective': 'reg:linear',
-        #         'eval_metric': 'mae',
-        #         'lambda': 0.8,
-        #         'alpha': 0.4,
-        #         # 'base_score': y_mean,
-        #         'silent': 1
-        #     }
-        # if train_params is None:
-        #     train_params = {
-        #         'num_boost_round': 250
-        #     }
-        self.model_params = model_params
-        self.train_params = train_params
+        LinearRegressor.__init__(self, model_params, train_params)
         self.model = Ridge(**self.model_params)
 
-    def fit(self, X_train, y_train):
-        return self.model.fit(X_train, y_train)
 
-    def predict(self, X):
-        """ Predict on the given X, need to call fit first
-            Returns:
-                an array of the predict results, has the same rows as X.
-        """
-        return self.model.predict(X)
+class LassoRegressor(LinearRegressor):
+    def __init__(self, model_params = None, train_params = None):
+        LinearRegressor.__init__(self, model_params, train_params)
+        self.model = Lasso(**self.model_params)
 
-    def get_params(self):
-        return self.model_params if self.model_params is not None else {}
 
-    def get_features_importances(self):
-        pass
+class ElasticNetRegressor(LinearRegressor):
+    def __init__(self, model_params = None, train_params = None):
+        LinearRegressor.__init__(self, model_params, train_params)
+        self.model = ElasticNet(**self.model_params)
+
+class Huber(LinearRegressor):
+    def __init__(self, model_params = None, train_params = None):
+        LinearRegressor.__init__(self, model_params, train_params)
+        self.model = HuberRegressor(**self.model_params)

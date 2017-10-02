@@ -135,6 +135,13 @@ Then, to tune a specific model configuration:
 
 `python tune.py --model --config model_config_dict_name`
 
+To continue a previous tune (need to use the exact same config except max_evals,
+and the max_evals is the total number of trials, i.e. if 200 trials has been run
+and saved in a trial pickle, and the max_evals is reset to 500, the following
+cmd will run another 300 trials to make the total 500):
+
+`python tune.py --model --config model_config_dict_name --trials 'trials_pickle_name'`
+
 Or you can add the some config_dicts to the `model_experiments` list in
 `tune.py`, and run the following cmd to train them one by one:
 
@@ -151,6 +158,13 @@ it can be seen by other code*.
 Then, to tune a specific stacking configuration:
 
 `python tune.py --stacking --config stacking_config_dict_name`
+
+To continue a previous tune (need to use the exact same config except max_evals,
+and the max_evals is the total number of trials, i.e. if 200 trials has been run
+and saved in a trial pickle, and the max_evals is reset to 500, the following
+cmd will run another 300 trials to make the total 500):
+
+`python tune.py --stacking --config stacking_config_dict_name --trials 'trials_pickle_name'`
 
 Or you can add the some config_dicts to the `stacking_experiments` list in
 `tune.py`, and run the following cmd to train them one by one:

@@ -1,14 +1,21 @@
 from models import Lightgbm
-from .config_linear import config_linear
-from .lightgbm_config import lightgbm_config
+from .config_lightgbm import config_lightgbm, config_lightgbm_new
+from .config_xgboost import config_xgboost, config_xgboost_new
+from .config_ensembles import config_rf, config_extra_tree, config_gb
 from hyperopt import hp
 
 stacking_config_test = {
     'name': 'stacking_config_test',
     'stacking_list': [
-        (config_linear, False),
-        (lightgbm_config, False),
+        (config_lightgbm, False),
+        (config_lightgbm_new, False),
+        (config_xgboost, False),
+        (config_xgboost_new, False),
+        (config_rf, False),
+        (config_extra_tree, False),
+        (config_gb, False),
     ],
+    'global_force_generate': False,
     'Meta_model': Lightgbm.Lightgbm,
     # predicting parameters
     'model_params': None,
@@ -33,6 +40,6 @@ stacking_config_test = {
                 'verbose': -1
             },
         },
-        'max_evals': 2,
+        'max_evals': 1000,
     }
 }

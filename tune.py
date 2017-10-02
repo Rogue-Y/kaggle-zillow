@@ -154,14 +154,14 @@ def tune_models():
         tune_single_model_wrapper(config_dict)
 
 # wrapper of tune_single_model that takes a config dict
-def tune_single_model_wrapper(config_dict):
+def tune_single_model_wrapper(config_dict, trials=None):
     # Feature list
     feature_list = config_dict['feature_list']
     # Model
     Model = config_dict['Model']
     # clean_na
     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-    tune_single_model(Model, feature_list, clean_na, **config_dict['tuning_params'])
+    tune_single_model(Model, feature_list, clean_na, **config_dict['tuning_params'], trials=trials)
 
 def tune_single_model(Model, feature_list, clean_na, parameter_space, max_evals=100, trials=None):
     prop = prepare_features(feature_list, clean_na)
@@ -186,6 +186,8 @@ def tune_single_model(Model, feature_list, clean_na, parameter_space, max_evals=
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
     t2 = time.time()
+    print('best trial get at round' + str(trials.best_trial['tid']))
+    print('best loss' + str(trials.best_trial['result']['loss']))
     print(best)
     print(space_eval(parameter_space, best))
     print("time: %s" %((t2-t1) / 60))
@@ -211,16 +213,18 @@ def tune_stackings():
         tune_stacking_wrapper(config_dict)
 
 # wrapper of tune_single_model that takes a config dict
-def tune_stacking_wrapper(config_dict):
+def tune_stacking_wrapper(config_dict, trials=None):
     # Feature list
     stacking_list = config_dict['stacking_list']
     # Model
     Meta_model = config_dict['Meta_model']
+    # whether force generate all first layer
+    force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
     # Tune
-    tune_stacking(stacking_list, Meta_model, **config_dict['tuning_params'])
+    tune_stacking(stacking_list, Meta_model, force_generate, **config_dict['tuning_params'], trials=trials)
 
-def tune_stacking(stacking_list, Meta_model, parameter_space, max_evals=100, trials=None):
-    first_layer, target, _ = get_first_layer(stacking_list)
+def tune_stacking(stacking_list, Meta_model, force_generate, parameter_space, max_evals=100, trials=None):
+    first_layer, target, _ = get_first_layer(stacking_list, global_force_generate=force_generate)
 
     def train_wrapper(params):
         meta_model = Meta_model(model_params=params['model_params'])
@@ -235,11 +239,14 @@ def tune_stacking(stacking_list, Meta_model, parameter_space, max_evals=100, tri
 
     if trials is None:
         trials = Trials()
+    print(len(trials.trials))
     # tuning parameters
     t1 = time.time()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
     t2 = time.time()
+    print('best trial get at round' + str(trials.best_trial['tid']))
+    print('best loss' + str(trials.best_trial['result']['loss']))
     print(best)
     print(space_eval(parameter_space, best))
     print("time: %s" %((t2-t1) / 60))
@@ -261,9 +268,11 @@ if __name__ == '__main__':
     # tune_model is true by default or when -e flag is present
     parser.add_option('-m', '--model', action='store_true', dest='tune_model', default=True)
     # tune_model is set to false when -s flag is present
-    parser.add_option('-t', '--stacking', action='store_false', dest='tune_model')
+    parser.add_option('-s', '--stacking', action='store_false', dest='tune_model')
     # configuration dictionary
     parser.add_option('-c', '--config', action='store', type='string', dest='config_file', default='')
+    # trials of the existing tuning, only used when tuning single model config or single stacking config
+    parser.add_option('-t', '--trials', action='store', type='string', dest='trials_file', default='')
     # parse cmd line arguments
     (options, args) = parser.parse_args()
 
@@ -272,6 +281,15 @@ if __name__ == '__main__':
     if config_file != '':
         config_dict = getattr(config, config_file)
 
+    trials_file = options.trials_file
+    trials = None
+    if trials_file != '':
+        trials_folder = 'data/trials' if options.tune_model else 'data/trials/stacking'
+        trials_path = '%s/%s' %(trials_folder, trials_file)
+        if os.path.exists(trials_path):
+            print('Using trials: %s' %trials_path)
+            trials = pickle.load(open(trials_path, 'rb'))
+
     if options.tune_model:
         print('Tune models...')
         if config_dict is None:
@@ -279,7 +297,7 @@ if __name__ == '__main__':
             tune_models()
         else:
             print('Tune config: %s...' %config_dict['name'])
-            tune_single_model_wrapper(config_dict)
+            tune_single_model_wrapper(config_dict, trials)
     else:
         print('Tune stacking...')
         if config_dict is None:
@@ -287,4 +305,4 @@ if __name__ == '__main__':
             tune_stackings()
         else:
             print('Tune config: %s...' %config_dict['name'])
-            tune_stacking_wrapper(config_dict)
+            tune_stacking_wrapper(config_dict, trials)
