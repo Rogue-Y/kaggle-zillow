@@ -115,12 +115,12 @@ config_gb = {
                 'min_samples_leaf': hp.loguniform('min_samples_leaf', -4, -2),
                 'subsample': hp.choice('subsample', [0.3, 0.5, 0.8, 1]),
                 'max_features': hp.loguniform('max_features', -2, -1),
-                'alpha': hp.choice('alpha', [0.3, 0.9, 3]), # only for hubor and quantile loss                # 'bootstrap': hp.choice('bootstrap', [True, False]),
+                'alpha': hp.choice('alpha', [0.3, 0.6, 0.9]), # only for hubor and quantile loss                # 'bootstrap': hp.choice('bootstrap', [True, False]),
             },
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'FOLDS': 3 #RF takes long time to train
         },
-        'max_evals': 2
+        'max_evals': 75
     }
 }

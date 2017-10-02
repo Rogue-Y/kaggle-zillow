@@ -3,6 +3,7 @@ from .config_linear import config_linear
 from .lightgbm_config import lightgbm_config
 from .config_xgboost import config_xgboost
 from .config_ensembles import config_rf, config_extra_tree, config_gb
+from .config_gaussian_process import config_gaussian_process
 
 
 # stacking configurations

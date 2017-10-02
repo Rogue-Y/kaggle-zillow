@@ -432,7 +432,7 @@ def geo_zip(df, columns=None):
     return zip
 
 def category_geo_county_one_hot(df):
-    return pd.get_dummies(df['regionidcounty'])
+    return pd.get_dummies(df['regionidcounty'], prefix='regionidcounty')
 
 def geo_county(df, columns=None):
     county = pd.DataFrame()
@@ -587,19 +587,19 @@ def category_land_use_type_one_hot(df):
 #     return pd.Series(labelEncoder.fit_transform(df['airconditioningtypeid']))
 
 def category_ac_type_one_hot(df):
-    return pd.get_dummies(df['airconditioningtypeid'])
+    return pd.get_dummies(df['airconditioningtypeid'], prefix='airconditioningtypeid')
 
 def category_architecture_style_one_hot(df):
-    return pd.get_dummies(df['architecturalstyletypeid'])
+    return pd.get_dummies(df['architecturalstyletypeid'], prefix='architecturalstyletypeid')
 
 def category_building_class_one_hot(df):
-    return pd.get_dummies(df['buildingclasstypeid'])
+    return pd.get_dummies(df['buildingclasstypeid'], prefix='buildingclasstypeid')
 
 # def category_fips_type_encode(df):
 #     return pd.Series(labelEncoder.fit_transform(df['fips']))
 
 def category_fips_type_one_hot(df):
-    return pd.get_dummies(df['fips'])
+    return pd.get_dummies(df['fips'], prefix='fips')
 
 # def category_heating_type_encode(df):
 #     return pd.Series(labelEncoder.fit_transform(df['heatingorsystemtypeid']))
@@ -608,7 +608,7 @@ def category_heating_type_one_hot(df):
     # Replace the non-popular types as others
     # TODO: try group with meanings instead of cut of counts
     tmp = df['heatingorsystemtypeid'].replace([20, 6, 18, 24, 12, 10, 1, 14, 21, 11, 19], 0)
-    return pd.get_dummies(tmp)
+    return pd.get_dummies(tmp, prefix='heatingorsystemtypeid')
 
 def category_land_use_code_helper(df):
     land_use_code_threshold = 50000
@@ -620,7 +620,7 @@ def category_land_use_code_encode(df):
     return pd.Series(labelEncoder.fit_transform(category_land_use_code_helper(df)))
 
 def category_land_use_code_one_hot(df):
-    return pd.get_dummies(category_land_use_code_helper(df))
+    return pd.get_dummies(category_land_use_code_helper(df), prefix='propertycountylandusecode')
 
 def category_land_use_desc_helper(df):
     land_use_desc_threshold = 10000
@@ -632,18 +632,18 @@ def category_land_use_desc_encode(df):
     return pd.Series(labelEncoder.fit_transform(category_land_use_desc_helper(df)))
 
 def category_land_use_desc_one_hot(df):
-    return pd.get_dummies(category_land_use_desc_helper(df))
+    return pd.get_dummies(category_land_use_desc_helper(df), prefix='propertyzoningdesc')
 
 def category_construction_type_one_hot(df):
     # Replace the non-popular types as others (0 is used to fillna here)
     # TODO: try group with meanings instead of cut of counts
     tmp = df['typeconstructiontypeid'].replace([4, 10, 13, 11], 1)
-    return pd.get_dummies(tmp)
+    return pd.get_dummies(tmp, prefix='typeconstructiontypeid')
 
 def category_tax_delinquency_year_one_hot(df):
     # Replace the non-popular types as others
-    tmp = df['typeconstructiontypeid'].where(df['typeconstructiontypeid'] >= 2014, 0)
-    return pd.get_dummies(tmp)
+    tmp = df['taxdelinquencyyear'].where(df['taxdelinquencyyear'] >= 2014, 0)
+    return pd.get_dummies(tmp, prefix='taxdelinquencyyear')
 
 #polnomials of the variable
 def poly_2_structure_tax_value(df):
