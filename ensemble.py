@@ -63,7 +63,7 @@ def ensemble(prediction_list=prediction_list):
 
 ### Stacking ###
 
-def get_first_layer(stacking_list, submit=False):
+def get_first_layer(stacking_list, submit=False, global_force_generate=False):
     print('Generate first layer...')
 
     first_layer_preds = []
@@ -76,7 +76,7 @@ def get_first_layer(stacking_list, submit=False):
         first_layer_pickle_path_validation = '%s/%s_validation' %(first_layer_pickle_folder, config_name)
         first_layer_pickle_path_test = '%s/%s_test' %(first_layer_pickle_folder, config_name)
         first_layer_pickle_path_target = '%s/target' %first_layer_pickle_folder
-        need_generate = force_generate
+        need_generate = force_generate or global_force_generate
         if not need_generate:
             if os.path.exists(first_layer_pickle_path_validation):
                 validation_pred = pickle.load(open(first_layer_pickle_path_validation, 'rb'))
@@ -140,7 +140,7 @@ def stacking(first_layer, target, meta_model):
 
     print('second layer...')
     mean_errors = []
-    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    kf = KFold(n_splits=3, shuffle=True, random_state=42)
     # same k fold split as above
     # (this is guaranteed as long as the random seeds and the number of rows does not change,
     # therefore we only need to make sure the indexes of the dataframes are always aligned)
@@ -245,8 +245,10 @@ if __name__ == '__main__':
         Meta_model = config_dict['Meta_model']
         model_params = config_dict['model_params']
         meta_model = Meta_model(model_params=model_params)
+        # whether force generate all first layer
+        global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
 
-        first_layer, first_layer_target, first_layer_test = get_first_layer(stacking_list, submit)
+        first_layer, first_layer_target, first_layer_test = get_first_layer(stacking_list, submit, global_force_generate)
         if submit:
             stacking_submit(first_layer, first_layer_target, first_layer_test, meta_model)
         else:

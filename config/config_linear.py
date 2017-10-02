@@ -5,7 +5,7 @@ if module_path not in sys.path:
     sys.path.append(module_path)
 
 # Feature list
-from features import feature_list_linear
+from features import feature_list_linearridge
 # model
 from models import LinearModel
 # for defining tunning parameters
@@ -15,7 +15,7 @@ from hyperopt import hp
 config_linear = {
     'name': 'config_linear',
     'Model': LinearModel.RidgeRegressor,
-    'feature_list': feature_list_linear.feature_list,
+    'feature_list': feature_list_linearridge.feature_list,
     'clean_na': True,
     'training_params': {
         'model_params': {'alpha': 1.0, 'random_state': 42},

@@ -18,30 +18,32 @@ config_rf = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        # 'FOLDS': 3,
-        # 'model_params': {
-        #     'criterion': 'mse',
-        #     'max_depth': 3,
-        #     'max_features': 0.35373046429724236,
-        #     'min_samples_leaf': 0.029133482031154883,
-        #     'min_samples_split': 0.08476967706841676,
-        #     'n_estimators': 10,
-        #     'n_jobs': -1
-        # },
-        # 'outliers_lw_pct': 4,
-        # 'outliers_up_pct': 99,
-    
-        'FOLDS': 3, 'model_params': {'criterion': 'mse', 'max_depth': 5, 'max_features': 0.29128611952923245, 'min_samples_leaf': 0.01834965011541529, 'min_samples_split': 0.025518924298922253, 'n_estimators': 90, 'n_jobs': -1}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97
+        'FOLDS': 3,
+        'model_params': {
+            'criterion': 'mse',
+            'max_depth': 5,
+            'max_features': 0.29128611952923245,
+            'min_samples_leaf': 0.01834965011541529,
+            'min_samples_split': 0.025518924298922253,
+            'n_estimators': 90,
+            'n_jobs': -1
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97
     },
     'stacking_params': {
-        'model_params': {'alpha': 1.0, 'random_state': 42},
-        'FOLDS': 2,
-        'outliers_up_pct': 99,
-        'outliers_lw_pct': 1,
-        'pca_components': -1, # clean_na needs to be True to use PCA
-        'scaling': True,
-        # 'scaler': RobustScaler(quantile_range=(0, 99)),
-        # 'scaling_columns': SCALING_COLUMNS
+        'FOLDS': 3,
+        'model_params': {
+            'criterion': 'mse',
+            'max_depth': 5,
+            'max_features': 0.29128611952923245,
+            'min_samples_leaf': 0.01834965011541529,
+            'min_samples_split': 0.025518924298922253,
+            'n_estimators': 90,
+            'n_jobs': -1
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97
     },
     'tuning_params': {
         'parameter_space': {
@@ -70,9 +72,32 @@ config_extra_tree = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        'FOLDS': 3, 'model_params': {'criterion': 'mse', 'max_depth': 7, 'max_features': 0.5527621519513952, 'min_samples_leaf': 0.0186596367173352, 'min_samples_split': 0.029402685599045443, 'n_estimators': 40, 'n_jobs': -1}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97
+        'FOLDS': 3,
+        'model_params': {
+            'criterion': 'mse',
+            'max_depth': 7,
+            'max_features': 0.5527621519513952,
+            'min_samples_leaf': 0.0186596367173352,
+            'min_samples_split': 0.029402685599045443,
+            'n_estimators': 40,
+            'n_jobs': -1
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97
     },
     'stacking_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'criterion': 'mse',
+            'max_depth': 7,
+            'max_features': 0.5527621519513952,
+            'min_samples_leaf': 0.0186596367173352,
+            'min_samples_split': 0.029402685599045443,
+            'n_estimators': 40,
+            'n_jobs': -1
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97
     },
     'tuning_params': {
         'parameter_space': {
@@ -103,8 +128,36 @@ config_gb = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': True,
     'training_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'criterion': 'friedman_mse',
+            'learning_rate': 0.17793166182438155,
+            'loss': 'ls',
+            'max_depth': 6,
+            'max_features': 0.26065972420384176,
+            'min_samples_leaf': 0.08832202126396065,
+            'min_samples_split': 0.023728156535801175,
+            'n_estimators': 300,
+            'subsample': 1
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
     },
     'stacking_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'criterion': 'friedman_mse',
+            'learning_rate': 0.17793166182438155,
+            'loss': 'ls',
+            'max_depth': 6,
+            'max_features': 0.26065972420384176,
+            'min_samples_leaf': 0.08832202126396065,
+            'min_samples_split': 0.023728156535801175,
+            'n_estimators': 300,
+            'subsample': 1
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
     },
     'tuning_params': {
         'parameter_space': {

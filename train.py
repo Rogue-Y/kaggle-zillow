@@ -328,6 +328,43 @@ SCALING_COLUMNS = [
     'target_zip_feature',
     'target_city_feature',
     'target_county_feature',
+    'poolcnt',
+    'logerror_regionidneighborhood_max',
+    'logerror_regionidneighborhood_min',
+    'logerror_regionidneighborhood_std',
+    'logerror_regionidneighborhood_mean',
+    'logerror_regionidneighborhood_std_over_mean',
+    'logerror_regionidneighborhood_range',
+    'logerror_regionidzip_max',
+    'logerror_regionidzip_min',
+    'logerror_regionidzip_std',
+    'logerror_regionidzip_mean',
+    'logerror_regionidzip_std_over_mean',
+    'logerror_regionidzip_range',
+    'logerror_regionidcity_max',
+    'logerror_regionidcity_min',
+    'logerror_regionidcity_std',
+    'logerror_regionidcity_mean',
+    'logerror_regionidcity_std_over_mean',
+    'logerror_regionidcity_range',
+    'logerror_regionidcounty_max',
+    'logerror_regionidcounty_min',
+    'logerror_regionidcounty_std',
+    'logerror_regionidcounty_mean',
+    'logerror_regionidcounty_std_over_mean',
+    'logerror_regionidcounty_range',
+    'logerror_fips_census_1_max',
+    'logerror_fips_census_1_min',
+    'logerror_fips_census_1_std',
+    'logerror_fips_census_1_mean',
+    'logerror_fips_census_1_std_over_mean',
+    'logerror_fips_census_1_range',
+    'logerror_fips_census_block_max',
+    'logerror_fips_census_block_min',
+    'logerror_fips_census_block_std' ,
+    'logerror_fips_census_block_mean' ,
+    'logerror_fips_census_block_std_over_mean',
+    'logerror_fips_census_block_range',
 ]
 
 # Helper functions:
@@ -378,10 +415,17 @@ def prepare_training_data(prop):
 
     return train_df, transactions
 
-def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
+def predict_cap(predict, thres=1.5):
+    predict[predict>thres] = thres
+    predict[predict<-thres] = -thres
+    return predict
+
+def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     outliers_up_pct = 100, outliers_lw_pct = 0,
     submit=False, prop = None, transactions = None, config_dict={}, # if submit is true, than must provide transactions and prop
-    resale_offset = 0.012, pca_components=-1, scaling=False, scaler=RobustScaler(quantile_range=(0, 99)), scaling_columns=SCALING_COLUMNS):
+    resale_offset = 0.012, pca_components=-1,
+    scaling=False, scaler=RobustScaler(quantile_range=(0, 99)), scaling_columns=SCALING_COLUMNS,
+    return_models=False):
     # Optional dimension reduction.
     if pca_components > 0:
         print('PCA...')
@@ -390,6 +434,27 @@ def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
         # Note that the features pca produces is some combination of the original features, not retain/discard some columns
         feature_df = pca.fit_transform(feature_df)
         train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
+
+    # If need to generate submission, prepare prop df for testing
+    if submit:
+        # When we clean data, we removed the rows where lat and lon are null,
+        # so we have to preserve the parcelid of the prop here to join with that
+        # of the sample submission
+        # training data(transactions) don't have this problem as all of them
+        # have valid lat and lon
+        df_test_parcelid = prop['parcelid']
+        df_test = data_clean.drop_id_column(prop)
+    else:
+        del prop; gc.collect()
+
+    # Scaling train and test features if needed
+    if scaling:
+        for col in train_df.columns:
+            if col in scaling_columns:
+                # fit and transform training data
+                train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
+                if submit:
+                    df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
     print('Train df dimensions: ' + str(train_df.shape))
     # split by date
@@ -408,21 +473,13 @@ def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
     if record:
         train_recorder = open('data/error/%s_%s_params.txt' %(Model.__name__, time), 'w')
         train_recorder.write(Model.__name__ + '\n')
-    # If need to generate submission, prepare prop df for testing
-    if submit:
-        # When we clean data, we removed the rows where lat and lon are null,
-        # so we have to preserve the parcelid of the prop here to join with that
-        # of the sample submission
-        # training data(transactions) don't have this problem as all of them
-        # have valid lat and lon
-        df_test_parcelid = prop['parcelid']
-        df_test = data_clean.drop_id_column(prop)
-    else:
-        del prop; gc.collect()
+
     # split train_q4 into k folds, each time combine k-1 folds with train_q1_q3
     # to train model and validate on the left out fold
     mean_errors = []
     model_preds = []
+    if return_models:
+        models = []
     kf = KFold(n_splits=FOLDS, shuffle=True, random_state=42)
     # X_train_q4.to_csv('test_train_q4.csv')
     for i, (train_index, validate_index) in enumerate(kf.split(X_train_q4)):
@@ -432,18 +489,6 @@ def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
 
         X_validate = X_train_q4.loc[validate_index]
         y_validate = y_train_q4.loc[validate_index]
-
-        # Fit scalers using the training data and transform both training, validating and testing data
-        if scaling:
-            print('Scaling...')
-            for col in scaling_columns:
-                if col in X_train.columns:
-                    # fit and transform training data
-                    X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
-                    # transform both validating and testing data
-                    X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
-                    if submit:
-                        df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
         # try remove outliers
         print(X_train.shape, y_train.shape)
@@ -486,7 +531,10 @@ def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
             # Split testing dataframe
             for df_test_split in np.array_split(df_test, 30):
                 test_preds.append(model.predict(df_test_split))
+            print(pd.DataFrame(np.concatenate(test_preds)).describe())
             model_preds.append(np.concatenate(test_preds))
+        if return_models:
+            models.append(model)
         print("--------------------------------------------------------")
 
     avg_cv_errors = np.mean(mean_errors)
@@ -519,6 +567,10 @@ def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
         # For those we do not predict (parcels whose lat and lon are nan), fill
         # the median logerror
         predict.fillna(0.011, inplace=True)
+        # Scaling could cause the model to have some wiredly large predictions
+        # cap them with largest abs in the trainning logerror
+        if scaling:
+            predict = predict_cap(predict, max(y_train_q4.abs().max(), y_train_q1_q3.abs().max()))
 
         # Save prediction(a Series object) to a pickle for later use
         # Save one in history
@@ -552,6 +604,10 @@ def train(train_df, Model, model_params = {}, FOLDS = 5, record=False,
             record.write('cv_error:%s\n' %avg_cv_errors)
             record.write('leaderboard:________________PLEASE FILL____________________\n')
 
+    # if return models for investigation
+    if return_models:
+        return avg_cv_errors, models
+
     return avg_cv_errors
 
 def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
@@ -568,6 +624,28 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
         feature_df = pca.fit_transform(feature_df)
         train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
 
+    # If need to generate submission, prepare prop df for testing
+    if submit:
+        # When we clean data, we removed the rows where lat and lon are null,
+        # so we have to preserve the parcelid of the prop here to join with that
+        # of the sample submission
+        # training data(transactions) don't have this problem as all of them
+        # have valid lat and lon
+        df_test_parcelid = prop['parcelid']
+        df_test = data_clean.drop_id_column(prop)
+    else:
+        del prop; gc.collect()
+
+    # Scale train and test features if needed.
+    if scaling:
+        for col in train_df.columns:
+            if col in scaling_columns:
+                # fit and transform training data
+                train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
+                if submit:
+                    df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
+
+
     print('Train df dimensions: ' + str(train_df.shape))
     # split by date
     train_q1_q3, train_q4 = utils.split_by_date(train_df)
@@ -580,17 +658,6 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
     X_train_q4, y_train_q4 = utils.get_features_target(train_q4)
     del train_q1_q3; del train_q4; gc.collect()
 
-    # If need to generate submission, prepare prop df for testing
-    if submit:
-        # When we clean data, we removed the rows where lat and lon are null,
-        # so we have to preserve the parcelid of the prop here to join with that
-        # of the sample submission
-        # training data(transactions) don't have this problem as all of them
-        # have valid lat and lon
-        df_test_parcelid = prop['parcelid']
-        df_test = data_clean.drop_id_column(prop)
-    else:
-        del prop; gc.collect()
     # split train_q4 into k folds, each time combine k-1 folds with train_q1_q3
     # to train model and validate on the left out fold
     model_preds = [] # predictions on test set
@@ -604,18 +671,6 @@ def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
 
         X_validate = X_train_q4.loc[validate_index]
         y_validate = y_train_q4.loc[validate_index]
-
-        # Fit scalers using the training data and transform both training, validating and testing data
-        if scaling:
-            print('Scaling...')
-            for col in scaling_columns:
-                if col in X_train.columns:
-                    # fit and transform training data
-                    X_train[col] = scaler.fit_transform(X_train[col].values.reshape(-1, 1))
-                    # transform both validating and testing data
-                    X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
-                    if submit:
-                        df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
         # try remove outliers
         print(X_train.shape, y_train.shape)
@@ -677,9 +732,6 @@ if __name__ == '__main__':
     config_file = options.config_file
     # if generate a submission
     submit = options.submit
-    # default to test config
-    # if not config_file:
-    #     config_file = 'test_config'
 
     # Configuration:
     config_dict = getattr(config, config_file)
@@ -699,31 +751,8 @@ if __name__ == '__main__':
     feature_list = config_dict['feature_list']
     # # model
     Model = config_dict['Model']
-    #
-    # # Optional configurations:
-    # # model params:
-    # model_params = config_dict['model_params'] if 'model_params' in config_dict else None
-    # # folds number of K-Fold
-    # FOLDS = config_dict['folds'] if 'folds' in config_dict else 5
-    # # if record training
-    # record = config_dict['record'] if 'record' in config_dict else False
-    # if generate submission or not
-    # submit = config_dict['submit'] if 'submit' in config_dict else False
-    # # outliers removal upper and lower percentile
-    # outliers_up_pct = config_dict['outliers_up_pct'] if 'outliers_up_pct' in config_dict else 99
-    # outliers_lw_pct = config_dict['outliers_lw_pct'] if 'outliers_lw_pct' in config_dict else 1
-    # # resale offset
-    # resale_offset = config_dict['resale_offset'] if 'resale_offset' in config_dict else 0.012
     # clean_na
     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-    # # scaling
-    # scaling = config_dict['scaling'] if 'scaling' in config_dict else False
-    # # PCA component
-    # pca_components = config_dict['pca_components'] if 'pca_components' in config_dict else -1
-    # # PCA cannot deal with infinite numbers
-    # if pca_components > 0:
-    #     clean_na = True
-
 
     prop = prepare_features(feature_list, clean_na)
 
