@@ -247,7 +247,6 @@ if __name__ == '__main__':
         meta_model = Meta_model(model_params=model_params)
         # whether force generate all first layer
         global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
-
         first_layer, first_layer_target, first_layer_test = get_first_layer(stacking_list, submit, global_force_generate)
         if submit:
             stacking_submit(first_layer, first_layer_target, first_layer_test, meta_model)
