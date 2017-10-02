@@ -416,6 +416,7 @@ def prepare_training_data(prop):
     return train_df, transactions
 
 def predict_cap(predict, thres=1.5):
+    print('Clip out output abs value greater than %s' % thres)
     predict[predict>thres] = thres
     predict[predict<-thres] = -thres
     return predict

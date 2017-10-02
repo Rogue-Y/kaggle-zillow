@@ -143,10 +143,10 @@ space_et = {
 
 ### Tune models ###
 
-from config import lightgbm_config
+from config import config_linear
 # experiments are a list of configs with tunning parameters defined
 model_experiments = [
-    lightgbm_config
+    config_linear
 ]
 
 def tune_models():
