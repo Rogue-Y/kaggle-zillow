@@ -18,7 +18,18 @@ stacking_config_test = {
     'global_force_generate': False,
     'Meta_model': Lightgbm.Lightgbm,
     # predicting parameters
-    'model_params': None,
+    'model_params': {
+        'boosting_type': 'gbdt',
+        'learning_rate': 0.1356716009602666,
+        'max_bin': 255,
+        'metric': 'mae',
+        'min_data': 285,
+        'min_hessian': 0.11576964737888308,
+        'num_boost_round': 500,
+        'num_leaves': 10,
+        'objective': 'regression',
+        'verbose': -1
+    },
     # 'resale_offset': 0.012,
 
     # tuning parameters

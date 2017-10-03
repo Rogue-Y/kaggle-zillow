@@ -131,6 +131,8 @@ def get_first_layer(stacking_list, submit=False, global_force_generate=False):
         first_layer_test = pd.concat(first_layer_preds_test, axis=1)
     else:
         first_layer_test = None
+
+    print('First layer generated.')
     return first_layer, validation_target, first_layer_test
 
 def stacking(first_layer, target, meta_model):
