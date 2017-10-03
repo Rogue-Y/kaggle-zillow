@@ -422,7 +422,7 @@ def predict_cap(predict, thres=1.5):
 
 def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
     outliers_up_pct = 100, outliers_lw_pct = 0,
-    submit=False, prop = None, transactions = None, config_dict={}, # if submit is true, than must provide transactions and prop
+    submit=False, prop = None, transactions = None, config_dict={'name': 'fake_config'}, # if submit is true, than must provide transactions and prop
     resale_offset = 0.012, pca_components=-1,
     scaling=False, scaler=RobustScaler(quantile_range=(0, 99)), scaling_columns=SCALING_COLUMNS,
     return_models=False):
@@ -591,7 +591,7 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         if not os.path.exists(submission_folder):
             os.makedirs(submission_folder)
         sample.to_csv(
-            '%s/Submission_%s.csv' %(submission_folder, time), index=False, float_format='%.4f')
+            '%s/Submission_%s_%s.csv' %(submission_folder, time, config_dict['name']), index=False, float_format='%.4f')
         print("Prediction made.")
 
         exp_record_folder = 'data/experiments'
