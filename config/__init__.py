@@ -1,8 +1,10 @@
 # from .test_config import test_config
+from .config_linear import config_linear, config_linear_huber
 from .config_linearridge import config_linearridge
 from .config_linearlasso import config_linearlasso
 from .config_linearRANSAC import config_linearRANSAC
-from .config_lightgbm import config_lightgbm, config_lightgbm_new
+from .config_lightgbm import config_lightgbm, config_lightgbm_new, config_lightgbm_geo
+
 from .config_xgboost import config_xgboost, config_xgboost_new
 from .config_ensembles import config_rf, config_extra_tree, config_gb
 from .config_gaussian_process import config_gaussian_process

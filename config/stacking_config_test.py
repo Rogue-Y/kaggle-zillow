@@ -18,7 +18,18 @@ stacking_config_test = {
     'global_force_generate': False,
     'Meta_model': Lightgbm.Lightgbm,
     # predicting parameters
-    'model_params': None,
+    'model_params': {
+        'boosting_type': 'gbdt',
+        'learning_rate': 0.1356716009602666,
+        'max_bin': 255,
+        'metric': 'mae',
+        'min_data': 285,
+        'min_hessian': 0.11576964737888308,
+        'num_boost_round': 500,
+        'num_leaves': 10,
+        'objective': 'regression',
+        'verbose': -1
+    },
     # 'resale_offset': 0.012,
 
     # tuning parameters
@@ -39,6 +50,8 @@ stacking_config_test = {
                 # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
                 'verbose': -1
             },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99, 100]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1, 0]),
         },
         'max_evals': 1000,
     }

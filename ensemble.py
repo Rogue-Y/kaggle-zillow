@@ -131,9 +131,11 @@ def get_first_layer(stacking_list, submit=False, global_force_generate=False):
         first_layer_test = pd.concat(first_layer_preds_test, axis=1)
     else:
         first_layer_test = None
+
+    print('First layer generated.')
     return first_layer, validation_target, first_layer_test
 
-def stacking(first_layer, target, meta_model):
+def stacking(first_layer, target, meta_model, outliers_lw_pct = 0, outliers_up_pct = 100):
     print(first_layer.shape)
     print(target.shape)
     assert len(first_layer) == len(target)
@@ -147,6 +149,15 @@ def stacking(first_layer, target, meta_model):
     for train_index, validate_index in kf.split(first_layer):
         X_train, y_train = first_layer.loc[train_index], target.loc[train_index]
         X_validate, y_validate = first_layer.loc[validate_index], target.loc[validate_index]
+
+        print(X_train.shape, y_train.shape)
+        ulimit = np.percentile(y_train.values, outliers_up_pct)
+        llimit = np.percentile(y_train.values, outliers_lw_pct)
+        mask = (y_train >= llimit) & (y_train <= ulimit)
+        print(llimit, ulimit)
+        X_train = X_train[mask]
+        y_train = y_train[mask]
+        print(X_train.shape, y_train.shape)
 
         print('training...')
         meta_model.fit(X_train, y_train)
@@ -164,7 +175,8 @@ def stacking(first_layer, target, meta_model):
     print("average cross validation mean error", avg_cv_errors)
     return avg_cv_errors
 
-def stacking_submit(first_layer, target, first_layer_test, meta_model, resale_offset=0.012):
+def stacking_submit(first_layer, target, first_layer_test, meta_model,
+        config_dict={'name': 'fake_stacking_config'}, resale_offset=0.012):
     print(first_layer.shape)
     print(target.shape)
     assert len(first_layer) == len(target)
@@ -175,8 +187,8 @@ def stacking_submit(first_layer, target, first_layer_test, meta_model, resale_of
     print('training...')
     meta_model.fit(first_layer, target)
     train_pred = meta_model.predict(first_layer)
-
-    print("fold train mean error: ", Evaluator.mean_error(train_pred, target))
+    train_error = Evaluator.mean_error(train_pred, target)
+    print("fold train mean error: ", train_error)
 
     print('predictions...')
     pred = meta_model.predict(first_layer_test)
@@ -209,8 +221,21 @@ def stacking_submit(first_layer, target, first_layer_test, meta_model, resale_of
     if not os.path.exists(submission_folder):
         os.makedirs(submission_folder)
     sample.to_csv(
-        '%s/Submission_%s.csv' %(submission_folder, time), index=False, float_format='%.4f')
+        '%s/Submission_%s_%s.csv' %(submission_folder, time, config_dict['name']), index=False, float_format='%.4f')
     print("Prediction made.")
+
+    # Record the generated submissions for future comparison.
+    exp_record_folder = 'data/experiments'
+    if not os.path.exists(exp_record_folder):
+        os.makedirs(exp_record_folder)
+    with open('%s/%s.txt' %(exp_record_folder, 'stacking_experiments'), 'a') as record:
+         # Time is the same across submission csv, pickle and record for easy search
+        record.write('\n\nTime: %s\n' %time)
+        record.write('Config: %s\n' %config_dict)
+        # TODO: add cross validation step in stacking submission.
+        record.write('train_error:%s\n' %train_error)
+        record.write('leaderboard:________________PLEASE FILL____________________\n')
+
 
 # Main method
 if __name__ == '__main__':
@@ -247,10 +272,9 @@ if __name__ == '__main__':
         meta_model = Meta_model(model_params=model_params)
         # whether force generate all first layer
         global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
-
         first_layer, first_layer_target, first_layer_test = get_first_layer(stacking_list, submit, global_force_generate)
         if submit:
-            stacking_submit(first_layer, first_layer_target, first_layer_test, meta_model)
+            stacking_submit(first_layer, first_layer_target, first_layer_test, meta_model, config_dict)
         else:
             stacking(first_layer, first_layer_target, meta_model)
 

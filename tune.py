@@ -155,15 +155,16 @@ def tune_models():
 
 # wrapper of tune_single_model that takes a config dict
 def tune_single_model_wrapper(config_dict, trials=None):
+    config_name = config_dict['name']
     # Feature list
     feature_list = config_dict['feature_list']
     # Model
     Model = config_dict['Model']
     # clean_na
     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-    tune_single_model(Model, feature_list, clean_na, **config_dict['tuning_params'], trials=trials)
+    tune_single_model(Model, feature_list, clean_na, config_name, **config_dict['tuning_params'], trials=trials)
 
-def tune_single_model(Model, feature_list, clean_na, parameter_space, max_evals=100, trials=None):
+def tune_single_model(Model, feature_list, clean_na, config_name, parameter_space, max_evals=100, trials=None):
     prop = prepare_features(feature_list, clean_na)
     train_df, transactions = prepare_training_data(prop)
     del transactions; del prop; gc.collect()
@@ -186,8 +187,8 @@ def tune_single_model(Model, feature_list, clean_na, parameter_space, max_evals=
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
     t2 = time.time()
-    print('best trial get at round' + str(trials.best_trial['tid']))
-    print('best loss' + str(trials.best_trial['result']['loss']))
+    print('best trial get at round: ' + str(trials.best_trial['tid']))
+    print('best loss: ' + str(trials.best_trial['result']['loss']))
     print(best)
     print(space_eval(parameter_space, best))
     print("time: %s" %((t2-t1) / 60))
@@ -196,7 +197,7 @@ def tune_single_model(Model, feature_list, clean_na, parameter_space, max_evals=
     folder = 'data/trials'
     if not os.path.exists(folder):
         os.makedirs(folder)
-    pickle.dump(trials, open("%s/%s_%s_pickle" %(folder, Model.__name__, timestamp), "wb"))
+    pickle.dump(trials, open("%s/%s_%s_pickle" %(folder, config_name, timestamp), "wb"))
 
     return trials
 
@@ -214,6 +215,7 @@ def tune_stackings():
 
 # wrapper of tune_single_model that takes a config dict
 def tune_stacking_wrapper(config_dict, trials=None):
+    config_name = config_dict['name']
     # Feature list
     stacking_list = config_dict['stacking_list']
     # Model
@@ -221,14 +223,16 @@ def tune_stacking_wrapper(config_dict, trials=None):
     # whether force generate all first layer
     force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
     # Tune
-    tune_stacking(stacking_list, Meta_model, force_generate, **config_dict['tuning_params'], trials=trials)
+    tune_stacking(stacking_list, Meta_model, force_generate, config_name, **config_dict['tuning_params'], trials=trials)
 
-def tune_stacking(stacking_list, Meta_model, force_generate, parameter_space, max_evals=100, trials=None):
+def tune_stacking(stacking_list, Meta_model, force_generate, config_name, parameter_space, max_evals=100, trials=None):
     first_layer, target, _ = get_first_layer(stacking_list, global_force_generate=force_generate)
 
     def train_wrapper(params):
         meta_model = Meta_model(model_params=params['model_params'])
-        loss = stacking(first_layer, target, meta_model)
+        outliers_up_pct = params['outliers_up_pct'] if 'outliers_up_pct' in params else 100
+        outliers_lw_pct = params['outliers_lw_pct'] if 'outliers_lw_pct' in params else 100
+        loss = stacking(first_layer, target, meta_model, outliers_lw_pct, outliers_up_pct)
         # return an object to be recorded in hyperopt trials for future uses
         return {
             'loss': loss,
@@ -245,8 +249,8 @@ def tune_stacking(stacking_list, Meta_model, force_generate, parameter_space, ma
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
     t2 = time.time()
-    print('best trial get at round' + str(trials.best_trial['tid']))
-    print('best loss' + str(trials.best_trial['result']['loss']))
+    print('best trial get at round: ' + str(trials.best_trial['tid']))
+    print('best loss: ' + str(trials.best_trial['result']['loss']))
     print(best)
     print(space_eval(parameter_space, best))
     print("time: %s" %((t2-t1) / 60))
@@ -255,7 +259,7 @@ def tune_stacking(stacking_list, Meta_model, force_generate, parameter_space, ma
     folder = 'data/trials/stacking'
     if not os.path.exists(folder):
         os.makedirs(folder)
-    with open("%s/%s_%s_pickle" %(folder, Meta_model.__name__, timestamp), "wb") as trial_file:
+    with open("%s/%s_%s_pickle" %(folder, config_name, timestamp), "wb") as trial_file:
         pickle.dump(trials, trial_file)
 
     return trials
