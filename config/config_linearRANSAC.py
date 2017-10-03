@@ -1,5 +1,6 @@
 import os
 import sys
+import sklearn
 module_path = os.path.abspath(os.path.join('..'))
 if module_path not in sys.path:
     sys.path.append(module_path)
@@ -18,23 +19,25 @@ config_linearRANSAC = {
     'feature_list': feature_list_linearlasso.feature_list,
     'clean_na': True,
     'training_params': {
-        'model_params': {'random_state': 42},
+        'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
+                         'min_samples': 0.9697366469576226, 'random_state': 42},
         'FOLDS': 3,
         'record': False,
-        'outliers_up_pct': 99,
-        'outliers_lw_pct': 1,
+        'outliers_up_pct': 98,
+        'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
-        'pca_components': -1, # clean_na needs to be True to use PCA
+        'pca_components': -1,  # clean_na needs to be True to use PCA
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS
     },
     'stacking_params': {
-        'model_params': {'random_state': 42},
+        'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
+                         'min_samples': 0.9697366469576226, 'random_state': 42},
         'FOLDS': 3,
         'record': False,
-        'outliers_up_pct': 99,
-        'outliers_lw_pct': 1,
+        'outliers_up_pct': 98,
+        'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
         'pca_components': -1,  # clean_na needs to be True to use PCA
         'scaling': True,
@@ -44,11 +47,9 @@ config_linearRANSAC = {
     'tuning_params': {
         'parameter_space': {
             'model_params': {
-                'alpha': hp.loguniform('alpha', -2, 2),
-                'fit_intercept': hp.choice('fit_intercept', [True, False]),
+                'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
+                'min_samples': hp.uniform('min_samples', 0, 1),
                 'random_state': 42,
-                'tol': hp.loguniform('tol', -6, -2),
-                'normalize': hp.choice('normalize', [True, False]),
             },
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),

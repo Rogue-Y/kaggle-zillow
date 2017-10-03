@@ -15,10 +15,10 @@ from hyperopt import hp
 config_linearridge = {
     'name': 'config_linearridge',
     'Model': LinearModel.RidgeRegressor,
-    'feature_list': feature_list_linearridge.feature_list,
+    'feature_list': feature_list_linearridge.feature_list2,
     'clean_na': True,
     'training_params': {
-        'model_params': {'alpha': 7.375287218066115, 'random_state': 42},
+        'model_params': {'alpha': 7.375287218066115, 'random_state': 42, 'tol': 0.001},
         'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 97,
@@ -45,12 +45,13 @@ config_linearridge = {
                 'alpha': hp.loguniform('alpha', -2, 2),
                 'fit_intercept': hp.choice('fit_intercept', [True, False]),
                 'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
+                'tol': hp.loguniform('tol', -6, -2),
                 'random_state': 42
             },
-            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
-            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+            'outliers_up_pct': 97, # hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': 5,  #hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            'pca_components': hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
+            'pca_components': -1, #hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
         },
         'max_evals': 500
     }

@@ -166,12 +166,12 @@ def garagecarcnt(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
 def garagetotalsqft(df, lo_pct=0, up_pct=1, lo_cap=None, up_cap=None):
     return fill_median_and_clip_helper(df, 'garagetotalsqft', lo_pct, up_pct, lo_cap, up_cap)
 
-def is_garagetotalsqft_zero(df):
-    return df['garagetotalsqft'] == 0
-
-# Some garage has 0 carcnt but non-zero sqft
-def has_partial_garagecarcnt(df):
-    return (df['garagetotalsqft'] > 0) & (df['garagecarcnt'] == 0)
+# def is_garagetotalsqft_zero(df):
+#     return df['garagetotalsqft'] == 0
+#
+# # Some garage has 0 carcnt but non-zero sqft
+# def has_partial_garagecarcnt(df):
+#     return (df['garagetotalsqft'] > 0) & (df['garagecarcnt'] == 0)
 
 
 # low non-nan ratio: 0.023119
