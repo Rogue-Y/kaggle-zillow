@@ -55,3 +55,32 @@ config_linear = {
         'max_evals': 500
     }
 }
+
+
+# Configuration
+config_linear_huber = {
+    'name': 'config_linear_huber',
+    'Model': LinearModel.Huber,
+    'feature_list': feature_list_linearridge.feature_list,
+    'clean_na': True,
+    'training_params': {
+        'FOLDS': 3, 'model_params': {'alpha': 0.021419478306822514, 'epsilon': 3.55839417191035, 'fit_intercept': False, 'max_iter': 500}, 'outliers_lw_pct': 4, 'outliers_up_pct': 98, 'scaling': True
+    },
+    'stacking_params': {
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'epsilon': hp.loguniform('epsilon', 0, 2),
+                'max_iter': hp.choice('max_iter', [50, 100, 200, 500]),
+                'alpha': hp.loguniform('alpha', -5, -1),
+                'fit_intercept': hp.choice('fit_intercept', [True, False]),
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+            'scaling': True,
+            'FOLDS': 3,
+        },
+        'max_evals': 50
+    }
+}

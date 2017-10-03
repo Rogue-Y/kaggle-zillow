@@ -69,14 +69,65 @@ config_lightgbm = {
                 # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
                 'verbose': -1
             },
-            'FOLDS': 2,
+            'FOLDS': 3,
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
         },
-        'max_evals': 2
+        'max_evals': 325
     }
 }
 
+
+from features import feature_list_non_linear_geo
+# Configuration:
+config_lightgbm_geo = {
+    'name': 'config_lightgbm_geo',
+    'feature_list': feature_list_non_linear_geo.feature_list,
+    'Model': Lightgbm.Lightgbm,
+    'training_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'learning_rate': 0.14570480513583217,
+            'max_bin': 100,
+            'metric': 'mse',
+            'min_data': 240,
+            'min_hessian': 0.4281167522186269,
+            'num_boost_round': 300,
+            'num_leaves': 10,
+            'objective': 'regression',
+            'sub_feature': 0.16696129694986633,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 6,
+        'outliers_up_pct': 97
+    },
+    'stacking_params': {
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'learning_rate': hp.loguniform('learning_rate', -2, 0),
+                'boosting_type': 'gbdt',
+                'objective': 'regression',
+                'metric': hp.choice('metric', ['mae', 'mse']),
+                'sub_feature': hp.loguniform('sub_feature', -2, -1),
+                'num_leaves': hp.choice('num_leaves', list(range(10, 51, 10))),
+                'min_data': hp.choice('min_data', list(range(200, 301, 10))),
+                'min_hessian': hp.loguniform('min_hessian', -2, 0),
+                'num_boost_round': hp.choice('num_boost_round', [200, 300, 500]),
+                'max_bin': hp.choice('max_bin', list(range(100, 201, 10))),
+                # 'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
+                # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
+                'verbose': -1
+            },
+            'FOLDS': 3,
+            'outliers_up_pct': hp.choice('outliers_up_pct', [94, 95, 96, 97, 98]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [6, 5, 4, 3, 2])
+        },
+        'max_evals': 60
+    }
+}
 
 # Configuration:
 config_lightgbm_new = {
