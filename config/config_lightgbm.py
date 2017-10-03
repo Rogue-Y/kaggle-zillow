@@ -43,6 +43,7 @@ config_lightgbm = {
         # 'scaling': False,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS
+        'FOLDS': 2, 'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.1392149300094899, 'max_bin': 130, 'metric': 'mae', 'min_data': 255, 'min_hessian': 0.2372321993762161, 'num_boost_round': 300, 'num_leaves': 10, 'objective': 'regression', 'sub_feature': 0.1228828936613017, 'verbose': -1}, 'outliers_lw_pct': 5, 'outliers_up_pct': 96
     },
     'stacking_params': {
         'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.2100954943925603,
