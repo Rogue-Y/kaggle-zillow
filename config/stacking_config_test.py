@@ -50,6 +50,8 @@ stacking_config_test = {
                 # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
                 'verbose': -1
             },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99, 100]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1, 0]),
         },
         'max_evals': 1000,
     }

@@ -135,7 +135,7 @@ def get_first_layer(stacking_list, submit=False, global_force_generate=False):
     print('First layer generated.')
     return first_layer, validation_target, first_layer_test
 
-def stacking(first_layer, target, meta_model):
+def stacking(first_layer, target, meta_model, outliers_lw_pct = 0, outliers_up_pct = 100):
     print(first_layer.shape)
     print(target.shape)
     assert len(first_layer) == len(target)
@@ -149,6 +149,15 @@ def stacking(first_layer, target, meta_model):
     for train_index, validate_index in kf.split(first_layer):
         X_train, y_train = first_layer.loc[train_index], target.loc[train_index]
         X_validate, y_validate = first_layer.loc[validate_index], target.loc[validate_index]
+
+        print(X_train.shape, y_train.shape)
+        ulimit = np.percentile(y_train.values, outliers_up_pct)
+        llimit = np.percentile(y_train.values, outliers_lw_pct)
+        mask = (y_train >= llimit) & (y_train <= ulimit)
+        print(llimit, ulimit)
+        X_train = X_train[mask]
+        y_train = y_train[mask]
+        print(X_train.shape, y_train.shape)
 
         print('training...')
         meta_model.fit(X_train, y_train)

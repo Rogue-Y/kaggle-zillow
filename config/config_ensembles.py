@@ -18,19 +18,18 @@ config_rf = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        # 'FOLDS': 3,
-        # 'model_params': {
-        #     'criterion': 'mse',
-        #     'max_depth': 5,
-        #     'max_features': 0.29128611952923245,
-        #     'min_samples_leaf': 0.01834965011541529,
-        #     'min_samples_split': 0.025518924298922253,
-        #     'n_estimators': 90,
-        #     'n_jobs': -1
-        # },
-        # 'outliers_lw_pct': 4,
-        # 'outliers_up_pct': 97
-        'FOLDS': 3, 'model_params': {'criterion': 'mse', 'max_depth': 5, 'max_features': 0.24901452224978785, 'min_samples_leaf': 0.020674890365214166, 'min_samples_split': 0.01923328091150212, 'n_estimators': 40, 'n_jobs': -1}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97
+        'FOLDS': 3,
+        'model_params': {
+            'criterion': 'mse',
+            'max_depth': 5,
+            'max_features': 0.24901452224978785,
+            'min_samples_leaf': 0.020674890365214166,
+            'min_samples_split': 0.01923328091150212,
+            'n_estimators': 40,
+            'n_jobs': -1
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 97
     },
     'stacking_params': {
         'FOLDS': 3,
