@@ -435,9 +435,11 @@ def dump_aux(obj, name):
     if not os.path.exists(folder):
         os.makedirs(folder)
     pickle.dump(obj, open(os.path.join(folder, '%s.pickle' % name), 'wb'))
+    print('Object saved to %s/%s.pickle' % (folder, name))
 
 def read_aux(name):
     folder =  'features/aux_pickles'
+    print('Object load from %s/%s.pickle' % (folder, name))
     return pickle.load(open(os.path.join(folder, '%s.pickle' % name), 'rb'))
 
 

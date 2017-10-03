@@ -765,7 +765,8 @@ if __name__ == '__main__':
             **config_dict['training_params'])
     else:
         del transactions; del prop; gc.collect()
-        train(train_df, Model=Model, submit=False, **config_dict['training_params'])
+        _ , models = train(train_df, Model=Model, submit=False, return_models=True, **config_dict['training_params'])
+        utils.dump_aux(models, 'BestRidgeModels')
 
     t2 = time.time()
     print((t2 - t1) / 60)

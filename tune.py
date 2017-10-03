@@ -143,10 +143,10 @@ space_et = {
 
 ### Tune models ###
 
-from config import config_linear
+from config import config_linearlasso
 # experiments are a list of configs with tunning parameters defined
 model_experiments = [
-    config_linear
+    config_linearlasso
 ]
 
 def tune_models():

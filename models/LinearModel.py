@@ -1,5 +1,5 @@
 from abc import ABC # Abstract base class
-from sklearn.linear_model import Ridge, Lasso, ElasticNet, HuberRegressor
+from sklearn.linear_model import Ridge, Lasso, ElasticNet, HuberRegressor, TheilSenRegressor, RANSACRegressor
 #TODO: add other regressions in sklearn linear model module
 
 
@@ -49,3 +49,13 @@ class Huber(LinearRegressor):
     def __init__(self, model_params = None, train_params = None):
         LinearRegressor.__init__(self, model_params, train_params)
         self.model = HuberRegressor(**self.model_params)
+
+class TheilSen(LinearRegressor):
+    def __init__(self, model_params = None, train_params = None):
+        LinearRegressor.__init__(self, model_params, train_params)
+        self.model = TheilSenRegressor(**self.model_params)
+
+class RANSAC(LinearRegressor):
+    def __init__(self, model_params = None, train_params = None):
+        LinearRegressor.__init__(self, model_params, train_params)
+        self.model = RANSACRegressor(**self.model_params)
