@@ -103,6 +103,22 @@ config_lightgbm_geo = {
         'outliers_up_pct': 97
     },
     'stacking_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'learning_rate': 0.14570480513583217,
+            'max_bin': 100,
+            'metric': 'mse',
+            'min_data': 240,
+            'min_hessian': 0.4281167522186269,
+            'num_boost_round': 300,
+            'num_leaves': 10,
+            'objective': 'regression',
+            'sub_feature': 0.16696129694986633,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 6,
+        'outliers_up_pct': 97
     },
     'tuning_params': {
         'parameter_space': {

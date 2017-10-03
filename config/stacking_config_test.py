@@ -20,16 +20,18 @@ stacking_config_test = {
     # predicting parameters
     'model_params': {
         'boosting_type': 'gbdt',
-        'learning_rate': 0.1356716009602666,
-        'max_bin': 255,
-        'metric': 'mae',
-        'min_data': 285,
-        'min_hessian': 0.11576964737888308,
-        'num_boost_round': 500,
+        'learning_rate': 0.14073826510900514,
+        'max_bin': 50,
+        'metric': 'mse',
+        'min_data': 300,
+        'min_hessian': 1.776106930543375,
+        'num_boost_round': 200,
         'num_leaves': 10,
         'objective': 'regression',
         'verbose': -1
     },
+    'outliers_lw_pct': 5,
+    'outliers_up_pct': 95,
     # 'resale_offset': 0.012,
 
     # tuning parameters
@@ -53,6 +55,6 @@ stacking_config_test = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99, 100]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1, 0]),
         },
-        'max_evals': 1000,
+        'max_evals': 2000,
     }
 }

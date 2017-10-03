@@ -107,6 +107,7 @@ features/feature_pickles_cleaned/
 features/aux_pickles/
 *.csv
 *.txt
+Untitled.ipynb
 
 # iod
 .idea/
