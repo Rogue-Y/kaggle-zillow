@@ -36,13 +36,13 @@ config_rf = {
         'model_params': {
             'criterion': 'mse',
             'max_depth': 5,
-            'max_features': 0.29128611952923245,
-            'min_samples_leaf': 0.01834965011541529,
-            'min_samples_split': 0.025518924298922253,
-            'n_estimators': 90,
+            'max_features': 0.24901452224978785,
+            'min_samples_leaf': 0.020674890365214166,
+            'min_samples_split': 0.01923328091150212,
+            'n_estimators': 40,
             'n_jobs': -1
         },
-        'outliers_lw_pct': 4,
+        'outliers_lw_pct': 5,
         'outliers_up_pct': 97
     },
     'tuning_params': {
@@ -130,7 +130,6 @@ config_gb = {
     'training_params': {
         'FOLDS': 3,
         'model_params': {
-            'alpha': 0.9,
             'criterion': 'friedman_mse',
             'learning_rate': 0.22394116155015484,
             'loss': 'ls',
@@ -148,12 +147,12 @@ config_gb = {
         'FOLDS': 3,
         'model_params': {
             'criterion': 'friedman_mse',
-            'learning_rate': 0.17793166182438155,
+            'learning_rate': 0.22394116155015484,
             'loss': 'ls',
             'max_depth': 6,
-            'max_features': 0.26065972420384176,
-            'min_samples_leaf': 0.08832202126396065,
-            'min_samples_split': 0.023728156535801175,
+            'max_features': 0.3098657218048529,
+            'min_samples_leaf': 0.024563708341208284,
+            'min_samples_split': 0.0985392674346176,
             'n_estimators': 300,
             'subsample': 1
         },

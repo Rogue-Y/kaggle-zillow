@@ -31,10 +31,12 @@ config_linearridge = {
         # 'scaling_columns': SCALING_COLUMNS
     },
     'stacking_params': {
-        'model_params': {'alpha': 1.0, 'random_state': 42},
-        'FOLDS': 2,
-        'outliers_up_pct': 99,
-        'outliers_lw_pct': 1,
+        'model_params': {'alpha': 7.375287218066115, 'random_state': 42, 'tol': 0.001},
+        'FOLDS': 3,
+        'record': False,
+        'outliers_up_pct': 97,
+        'outliers_lw_pct': 5,
+        # 'resale_offset': 0.012
         'pca_components': -1, # clean_na needs to be True to use PCA
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
@@ -66,9 +68,12 @@ config_linear_huber = {
     'feature_list': feature_list_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        'FOLDS': 3, 'model_params': {'alpha': 0.021419478306822514, 'epsilon': 3.55839417191035, 'fit_intercept': False, 'max_iter': 500}, 'outliers_lw_pct': 4, 'outliers_up_pct': 98, 'scaling': True
+        'FOLDS': 3,
+        'model_params': {'alpha': 0.021419478306822514, 'epsilon': 3.55839417191035, 'fit_intercept': False, 'max_iter': 500}, 'outliers_lw_pct': 4, 'outliers_up_pct': 98, 'scaling': True
     },
     'stacking_params': {
+        'FOLDS': 3,
+        'model_params': {'alpha': 0.021419478306822514, 'epsilon': 3.55839417191035, 'fit_intercept': False, 'max_iter': 500}, 'outliers_lw_pct': 4, 'outliers_up_pct': 98, 'scaling': True
     },
     'tuning_params': {
         'parameter_space': {
