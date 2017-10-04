@@ -31,26 +31,40 @@ config_lightgbm = {
     #     'num_boost_round': 300, 'num_leaves': 70, 'objective': 'regression_l1',
     #     'sub_feature': 0.06638755200543586, 'verbose': -1},
     'training_params': {
-        'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.2100954943925603,
-        	'max_bin': 255, 'metric': 'mse', 'min_data': 225, 'min_hessian': 0.06297429722636191,
-        	'num_leaves': 10, 'objective': 'regression', 'sub_feature': 0.13114357843072696, 'verbose': -1},
         'FOLDS': 2,
-        'record': False,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
-        # 'resale_offset': 0.012
-        # 'pca_components': -1, # clean_na needs to be True to use PCA
-        # 'scaling': False,
-        # 'scaler': RobustScaler(quantile_range=(0, 99)),
-        # 'scaling_columns': SCALING_COLUMNS
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'learning_rate': 0.1392149300094899,
+            'max_bin': 130,
+            'metric': 'mae',
+            'min_data': 255,
+            'min_hessian': 0.2372321993762161,
+            'num_boost_round': 300,
+            'num_leaves': 10,
+            'objective': 'regression',
+            'sub_feature': 0.1228828936613017,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
     },
     'stacking_params': {
-        'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.2100954943925603,
-        	'max_bin': 255, 'metric': 'mse', 'min_data': 225, 'min_hessian': 0.06297429722636191,
-        	'num_leaves': 10, 'objective': 'regression', 'sub_feature': 0.13114357843072696, 'verbose': -1},
         'FOLDS': 2,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'learning_rate': 0.1392149300094899,
+            'max_bin': 130,
+            'metric': 'mae',
+            'min_data': 255,
+            'min_hessian': 0.2372321993762161,
+            'num_boost_round': 300,
+            'num_leaves': 10,
+            'objective': 'regression',
+            'sub_feature': 0.1228828936613017,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
     },
     'tuning_params': {
         'parameter_space': {
@@ -103,6 +117,22 @@ config_lightgbm_geo = {
         'outliers_up_pct': 97
     },
     'stacking_params': {
+        'FOLDS': 3,
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'learning_rate': 0.14570480513583217,
+            'max_bin': 100,
+            'metric': 'mse',
+            'min_data': 240,
+            'min_hessian': 0.4281167522186269,
+            'num_boost_round': 300,
+            'num_leaves': 10,
+            'objective': 'regression',
+            'sub_feature': 0.16696129694986633,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 6,
+        'outliers_up_pct': 97
     },
     'tuning_params': {
         'parameter_space': {

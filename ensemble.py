@@ -176,12 +176,20 @@ def stacking(first_layer, target, meta_model, outliers_lw_pct = 0, outliers_up_p
     return avg_cv_errors
 
 def stacking_submit(first_layer, target, first_layer_test, meta_model,
+        outliers_lw_pct = 0, outliers_up_pct = 100,
         config_dict={'name': 'fake_stacking_config'}, resale_offset=0.012):
-    print(first_layer.shape)
-    print(target.shape)
+    print(first_layer.shape, target.shape)
     assert len(first_layer) == len(target)
 
     print(first_layer_test.shape)
+
+    ulimit = np.percentile(target.values, outliers_up_pct)
+    llimit = np.percentile(target.values, outliers_lw_pct)
+    mask = (target >= llimit) & (target <= ulimit)
+    print(llimit, ulimit)
+    first_layer = first_layer[mask]
+    target = target[mask]
+    print(first_layer.shape, target.shape)
 
     print('second layer...')
     print('training...')
@@ -270,13 +278,17 @@ if __name__ == '__main__':
         Meta_model = config_dict['Meta_model']
         model_params = config_dict['model_params']
         meta_model = Meta_model(model_params=model_params)
+
+        outliers_up_pct = config_dict['outliers_up_pct'] if 'outliers_up_pct' in config_dict else 100
+        outliers_lw_pct = config_dict['outliers_lw_pct'] if 'outliers_lw_pct' in config_dict else 0
+
         # whether force generate all first layer
         global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
         first_layer, first_layer_target, first_layer_test = get_first_layer(stacking_list, submit, global_force_generate)
         if submit:
-            stacking_submit(first_layer, first_layer_target, first_layer_test, meta_model, config_dict)
+            stacking_submit(first_layer, first_layer_target, first_layer_test, meta_model, outliers_lw_pct, outliers_up_pct, config_dict)
         else:
-            stacking(first_layer, first_layer_target, meta_model)
+            stacking(first_layer, first_layer_target, meta_model, outliers_lw_pct, outliers_up_pct)
 
     t2 = time.time()
     print((t2 - t1) / 60)
