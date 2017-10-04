@@ -19,12 +19,12 @@ config_catboost = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': False,
     'training_params': {
-        'model_params': {'iterations':200, 'learning_rate':0.03, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
+        'model_params': {'iterations':300, 'learning_rate':0.021788752145849327, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
                          'eval_metric':'MAE', 'random_seed':42},
         'FOLDS': 3,
         # 'record': False,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 99,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
@@ -32,12 +32,13 @@ config_catboost = {
         # 'scaling_columns': SCALING_COLUMNS
     },
     'stacking_params': {
-        'model_params': {'iterations': 200, 'learning_rate': 0.03, 'depth': 6, 'l2_leaf_reg': 3, 'loss_function': 'MAE',
+        'model_params': {'iterations': 300, 'learning_rate': 0.021788752145849327, 'depth': 6, 'l2_leaf_reg': 3,
+                         'loss_function': 'MAE',
                          'eval_metric': 'MAE', 'random_seed': 42},
         'FOLDS': 3,
         # 'record': False,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 99,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
@@ -47,8 +48,8 @@ config_catboost = {
     'tuning_params': {
         'parameter_space': {
             'model_params': {
-                'iterations': hp.choice('iterations', [100*x for x in range(2,5)]),
-                'learning_rate': hp.loguniform('learning_rate', -4,-1),
+                'iterations': hp.choice('iterations', [100*x for x in range(2,4)]),
+                'learning_rate': hp.loguniform('learning_rate', -4,-2),
                 'depth': hp.choice('depth', list(range(2, 8))),
                 'l2_leaf_reg': hp.choice('l2_leaf_reg', list(range(2,6))),
                 'loss_function': 'MAE',
@@ -69,12 +70,13 @@ config_manycatsboost = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': False,
     'training_params': {
-        'model_params': {'iterations':200, 'learning_rate':0.03, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
-                         'eval_metric':'MAE'},
-        'FOLDS': 5,
-        # 'n_models' : 5,
+        'model_params': {'iterations': 300, 'learning_rate': 0.021788752145849327, 'depth': 6, 'l2_leaf_reg': 3,
+                         'loss_function': 'MAE',
+                         'eval_metric': 'MAE'},
+        'FOLDS': 3,
+        # 'record': False,
         'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
+        'outliers_up_pct': 99,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
@@ -82,12 +84,13 @@ config_manycatsboost = {
         # 'scaling_columns': SCALING_COLUMNS
     },
     'stacking_params': {
-        'model_params': {'iterations':200, 'learning_rate':0.03, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
-                         'eval_metric':'MAE'},
-        'FOLDS': 5,
-        # 'n_models' : 5,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
+        'model_params': {'iterations': 300, 'learning_rate': 0.021788752145849327, 'depth': 6, 'l2_leaf_reg': 3,
+                         'loss_function': 'MAE',
+                         'eval_metric': 'MAE'},
+        'FOLDS': 3,
+        # 'record': False,
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 99,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
