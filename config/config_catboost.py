@@ -72,8 +72,7 @@ config_manycatsboost = {
         'model_params': {'iterations':200, 'learning_rate':0.03, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
                          'eval_metric':'MAE'},
         'FOLDS': 5,
-        'n_models' : 5,
-        # 'record': False,
+        # 'n_models' : 5,
         'outliers_lw_pct': 4,
         'outliers_up_pct': 97,
         # 'resale_offset': 0.012
@@ -86,8 +85,7 @@ config_manycatsboost = {
         'model_params': {'iterations':200, 'learning_rate':0.03, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
                          'eval_metric':'MAE'},
         'FOLDS': 5,
-        'n_models' : 5,
-        # 'record': False,
+        # 'n_models' : 5,
         'outliers_lw_pct': 4,
         'outliers_up_pct': 97,
         # 'resale_offset': 0.012

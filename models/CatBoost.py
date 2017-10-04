@@ -30,7 +30,7 @@ class ManyCatsBoost():
     def __init__(self, model_params = None, train_params = None):
         self.model_params = model_params
         self.train_params = train_params
-        self.n = self.train_params['n_models']
+        self.n = 5
         self.model = []
         for i in range(self.n):
             self.model_params['random_seed'] = i
