@@ -1,10 +1,10 @@
 from abc import ABC # Abstract base class
-from sklearn.linear_model import Ridge, Lasso, ElasticNet, HuberRegressor, TheilSenRegressor, RANSACRegressor
+from sklearn.linear_model import Ridge, Lasso, ElasticNet, HuberRegressor, TheilSenRegressor, RANSACRegressor, LinearRegression
 #TODO: add other regressions in sklearn linear model module
 
 
 # abstract base class
-class LinearRegressor(ABC):
+class LinearRegressorBC(ABC):
     def __init__(self, model_params = None, train_params = None):
         self.model_params = model_params
         self.train_params = train_params
@@ -28,34 +28,39 @@ class LinearRegressor(ABC):
         return sorted(feature_importances, key=lambda x: -x[1])
 
 
-class RidgeRegressor(LinearRegressor):
+class RidgeRegressor(LinearRegressorBC):
     def __init__(self, model_params = None, train_params = None):
-        LinearRegressor.__init__(self, model_params, train_params)
+        LinearRegressorBC.__init__(self, model_params, train_params)
         self.model = Ridge(**self.model_params)
 
 
-class LassoRegressor(LinearRegressor):
+class LassoRegressor(LinearRegressorBC):
     def __init__(self, model_params = None, train_params = None):
-        LinearRegressor.__init__(self, model_params, train_params)
+        LinearRegressorBC.__init__(self, model_params, train_params)
         self.model = Lasso(**self.model_params)
 
 
-class ElasticNetRegressor(LinearRegressor):
+class ElasticNetRegressor(LinearRegressorBC):
     def __init__(self, model_params = None, train_params = None):
-        LinearRegressor.__init__(self, model_params, train_params)
+        LinearRegressorBC.__init__(self, model_params, train_params)
         self.model = ElasticNet(**self.model_params)
 
-class Huber(LinearRegressor):
+class Huber(LinearRegressorBC):
     def __init__(self, model_params = None, train_params = None):
-        LinearRegressor.__init__(self, model_params, train_params)
+        LinearRegressorBC.__init__(self, model_params, train_params)
         self.model = HuberRegressor(**self.model_params)
 
-class TheilSen(LinearRegressor):
+class TheilSen(LinearRegressorBC):
     def __init__(self, model_params = None, train_params = None):
-        LinearRegressor.__init__(self, model_params, train_params)
+        LinearRegressorBC.__init__(self, model_params, train_params)
         self.model = TheilSenRegressor(**self.model_params)
 
-class RANSAC(LinearRegressor):
+class RANSAC(LinearRegressorBC):
     def __init__(self, model_params = None, train_params = None):
-        LinearRegressor.__init__(self, model_params, train_params)
+        LinearRegressorBC.__init__(self, model_params, train_params)
         self.model = RANSACRegressor(**self.model_params)
+
+class Linear(LinearRegressorBC):
+    def __init__(self, model_params = None, train_params = None):
+        LinearRegressorBC.__init__(self, model_params, train_params)
+        self.model = LinearRegression(**self.model_params)

@@ -8,4 +8,4 @@ from .config_gaussian_process import config_gaussian_process
 
 
 # stacking configurations
-from .stacking_config_test import stacking_config_test
+from .stacking_config_test import stacking_config_test, stacking_config_linear, stacking_config_ridge

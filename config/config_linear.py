@@ -33,7 +33,6 @@ config_linearridge = {
     'stacking_params': {
         'model_params': {'alpha': 7.375287218066115, 'random_state': 42, 'tol': 0.001},
         'FOLDS': 3,
-        'record': False,
         'outliers_up_pct': 97,
         'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
@@ -68,12 +67,9 @@ config_linear_huber = {
     'feature_list': feature_list_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        'FOLDS': 3,
-        'model_params': {'alpha': 0.021419478306822514, 'epsilon': 3.55839417191035, 'fit_intercept': False, 'max_iter': 500}, 'outliers_lw_pct': 4, 'outliers_up_pct': 98, 'scaling': True
-    },
+        'FOLDS': 3, 'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True    },
     'stacking_params': {
-        'FOLDS': 3,
-        'model_params': {'alpha': 0.021419478306822514, 'epsilon': 3.55839417191035, 'fit_intercept': False, 'max_iter': 500}, 'outliers_lw_pct': 4, 'outliers_up_pct': 98, 'scaling': True
+        'FOLDS': 3, 'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True    
     },
     'tuning_params': {
         'parameter_space': {
@@ -88,7 +84,7 @@ config_linear_huber = {
             'scaling': True,
             'FOLDS': 3,
         },
-        'max_evals': 50
+        'max_evals': 1000
     }
 }
 
@@ -115,7 +111,6 @@ config_linearlasso = {
         'model_params': {'alpha': 1.0693486250127264, 'fit_intercept': False, 'normalize': False, 'random_state': 42,
                          'tol': 0.0025155077434141472},
         'FOLDS': 3,
-        'record': False,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 3,
         # 'resale_offset': 0.012
@@ -166,7 +161,6 @@ config_linearRANSAC = {
         'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
                          'min_samples': 0.9697366469576226, 'random_state': 42},
         'FOLDS': 3,
-        'record': False,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 5,
         # 'resale_offset': 0.012

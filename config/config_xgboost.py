@@ -18,18 +18,20 @@ config_xgboost = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': False,
     'training_params': {
-        'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
-            'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
-            'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
-        'FOLDS': 2,
-        # 'record': False,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
-        # 'resale_offset': 0.012
-        # 'pca_components': -1, # clean_na needs to be True to use PCA
-        # 'scaling': False,
-        # 'scaler': RobustScaler(quantile_range=(0, 99)),
-        # 'scaling_columns': SCALING_COLUMNS
+        # 'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
+        #     'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
+        #     'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
+        # 'FOLDS': 2,
+        # # 'record': False,
+        # 'outliers_lw_pct': 4,
+        # 'outliers_up_pct': 97,
+        # # 'resale_offset': 0.012
+        # # 'pca_components': -1, # clean_na needs to be True to use PCA
+        # # 'scaling': False,
+        # # 'scaler': RobustScaler(quantile_range=(0, 99)),
+        # # 'scaling_columns': SCALING_COLUMNS
+    
+        'model_params': {'alpha': 0.3, 'colsample_bylevel': 1.0, 'colsample_bytree': 0.7, 'eta': 0.23350979706978167, 'eval_metric': 'mae', 'gamma': 0.04379710673998437, 'lambda': 0.4, 'max_depth': 5, 'min_child_weight': 3.193139219626233, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.9}, 'outliers_lw_pct': 5, 'outliers_up_pct': 96
     },
     'stacking_params': {
         'model_params': {
@@ -71,7 +73,7 @@ config_xgboost = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
         },
-        'max_evals': 325
+        'max_evals': 500
     }
 }
 
