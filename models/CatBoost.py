@@ -9,8 +9,31 @@ class CatBoost():
         self.train_params = train_params
         self.model = CatBoostRegressor(**self.model_params)
 
+
     def fit(self, X_train, y_train):
-        return self.model.fit(X_train, y_train)
+        cat_feature_inds = []
+        cat_unique_thresh = 1000
+        for i, c in enumerate(X_train.columns):
+            num_uniques = len(X_train[c].unique())
+            if num_uniques < cat_unique_thresh \
+                    and not 'sqft' in c \
+                    and not 'cnt' in c \
+                    and not 'count' in c \
+                    and not 'tax_difference' in c \
+                    and not 'nbr' in c \
+                    and not 'room' in c \
+                    and not 'number' in c \
+                    and not 'mean' in c \
+                    and not 'std' in c \
+                    and not 'rate' in c \
+                    and not 'logerror' in c \
+                    and not 'lat_lon_block' in c \
+                    and not 'ratio' in c:
+                cat_feature_inds.append(i)
+        print("Cat features are: %s" % [X_train.columns[ind] for ind in cat_feature_inds])
+        print("Cat features length is: %s" % len(cat_feature_inds))
+
+        return self.model.fit(X_train, y_train, cat_features=cat_feature_inds)
 
     def predict(self, X):
         """ Predict on the given X, need to call fit first
@@ -37,8 +60,30 @@ class ManyCatsBoost():
             self.model.append(CatBoostRegressor(**self.model_params))
 
     def fit(self, X_train, y_train):
+        cat_feature_inds = []
+        cat_unique_thresh = 1000
+        for i, c in enumerate(X_train.columns):
+            num_uniques = len(X_train[c].unique())
+            if num_uniques < cat_unique_thresh \
+                    and not 'sqft' in c \
+                    and not 'cnt' in c \
+                    and not 'count' in c \
+                    and not 'tax_difference' in c \
+                    and not 'nbr' in c \
+                    and not 'room' in c \
+                    and not 'number' in c \
+                    and not 'mean' in c \
+                    and not 'std' in c \
+                    and not 'rate' in c \
+                    and not 'logerror' in c \
+                    and not 'lat_lon_block' in c \
+                    and not 'ratio' in c:
+                cat_feature_inds.append(i)
+        print("Cat features are: %s" % [X_train.columns[ind] for ind in cat_feature_inds])
+        print("Cat features length is: %s" % len(cat_feature_inds))
+
         for model in self.model:
-            model.fit(X_train, y_train)
+            model.fit(X_train, y_train, cat_features=cat_feature_inds)
         return None
 
     def predict(self, X):

@@ -5,7 +5,7 @@ if module_path not in sys.path:
     sys.path.append(module_path)
 
 # Feature list
-from features import feature_list_non_linear
+from features import feature_list_cat, feature_list_non_linear
 # model
 # pip install catboost
 from models import CatBoost
@@ -16,10 +16,10 @@ from hyperopt import hp
 config_catboost = {
     'name': 'config_catboost',
     'Model': CatBoost.CatBoost,
-    'feature_list': feature_list_non_linear.feature_list,
-    'clean_na': False,
+    'feature_list': feature_list_cat.feature_list,
+    'clean_na': True,
     'training_params': {
-        'model_params': {'iterations':300, 'learning_rate':0.021788752145849327, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
+        'model_params': {'iterations':200, 'learning_rate':0.03, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
                          'eval_metric':'MAE', 'random_seed':42},
         'FOLDS': 3,
         # 'record': False,
@@ -67,8 +67,8 @@ config_catboost = {
 config_manycatsboost = {
     'name': 'config_manycatsboost',
     'Model': CatBoost.ManyCatsBoost,
-    'feature_list': feature_list_non_linear.feature_list,
-    'clean_na': False,
+    'feature_list': feature_list_cat.feature_list,
+    'clean_na': True,
     'training_params': {
         'model_params': {'iterations': 300, 'learning_rate': 0.021788752145849327, 'depth': 6, 'l2_leaf_reg': 3,
                          'loss_function': 'MAE',
