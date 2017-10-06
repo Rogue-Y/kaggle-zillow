@@ -194,18 +194,52 @@ def round_lon(df):
 # TODO(hzn): add more aggregation to neighborhood/zip/city/county/lat-lon-block:
 # https://pandas.pydata.org/pandas-docs/stable/api.html#id32
 
+geo_grouping_columns_all = [
+    'bathroomcnt',
+    'bedroomcnt',
+    'buildingqualitytypeid',
+    'calculatedfinishedsquarefeet',
+    'fullbathcnt',
+    # 'garagecarcnt',
+    # 'garagetotalsqft',
+    'lotsizesquarefeet',
+    # 'numberofstories',
+    'unitcnt',
+    'yearbuilt',
+    'structuretaxvaluedollarcnt',
+    'landtaxvaluedollarcnt',
+    'taxamount',
+    'taxvaluedollarcnt',
+    'assessmentyear'
+]
+
+geo_grouping_columns_fi = [
+    # 'bathroomcnt',
+    'bedroomcnt',
+    # 'buildingqualitytypeid',
+    'calculatedfinishedsquarefeet',
+    # 'fullbathcnt',
+    # 'garagecarcnt',
+    # 'garagetotalsqft',
+    'lotsizesquarefeet',
+    # 'numberofstories',
+    'unitcnt',
+    'yearbuilt',
+    'structuretaxvaluedollarcnt',
+    # 'landtaxvaluedollarcnt',
+    'taxamount',
+    'taxvaluedollarcnt',
+    # 'assessmentyear'
+]
+
+geo_grouping_columns = geo_grouping_columns_all
+
+
 def geo_fips_census_block(df, columns=None):
     fips_census_block = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = [
-            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
-            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            # 'roomcnt',
-            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount',
-            'taxvaluedollarcnt']
+        columns = geo_grouping_columns
     #Number of properties in the fips_census_block
     fips_census_block_count = df['fips_census_block'].value_counts().to_dict()
     fips_census_block['fips_census_block_count'] = df['fips_census_block'].map(fips_census_block_count)
@@ -226,14 +260,7 @@ def geo_fips_census_1(df, columns=None):
     fips_census_1 = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = [
-            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
-            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            # 'roomcnt',
-            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount',
-            'taxvaluedollarcnt']
+        columns = geo_grouping_columns
     #Number of properties in the fips_census_1
     fips_census_1_count = df['fips_census_1'].value_counts().to_dict()
     fips_census_1['fips_census_1_count'] = df['fips_census_1'].map(fips_census_1_count)
@@ -254,14 +281,7 @@ def geo_neighborhood(df, columns=None):
     neighborhood = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = [
-            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
-            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            # 'roomcnt',
-            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount',
-            'taxvaluedollarcnt']
+        columns = geo_grouping_columns
     #Number of properties in the neighborhood
     neighborhood_count = df['regionidneighborhood'].value_counts().to_dict()
     neighborhood['neighborhood_count'] = df['regionidneighborhood'].map(neighborhood_count)
@@ -286,14 +306,7 @@ def geo_city(df, columns=None):
     city = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = [
-            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
-            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            # 'roomcnt',
-            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount',
-            'taxvaluedollarcnt']
+        columns = geo_grouping_columns
     #Number of properties in the city
     city_count = df['regionidcity'].value_counts().to_dict()
     city['city_count'] = df['regionidcity'].map(city_count)
@@ -316,14 +329,7 @@ def geo_zip(df, columns=None):
     zip = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = [
-            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
-            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            # 'roomcnt',
-            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount',
-            'taxvaluedollarcnt']
+        columns = geo_grouping_columns
     #Number of properties in the zip
     zip_count = df['regionidzip'].value_counts().to_dict()
     zip['zip_count'] = df['regionidzip'].map(zip_count)
@@ -346,14 +352,7 @@ def geo_county(df, columns=None):
     county = pd.DataFrame()
     if columns is None:
         # Use default columns if col is None
-        columns = [
-            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
-            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            # 'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            # 'roomcnt',
-            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount',
-            'taxvaluedollarcnt']
+        columns = geo_grouping_columns
     #Number of properties in the county
     county_count = df['regionidcounty'].value_counts().to_dict()
     county['county_count'] = df['regionidcounty'].map(county_count)
@@ -482,14 +481,7 @@ def geo_lat_lon_block_helper(df):
 def geo_lat_lon_block_features(df, columns=None):
     if columns is None:
         # Use default columns if col is None
-        columns = [
-            'bathroomcnt', 'bedroomcnt', 'buildingqualitytypeid',
-            'calculatedfinishedsquarefeet', 'fullbathcnt', 'garagecarcnt',
-            'garagetotalsqft', 'lotsizesquarefeet', 'numberofstories',
-            # 'roomcnt',
-            'unitcnt', 'yearbuilt', 'structuretaxvaluedollarcnt',
-            'taxamount',
-            'taxvaluedollarcnt']
+        columns = geo_grouping_columns
     lat_lon_block = pd.DataFrame()
 
     blocks = geo_lat_lon_block_helper(df)
