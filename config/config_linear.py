@@ -19,7 +19,11 @@ config_linearridge = {
     'feature_list': feature_list_linearridge.feature_list2,
     'clean_na': True,
     'training_params': {
-        'model_params': {'alpha': 7.375287218066115, 'random_state': 42, 'tol': 0.001},
+        'model_params': {
+            'alpha': 7.375287218066115,
+            'random_state': 42,
+            'tol': 0.001
+        },
         'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 97,
@@ -67,9 +71,19 @@ config_linear_huber = {
     'feature_list': feature_list_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        'FOLDS': 3, 'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True    },
+        'FOLDS': 3,
+        'model_params': {
+            'alpha': 0.0337035513301721,
+            'epsilon': 2.787714318716998,
+            'fit_intercept': True,
+            'max_iter': 500
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 97,
+        'scaling': True
+    },
     'stacking_params': {
-        'FOLDS': 3, 'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True    
+        'FOLDS': 3, 'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True
     },
     'tuning_params': {
         'parameter_space': {
@@ -96,7 +110,12 @@ config_linearlasso = {
     'feature_list': feature_list_linearlasso.feature_list,
     'clean_na': True,
     'training_params': {
-        'model_params': {'alpha': 1.0693486250127264, 'fit_intercept': False, 'normalize': False, 'random_state': 42, 'tol': 0.0025155077434141472},
+        'model_params': {
+            'alpha': 1.0693486250127264,
+            'fit_intercept': False,
+            'normalize': False, 'random_state': 42,
+            'tol': 0.0025155077434141472
+        },
         'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 98,
