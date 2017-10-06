@@ -30,8 +30,23 @@ config_xgboost = {
         # # 'scaling': False,
         # # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # # 'scaling_columns': SCALING_COLUMNS
-    
-        'model_params': {'alpha': 0.3, 'colsample_bylevel': 1.0, 'colsample_bytree': 0.7, 'eta': 0.23350979706978167, 'eval_metric': 'mae', 'gamma': 0.04379710673998437, 'lambda': 0.4, 'max_depth': 5, 'min_child_weight': 3.193139219626233, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.9}, 'outliers_lw_pct': 5, 'outliers_up_pct': 96
+
+        'model_params': {
+            'alpha': 0.3,
+            'colsample_bylevel': 1.0,
+            'colsample_bytree': 0.7,
+            'eta': 0.23350979706978167,
+            'eval_metric': 'mae',
+            'gamma': 0.04379710673998437,
+            'lambda': 0.4,
+            'max_depth': 5,
+            'min_child_weight': 3.193139219626233,
+            'objective': 'reg:linear',
+            'silent': 1,
+            'subsample': 0.9
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
     },
     'stacking_params': {
         'model_params': {

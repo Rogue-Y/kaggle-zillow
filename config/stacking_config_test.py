@@ -60,7 +60,7 @@ stacking_config_test = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [94, 95, 96, 97, 98, 99, 100]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [6, 5, 4, 3, 2, 1, 0]),
         },
-        'max_evals': 100000,
+        'max_evals': 10000,
     }
 }
 

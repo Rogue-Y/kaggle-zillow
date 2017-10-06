@@ -24,7 +24,7 @@ class LinearRegressorBC(ABC):
         return self.model_params if self.model_params is not None else {}
 
     def get_features_importances(self):
-        feature_importances = list(zip(self.features, self.model.coef_))
+        feature_importances = list(zip(self.features, abs(self.model.coef_)))
         return sorted(feature_importances, key=lambda x: -x[1])
 
 
