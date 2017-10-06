@@ -450,11 +450,11 @@ def geo_county(df, columns=None):
 
 def geo_lat_lon_block_helper(df):
     # Latitude, longitude blocks
-    lat_bins = pd.cut(df['latitude'], 10, labels=False)
+    lat_bins = pd.cut(df['latitude'], 80, labels=False)
     lat_bins = labelEncoder.fit_transform(lat_bins)
-    lon_bins = pd.cut(df['longitude'], 10, labels=False)
+    lon_bins = pd.cut(df['longitude'], 90, labels=False)
     lon_bins = labelEncoder.fit_transform(lon_bins)
-    return pd.Series(lat_bins * 10 + lon_bins, name='lat_lon_block')
+    return pd.Series(lat_bins * 100 + lon_bins, name='lat_lon_block')
 
 # def geo_lat_lon_block_tax_value(df):
 #     lat_lon_block = pd.DataFrame()
@@ -495,7 +495,7 @@ def geo_lat_lon_block_features(df, columns=None):
     blocks = geo_lat_lon_block_helper(df)
     lat_lon_block['lat_lon_block'] = blocks
 
-    values = df[columns]
+    values = df.loc[:, columns]
     values['lat_lon_block'] = blocks
 
     # stats of value estimate of properties grouped by lat_lon_block
