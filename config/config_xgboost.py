@@ -117,7 +117,7 @@ config_xgboost_fi = {
         'outliers_lw_pct': 4,
         'outliers_up_pct': 97,
     },
-    'stacking_params': {
+    'tuning_params': {
         'parameter_space': {
             'model_params': {
                 'eta': hp.loguniform('eta', -2, 0),
@@ -138,7 +138,7 @@ config_xgboost_fi = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
         },
-        'max_evals': 500
+        'max_evals': 100
     },
 }
 

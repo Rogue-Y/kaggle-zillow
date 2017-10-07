@@ -64,8 +64,10 @@ def load_properties_data_raw(data_folder='data/', force_read=False):
             tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
                 'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
                 'taxdelinquencyflag' ,'taxdelinquencyyear']
-            prop[tax_columns] = prop2016[tax_columns]
-            del prop2016; gc.collect()
+            prop.drop(tax_columns, axis=1, inplace=True)
+            tax2016 = prop2016[['parcelid', *tax_columns]]
+            prop = prop.merge(tax2016, 'left', 'parcelid')
+            del prop2016; del tax2016; gc.collect()
         for col in prop.columns:
             if prop[col].dtype == 'float64':
                 prop[col] = prop[col].astype('float32')
@@ -96,8 +98,10 @@ def load_properties_data(data_folder='data/', force_read=False):
             tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
                 'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
                 'taxdelinquencyflag' ,'taxdelinquencyyear']
-            prop[tax_columns] = prop2016[tax_columns]
-            del prop2016; gc.collect()
+            prop.drop(tax_columns, axis=1, inplace=True)
+            tax2016 = prop2016[['parcelid', *tax_columns]]
+            prop = prop.merge(tax2016, 'left', 'parcelid')
+            del prop2016; del tax2016; gc.collect()
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
         prop = preprocess_add_geo_features(prop)
@@ -200,8 +204,10 @@ def load_properties_data_minimize(data_folder='data/', force_read=False):
             tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
                 'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
                 'taxdelinquencyflag' ,'taxdelinquencyyear']
-            prop[tax_columns] = prop2016[tax_columns]
-            del prop2016; gc.collect()
+            prop.drop(tax_columns, axis=1, inplace=True)
+            tax2016 = prop2016[['parcelid', *tax_columns]]
+            prop = prop.merge(tax2016, 'left', 'parcelid')
+            del prop2016; del tax2016; gc.collect()
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
         prop = preprocess_add_geo_features(prop)
