@@ -12,9 +12,6 @@ import pickle
 
 from features import feature_clean
 
-# The properties data to use
-# source_data = 'properties_2016'
-source_data = 'properties_2017'
 
 # utility functions
 def plot_score(y, y_hat):
@@ -30,36 +27,40 @@ def load_train_data(data_folder='data/', force_read=False):
 
     return (train, prop)
 
-def load_transaction_data(data_folder='data/', force_read=False):
+def load_transaction_data(year, data_folder='data/', force_read=False):
     """ Load transaction data.
         Returns:
             train_df
     """
-    train_data_pickle = data_folder + 'train_2016_v2_pickle'
+    train_file = 'train_2017'
+    if year == 2016:
+        train_file = 'train_2016_v2'
+
+    train_data_pickle = data_folder + train_file + '_pickle'
 
     if not force_read and os.path.exists(train_data_pickle):
         train = pd.read_pickle(train_data_pickle)
     else:
         train = pd.read_csv(
-            data_folder + 'train_2016_v2.csv', parse_dates=['transactiondate'])
+            data_folder + train_file + '.csv', parse_dates=['transactiondate'])
         if not os.path.exists(data_folder):
             os.makedirs(data_folder)
         train.to_pickle(train_data_pickle)
     return train
 
-def load_properties_data_raw(data_folder='data/', force_read=False):
+def load_properties_data_raw(year, data_folder='data/', force_read=False):
     """ Load raw properties data, for missing value calculation only now.
         Returns:
             properties_df
     """
-    prop_data_pickle = '%s%s_raw_pickle' %(data_folder, source_data)
+    prop_data_pickle = '%sproperties_%s_raw_pickle' %(data_folder, year)
 
     if not force_read and os.path.exists(prop_data_pickle):
         prop = pd.read_pickle(prop_data_pickle)
     else:
-        prop = pd.read_csv('%s%s.csv' %(data_folder, source_data))
+        prop = pd.read_csv('%sproperties_2017.csv' %data_folder)
         # Should still use 2016's tax data to prevent leakage
-        if source_data == 'properties_2017':
+        if year == 2016:
             prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
             tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
                 'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
@@ -76,7 +77,7 @@ def load_properties_data_raw(data_folder='data/', force_read=False):
         prop.to_pickle(prop_data_pickle)
     return prop
 
-def load_properties_data(data_folder='data/', force_read=False):
+def load_properties_data(year, data_folder='data/', force_read=False):
     """ Load properties data.
         Returns:
             properties_df
@@ -86,14 +87,14 @@ def load_properties_data(data_folder='data/', force_read=False):
         "censustractandblock": str,
         "propertycountylandusecode": str
     }
-    prop_data_pickle = '%s%s_pickle' %(data_folder, source_data)
+    prop_data_pickle = '%sproperties_%s_pickle' %(data_folder, year)
 
     if not force_read and os.path.exists(prop_data_pickle):
         prop = pd.read_pickle(prop_data_pickle)
     else:
-        prop = pd.read_csv('%s%s.csv' %(data_folder, source_data), dtype=infered_type)
+        prop = pd.read_csv('%sproperties_2017.csv' %data_folder, dtype=infered_type)
         # Should still use 2016's tax data to prevent leakage
-        if source_data == 'properties_2017':
+        if year == 2016:
             prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
             tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
                 'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
@@ -115,17 +116,17 @@ def load_properties_data(data_folder='data/', force_read=False):
     return prop
 
 
-def load_properties_data_preprocessed(data_folder='data/', force_read=False):
+def load_properties_data_preprocessed(year, data_folder='data/', force_read=False):
     """ Load properties data and do some simple preprocess, mainly on boolean
         and categorical data.
         Returns:
             properties_df_preprocessed
     """
-    prop_preprocessed_pickle_path = '%s%s_pickle_preprocessed' %(data_folder, source_data)
+    prop_preprocessed_pickle_path = '%sproperties_%s_pickle_preprocessed' %(data_folder, year)
     if not force_read and os.path.exists(prop_preprocessed_pickle_path):
         prop_preprocessed = pd.read_pickle(prop_preprocessed_pickle_path)
     else:
-        prop_preprocessed = load_properties_data(data_folder, force_read)
+        prop_preprocessed = load_properties_data(year, data_folder, force_read)
 
         # Preprocessing some columns so that all columns are numbers/booleans and has concrete meanings
         # boolean columns
@@ -159,12 +160,12 @@ def load_properties_data_preprocessed(data_folder='data/', force_read=False):
     return prop_preprocessed
 
 
-def load_properties_data_cleaned(data_folder='data/', force_read=False):
+def load_properties_data_cleaned(year, data_folder='data/', force_read=False):
     """ Load properties data and clean data.
         Returns:
             properties_df_cleaned
     """
-    prop_cleaned_pickle_path = '%s%s_pickle_cleaned' %(data_folder, source_data)
+    prop_cleaned_pickle_path = '%sproperties_%d_pickle_cleaned' %(data_folder, year)
     if not force_read and os.path.exists(prop_cleaned_pickle_path):
         prop_cleaned = pd.read_pickle(prop_cleaned_pickle_path)
     else:
@@ -172,7 +173,7 @@ def load_properties_data_cleaned(data_folder='data/', force_read=False):
         functions = [o for o in inspect.getmembers(feature_clean) if inspect.isfunction(o[1])]
         # convert to a dictionary
         functions_dict = dict(functions)
-        prop = load_properties_data(data_folder, force_read)
+        prop = load_properties_data(year, data_folder, force_read)
         # filter out parcels that have unknown lat or lon
         prop = prop[prop['latitude'].notnull() & prop['longitude'].notnull()]
         # create a new df as some feature filling may depend on other features
@@ -186,35 +187,35 @@ def load_properties_data_cleaned(data_folder='data/', force_read=False):
 
     return prop_cleaned
 
-# Load the reduced size properties data
-def load_properties_data_minimize(data_folder='data/', force_read=False):
-    """ Load properties data.
-        Returns:
-            properties_df
-    """
-    prop_data_pickle = '%s%s_pickle_mini' %(data_folder, source_data)
+# # Load the reduced size properties data
+# def load_properties_data_minimize(data_folder='data/', force_read=False):
+#     """ Load properties data.
+#         Returns:
+#             properties_df
+#     """
+#     prop_data_pickle = '%s%s_pickle_mini' %(data_folder, source_data)
 
-    if not force_read and os.path.exists(prop_data_pickle):
-        prop = pd.read_pickle(prop_data_pickle)
-    else:
-        prop = pd.read_csv('%s%s.csv' %(data_folder, source_data))
-        # Should still use 2016's tax data to prevent leakage
-        if source_data == 'properties_2017':
-            prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
-            tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
-                'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
-                'taxdelinquencyflag' ,'taxdelinquencyyear']
-            prop.drop(tax_columns, axis=1, inplace=True)
-            tax2016 = prop2016[['parcelid', *tax_columns]]
-            prop = prop.merge(tax2016, 'left', 'parcelid')
-            del prop2016; del tax2016; gc.collect()
-        # Fill missing geo data a little bit
-        prop = preprocess_geo(prop)
-        prop = preprocess_add_geo_features(prop)
-        # Convert float64 to float32 to save memory
-        prop, na_list = reduce_mem_usage(prop)
-        prop.to_pickle(prop_data_pickle)
-    return prop
+#     if not force_read and os.path.exists(prop_data_pickle):
+#         prop = pd.read_pickle(prop_data_pickle)
+#     else:
+#         prop = pd.read_csv('%s%s.csv' %(data_folder, source_data))
+#         # Should still use 2016's tax data to prevent leakage
+#         if source_data == 'properties_2017':
+#             prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
+#             tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
+#                 'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
+#                 'taxdelinquencyflag' ,'taxdelinquencyyear']
+#             prop.drop(tax_columns, axis=1, inplace=True)
+#             tax2016 = prop2016[['parcelid', *tax_columns]]
+#             prop = prop.merge(tax2016, 'left', 'parcelid')
+#             del prop2016; del tax2016; gc.collect()
+#         # Fill missing geo data a little bit
+#         prop = preprocess_geo(prop)
+#         prop = preprocess_add_geo_features(prop)
+#         # Convert float64 to float32 to save memory
+#         prop, na_list = reduce_mem_usage(prop)
+#         prop.to_pickle(prop_data_pickle)
+#     return prop
 
 def preprocess_geo(prop):
     """ Preprocess data, fill some missing regionidcity, zip and neighborhood

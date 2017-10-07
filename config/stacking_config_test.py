@@ -8,18 +8,23 @@ from hyperopt import hp
 
 stacking_config_test = {
     'name': 'stacking_config_test',
-    'stacking_list': [
-        (config_linearRANSAC, False),
-        (config_linearridge, False),
-        (config_linear_huber, False),
-        (config_linearlasso, False),
-        (config_lightgbm, False),
-        (config_lightgbm_geo, False),
-        (config_xgboost, False),
-        (config_rf, False),
-        (config_extra_tree, False),
-        (config_gb, False),
-    ],
+    'stacking_list': {
+        'config': [
+            (config_linearRANSAC, False),
+            (config_linearridge, False),
+            (config_linear_huber, False),
+            (config_linearlasso, False),
+            (config_lightgbm, False),
+            (config_lightgbm_geo, False),
+            (config_xgboost, False),
+            (config_rf, False),
+            (config_extra_tree, False),
+            (config_gb, False),
+        ],
+        'csv': [
+
+        ]
+    },
     'global_force_generate': False,
     'Meta_model': Lightgbm.Lightgbm,
     # predicting parameters

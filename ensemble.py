@@ -69,7 +69,8 @@ def get_first_layer(stacking_list, submit=False, global_force_generate=False):
     first_layer_preds = []
     first_layer_preds_test = []
 
-    for config_dict, force_generate in stacking_list:
+    configs = stacking_list['config']
+    for config_dict, force_generate in configs:
         # Read config
         config_name = config_dict['name']
         first_layer_pickle_folder = 'data/ensemble/first_layer'
@@ -124,6 +125,16 @@ def get_first_layer(stacking_list, submit=False, global_force_generate=False):
         first_layer_preds.append(validation_pred)
         if submit:
             first_layer_preds_test.append(test_pred)
+
+    def get_validate_csv(file):
+        return 'data/ensemble/first_layer/csv/validate/%s' %file
+
+    def get_test_csv(file):
+        return 'data/ensemble/first_layer/csv/test/%s' %file
+    # csv first layer predictions
+    first_layer_csv = list(map(lambda file: pd.read_csv(get_validate_csv(file)), stacking_list['csv']))
+    if submit:
+        first_layer_csv_test = list(map(lambda file: pd.read_csv(get_test_csv(file)), stacking_list['csv']))
 
     # assemble first layer result
     first_layer = pd.concat(first_layer_preds, axis=1)
