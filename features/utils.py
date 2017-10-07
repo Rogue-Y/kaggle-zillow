@@ -263,6 +263,16 @@ def load_config(config_file='config/steps.json'):
 def train_valid_split(X, y, test_size):
     return train_test_split(X, y, test_size=test_size, random_state=42)
 
+
+def add_date_features(df):
+    print('Converting transaction features...')
+    df['transactiondate'] = pd.to_datetime(df['transactiondate'])
+    # df['transaction_year'] = df['transactiondate'].dt.year
+    df['transaction_month'] = df['transactiondate'].dt.month
+    df['transaction_day'] = df['transactiondate'].dt.day
+    df['transaction_quarter'] = df['transactiondate'].dt.quarter
+    return df
+
 def get_features_target(df):
     """ Get features dataframe, and target column
         Call clean data and drop column in data_clean.py function before use

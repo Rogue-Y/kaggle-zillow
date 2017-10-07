@@ -13,12 +13,12 @@ class CatBoost():
     def fit(self, X_train, y_train):
         cat_feature_inds = []
         cat_unique_thresh = 1000
+        print (X_train.columns)
         for i, c in enumerate(X_train.columns):
             num_uniques = len(X_train[c].unique())
             if num_uniques < cat_unique_thresh \
                     and not 'sqft' in c \
                     and not 'cnt' in c \
-                    and not 'count' in c \
                     and not 'tax_difference' in c \
                     and not 'nbr' in c \
                     and not 'room' in c \
@@ -28,11 +28,12 @@ class CatBoost():
                     and not 'rate' in c \
                     and not 'logerror' in c \
                     and not 'lat_lon_block' in c \
+                    and not '_count' in c \
                     and not 'ratio' in c:
                 cat_feature_inds.append(i)
         print("Cat features are: %s" % [X_train.columns[ind] for ind in cat_feature_inds])
         print("Cat features length is: %s" % len(cat_feature_inds))
-
+        X_train.fillna(-999, inplace=True)
         return self.model.fit(X_train, y_train, cat_features=cat_feature_inds)
 
     def predict(self, X):
@@ -40,6 +41,7 @@ class CatBoost():
             Returns:
                 an array of the predict results, has the same rows as X.
         """
+        X.fillna(-999, inplace=True)
         return self.model.predict(X)
 
     def get_params(self):
@@ -60,6 +62,7 @@ class ManyCatsBoost():
             self.model.append(CatBoostRegressor(**self.model_params))
 
     def fit(self, X_train, y_train):
+        X_train.fillna(-999, inplace=True)
         cat_feature_inds = []
         cat_unique_thresh = 1000
         for i, c in enumerate(X_train.columns):
@@ -67,7 +70,6 @@ class ManyCatsBoost():
             if num_uniques < cat_unique_thresh \
                     and not 'sqft' in c \
                     and not 'cnt' in c \
-                    and not 'count' in c \
                     and not 'tax_difference' in c \
                     and not 'nbr' in c \
                     and not 'room' in c \
@@ -77,7 +79,12 @@ class ManyCatsBoost():
                     and not 'rate' in c \
                     and not 'logerror' in c \
                     and not 'lat_lon_block' in c \
+                    and not '_count' in c \
                     and not 'ratio' in c:
+                    # and not 'sqft' in c \
+                    # and not 'cnt' in c \
+                    # and not 'nbr' in c \
+                    # and not 'number' in c:
                 cat_feature_inds.append(i)
         print("Cat features are: %s" % [X_train.columns[ind] for ind in cat_feature_inds])
         print("Cat features length is: %s" % len(cat_feature_inds))
@@ -91,6 +98,7 @@ class ManyCatsBoost():
             Returns:
                 an array of the predict results, has the same rows as X.
         """
+        X.fillna(-999, inplace=True)
         y_pred = 0.0
         for model in self.model:
             y_pred += model.predict(X)

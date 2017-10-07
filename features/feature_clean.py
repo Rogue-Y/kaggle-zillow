@@ -14,6 +14,9 @@ from .utils import *
 def parcelid(df):
     return df['parcelid']
 
+# def transactiondate(df):
+#     return df['transactiondate']
+
 def airconditioningtypeid(df):
     # Low non-nan ratio
     # Prior to 1965 there was no AC

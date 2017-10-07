@@ -17,14 +17,14 @@ config_catboost = {
     'name': 'config_catboost',
     'Model': CatBoost.CatBoost,
     'feature_list': feature_list_cat.feature_list,
-    'clean_na': True,
+    'clean_na': False,
     'training_params': {
         'model_params': {'iterations':200, 'learning_rate':0.03, 'depth':6, 'l2_leaf_reg':3, 'loss_function':'MAE',
                          'eval_metric':'MAE', 'random_seed':42},
-        'FOLDS': 3,
+        'FOLDS': 5,
         # 'record': False,
-        'outliers_lw_pct': 5,
-        'outliers_up_pct': 99,
+        'outliers_lw_pct': 0,
+        'outliers_up_pct': 100,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
@@ -37,8 +37,8 @@ config_catboost = {
                          'eval_metric': 'MAE', 'random_seed': 42},
         'FOLDS': 3,
         # 'record': False,
-        'outliers_lw_pct': 5,
-        'outliers_up_pct': 99,
+        'outliers_lw_pct': 0,
+        'outliers_up_pct': 100,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
@@ -68,15 +68,17 @@ config_manycatsboost = {
     'name': 'config_manycatsboost',
     'Model': CatBoost.ManyCatsBoost,
     'feature_list': feature_list_cat.feature_list,
-    'clean_na': True,
+    'clean_na': False,
     'training_params': {
-        'model_params': {'iterations': 300, 'learning_rate': 0.021788752145849327, 'depth': 6, 'l2_leaf_reg': 3,
-                         'loss_function': 'MAE',
+        'model_params': {'iterations': 200, 'learning_rate': 0.03, 'depth': 6, 'l2_leaf_reg': 3, 'loss_function': 'MAE',
                          'eval_metric': 'MAE'},
-        'FOLDS': 3,
+        # 'model_params': {'iterations': 300, 'learning_rate': 0.021788752145849327, 'depth': 6, 'l2_leaf_reg': 3,
+        #                  'loss_function': 'MAE',
+        #                  'eval_metric': 'MAE'},
+        'FOLDS': 5,
         # 'record': False,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 99,
+        'outliers_lw_pct': 0,
+        'outliers_up_pct': 100,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
@@ -89,8 +91,8 @@ config_manycatsboost = {
                          'eval_metric': 'MAE'},
         'FOLDS': 3,
         # 'record': False,
-        'outliers_lw_pct': 5,
-        'outliers_up_pct': 99,
+        'outliers_lw_pct': 0,
+        'outliers_up_pct': 100,
         # 'resale_offset': 0.012
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
