@@ -140,10 +140,11 @@ def feature_combine(year, feature_list, clean, pickle_folder, global_force_gener
 
     original_features = feature_list['original']
 
-    df = pd.concat([prop[original_features], *generated_features], axis=1)
+    df = pd.concat([prop[original_features], *generated_features], axis=1, copy=False)
 
     # Sanity check
     if clean:
+        print('cleaned df sanity check:')
         for col in df.columns:
             nan_count = df[col].isnull().sum()
             if nan_count > 0:

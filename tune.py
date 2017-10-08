@@ -7,7 +7,7 @@
 from hyperopt import hp, fmin, tpe, space_eval, STATUS_OK, Trials
 
 import config
-from train import train, prepare_features, prepare_training_data
+from train import train_process, get_dfs
 from ensemble import get_first_layer, stacking
 
 import datetime
@@ -154,24 +154,26 @@ def tune_models():
         tune_single_model_wrapper(config_dict)
 
 # wrapper of tune_single_model that takes a config dict
-def tune_single_model_wrapper(config_dict, trials=None):
-    config_name = config_dict['name']
-    # Feature list
-    feature_list = config_dict['feature_list']
-    # Model
-    Model = config_dict['Model']
-    # clean_na
-    clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-    tune_single_model(Model, feature_list, clean_na, config_name, **config_dict['tuning_params'], trials=trials)
+# def tune_single_model_wrapper(config_dict, trials=None):
+#     config_name = config_dict['name']
+#     # Feature list
+#     feature_list = config_dict['feature_list']
+#     # Model
+#     Model = config_dict['Model']
+#     # clean_na
+#     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
+#     tune_single_model(Model, feature_list, clean_na, config_name, **config_dict['tuning_params'], trials=trials)
 
-def tune_single_model(Model, feature_list, clean_na, config_name, parameter_space, max_evals=100, trials=None):
-    prop = prepare_features(feature_list, clean_na)
-    train_df, transactions = prepare_training_data(prop)
-    del transactions; del prop; gc.collect()
+def tune_single_model(config_dict, trials=None):
+    df2016, df_all, _, _ = get_dfs(config_dict)
+    Model = config_dict['Model']
+    config_name = config_dict['name']
+    parameter_space = config_dict['tuning_params']['parameter_space']
+    max_evals = config_dict['tuning_params']['max_evals']
 
     def train_wrapper(params):
         print(params)
-        loss = train(train_df, Model, **params)
+        loss = train_process(df2016, df_all, Model, params, 'tune')
         # return an object to be recorded in hyperopt trials for future uses
         return {
             'loss': loss,
@@ -301,7 +303,7 @@ if __name__ == '__main__':
             tune_models()
         else:
             print('Tune config: %s...' %config_dict['name'])
-            tune_single_model_wrapper(config_dict, trials)
+            tune_single_model(config_dict, trials)
     else:
         print('Tune stacking...')
         if config_dict is None:

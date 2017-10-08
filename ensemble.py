@@ -23,7 +23,7 @@ from sklearn.model_selection import KFold
 import config
 from evaluator import Evaluator
 from features import utils
-from train import prepare_features, prepare_training_data, train_stacking
+from train import prepare_features, prepare_training_data, train_process
 
 
 ### Average ensembling ###
@@ -64,67 +64,67 @@ def ensemble(prediction_list=prediction_list):
 ### Stacking ###
 
 def get_first_layer(stacking_list, submit=False, global_force_generate=False):
-    print('Generate first layer...')
-
-    first_layer_preds = []
-    first_layer_preds_test = []
-
-    configs = stacking_list['config']
-    for config_dict, force_generate in configs:
-        # Read config
-        config_name = config_dict['name']
-        first_layer_pickle_folder = 'data/ensemble/first_layer'
-        first_layer_pickle_path_validation = '%s/%s_validation' %(first_layer_pickle_folder, config_name)
-        first_layer_pickle_path_test = '%s/%s_test' %(first_layer_pickle_folder, config_name)
-        first_layer_pickle_path_target = '%s/target' %first_layer_pickle_folder
-        need_generate = force_generate or global_force_generate
-        if not need_generate:
-            if os.path.exists(first_layer_pickle_path_validation):
-                validation_pred = pickle.load(open(first_layer_pickle_path_validation, 'rb'))
-            else:
-                need_generate = True
-            if os.path.exists(first_layer_pickle_path_target):
-                validation_target = pickle.load(open(first_layer_pickle_path_target, 'rb'))
-            else:
-                need_generate = True
-            if submit:
-                if os.path.exists(first_layer_pickle_path_test):
-                    test_pred = pickle.load(open(first_layer_pickle_path_test, 'rb'))
-                else:
-                    need_generate = True
-        if need_generate:
-            print('Generating first layer for config: %s ...' %config_name)
-            # Mandatory configurations:
-            # Feature list
-            feature_list = config_dict['feature_list']
-            # Model
-            Model = config_dict['Model']
-
-            # clean_na
-            clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-
-            prop = prepare_features(feature_list, clean_na)
-            train_df, transactions = prepare_training_data(prop)
-            del transactions; gc.collect()
-            if not submit:
-                prop = None
-                gc.collect()
-
-            validation_pred, validation_target, test_pred = train_stacking(
-                train_df, Model=Model,
-                submit=submit, config_name=config_name, prop=prop,
-                **config_dict['stacking_params'])
-
-            if not os.path.exists(first_layer_pickle_folder):
-                os.makedirs(first_layer_pickle_folder)
-            pickle.dump(validation_pred, open(first_layer_pickle_path_validation, 'wb'))
-            pickle.dump(validation_target, open(first_layer_pickle_path_target, 'wb'))
-            if submit:
-                pickle.dump(test_pred, open(first_layer_pickle_path_test, 'wb'))
-
-        first_layer_preds.append(validation_pred)
-        if submit:
-            first_layer_preds_test.append(test_pred)
+    # print('Generate first layer...')
+    #
+    # first_layer_preds = []
+    # first_layer_preds_test = []
+    #
+    # configs = stacking_list['config']
+    # for config_dict, force_generate in configs:
+    #     # Read config
+    #     config_name = config_dict['name']
+    #     first_layer_pickle_folder = 'data/ensemble/first_layer'
+    #     first_layer_pickle_path_validation = '%s/%s_validation' %(first_layer_pickle_folder, config_name)
+    #     first_layer_pickle_path_test = '%s/%s_test' %(first_layer_pickle_folder, config_name)
+    #     first_layer_pickle_path_target = '%s/target' %first_layer_pickle_folder
+    #     need_generate = force_generate or global_force_generate
+    #     if not need_generate:
+    #         if os.path.exists(first_layer_pickle_path_validation):
+    #             validation_pred = pickle.load(open(first_layer_pickle_path_validation, 'rb'))
+    #         else:
+    #             need_generate = True
+    #         if os.path.exists(first_layer_pickle_path_target):
+    #             validation_target = pickle.load(open(first_layer_pickle_path_target, 'rb'))
+    #         else:
+    #             need_generate = True
+    #         if submit:
+    #             if os.path.exists(first_layer_pickle_path_test):
+    #                 test_pred = pickle.load(open(first_layer_pickle_path_test, 'rb'))
+    #             else:
+    #                 need_generate = True
+    #     if need_generate:
+    #         print('Generating first layer for config: %s ...' %config_name)
+    #         # Mandatory configurations:
+    #         # Feature list
+    #         feature_list = config_dict['feature_list']
+    #         # Model
+    #         Model = config_dict['Model']
+    #
+    #         # clean_na
+    #         clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
+    #
+    #         prop = prepare_features(feature_list, clean_na)
+    #         train_df, transactions = prepare_training_data(prop)
+    #         del transactions; gc.collect()
+    #         if not submit:
+    #             prop = None
+    #             gc.collect()
+    #
+    #         validation_pred, validation_target, test_pred = train_stacking(
+    #             train_df, Model=Model,
+    #             submit=submit, config_name=config_name, prop=prop,
+    #             **config_dict['stacking_params'])
+    #
+    #         if not os.path.exists(first_layer_pickle_folder):
+    #             os.makedirs(first_layer_pickle_folder)
+    #         pickle.dump(validation_pred, open(first_layer_pickle_path_validation, 'wb'))
+    #         pickle.dump(validation_target, open(first_layer_pickle_path_target, 'wb'))
+    #         if submit:
+    #             pickle.dump(test_pred, open(first_layer_pickle_path_test, 'wb'))
+    #
+    #     first_layer_preds.append(validation_pred)
+    #     if submit:
+    #         first_layer_preds_test.append(test_pred)
 
     def get_validate_csv(file):
         return 'data/ensemble/first_layer/csv/validate/%s' %file

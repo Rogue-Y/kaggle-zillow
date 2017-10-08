@@ -409,7 +409,12 @@ def prepare_training_data(year, prop):
     transactions = utils.load_transaction_data(year)
 
     # merge transaction and prop data
-    train_df = transactions.merge(prop, how='left', on='parcelid')
+    train_df = transactions.merge(prop, how='inner', on='parcelid')
+
+    # Add transactiondate feature
+    train_df['transaction_year'] = train_df['transactiondate'].map(lambda x: x.date().year)
+    train_df['transaction_month'] = train_df['transactiondate'].map(lambda x: x.date().month)
+    train_df['transaction_quarter'] = train_df['transaction_month'].map({1:1, 2:1, 3:1, 4:2, 5:2, 6:2, 7:3, 8:3, 9:3, 10:4, 11:4, 12:4})
 
     return train_df
 
@@ -419,10 +424,16 @@ def predict_cap(predict, thres=1.5):
     predict[predict<-thres] = -thres
     return predict
 
+def scale_transactiondate_features(df):
+    df['transaction_month'] = df['transaction_month'] / 12
+    df['transaction_quarter'] = df['transaction_quarter'] / 4
+    df['transaction_year'] = df['transaction_year'] - 2016
+    return df
+
 def train(X_train, y_train, X_validate, y_validate, X_test,
     Model, model_params = None,
     outliers_up_pct = 100, outliers_lw_pct = 0,
-    submit=False,
+    submit=False, year = 2016,# When submit is true, genearte corresponding data according to the year
     scaling=False, scaler=RobustScaler(quantile_range=(0, 99)), scaling_columns=SCALING_COLUMNS,
     return_models=False):
 
@@ -440,11 +451,12 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
     print(X_validate.shape, y_validate.shape)
 
     if submit:
-        print('Test dimensions: ')
+        print('Test dimensions(without transaction date features): ')
         print(X_test.shape)
 
     # Scaling train and test features if needed
     if scaling:
+        print('Scaling...')
         for col in X_train.columns:
             if col in scaling_columns:
                 # fit and transform training data
@@ -452,6 +464,9 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
                 X_validate[col] = scaler.transform(X_validate[col].values.reshape(-1, 1))
                 if submit:
                     X_test[col] = scaler.transform(X_test[col].values.reshape(-1, 1))
+        # transaction date features of test set is add and scaled later when genrating submission
+        X_train = scale_transactiondate_features(X_train)
+        X_validate = scale_transactiondate_features(X_validate)
 
     ulimit = np.percentile(y_train.values, outliers_up_pct)
     llimit = np.percentile(y_train.values, outliers_lw_pct)
@@ -465,16 +480,16 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
     model = Model(model_params = model_params)
     model.fit(X_train_no_outlier, y_train_no_outlier)
     pred_train = model.predict(X_train_no_outlier)
-    print("fold train mean error: ", Evaluator.mean_error(pred_train, y_train_no_outlier))
+    print("train mean error: ", Evaluator.mean_error(pred_train, y_train_no_outlier))
 
     print('validating...')
     pred_validate = model.predict(X_validate)
     mae_validate = Evaluator.mean_error(pred_validate, y_validate)
-    print("fold validation mean error: ", mae_validate)
+    print("validation mean error: ", mae_validate)
     # match validation predictions with its parcelid and wrap them into a series
     pred_validate = pd.Series(pred_validate, index=X_validate_id)
 
-    
+
     if submit:
         print('Re-train model on the entire dataset')
         X_train_all = pd.concat([X_train, X_validate])
@@ -494,46 +509,71 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
 
         # TODO: add transactiondate features
         print('predicting on testing data...')
-        test_preds = []
-        # Split testing dataframe
-        for X_test_split in np.array_split(X_test, 30):
-            test_preds.append(model.predict(X_test_split))
-        pred_test = np.concatenate(test_preds)
+        pred_test_months = []
+        # Add transactiondate features
+        # validate on 2016 q4 and 2017 q3
+        if year == 2016:
+            months = [10, 11, 12]
+            quarter = 4
+        else:
+            months = [7, 8, 9]
+            quarter = 3
+        X_test['transaction_year'] = year
+        for month in months:
+            X_test['transaction_month'] = month
+            X_test['transaction_quarter'] = quarter
+            if scaling:
+                X_test = scale_transactiondate_features(X_test)
 
-        pred_test = pd.Series(pred_test, index=X_test_id)
-        print('prediction length: %d' %len(avg_pred))
-        print('nan in predictions: %d' %pred_test.isnull().sum())
-        print(pred_test.describe())
+            test_preds = []
+            # Split testing dataframe
+            for X_test_split in np.array_split(X_test, 30):
+                test_preds.append(model.predict(X_test_split))
+            pred_test = np.concatenate(test_preds)
 
-        if scaling:
-            pred_test = predict_cap(pred_test, y_train_all.abs().max())
+            pred_test = pd.Series(pred_test, index=X_test_id, name=str(year)+str(month))
+            print('prediction length: %d' %len(pred_test))
+            print('nan in predictions: %d' %pred_test.isnull().sum())
+            print(pred_test.describe())
 
-    if not submit:
-        pred_test = None
+            if scaling:
+                pred_test = predict_cap(pred_test, y_train_all.abs().max())
+            pred_test_months.append(pred_test)
+
     # whether return models for investigation
+    if not submit:
+        pred_test_months = []
     if not return_models:
         model = None
-    return mae_validate, pred_validate, pred_test, model
+    return mae_validate, pred_validate, pred_test_months, model
 
-def train_wrapper(df2016, df_all, Model, params,
+def train_process(df2016, df_all, Model, params,
         mode, submit=False, prop2016=None, prop2017=None, config_name='no_name'):
 
     if mode == 'tune':
         submit = False
         params['return_models'] = False
 
-
     if mode == 'return_models':
         params['return_models'] = True
 
-    # 2016 training
-    df_train2016, df_validate2016 = utils.split_by_date(df2016, '2016-10-01')
+    # 2016 training, leak a little q4 data to the training set, so the model
+    # can see q4's months and quarter during training
+    df2016_q1_q3, df2016_q4 = utils.split_by_date(df2016, '2016-10-01')
+    df_oct_train, df2016_q4 = utils.split_by_date(df2016_q4, '2016-10-04')
+    df_oct_validate, df2016_q4 = utils.split_by_date(df2016_q4, '2016-11-01')
+    df_nov_train, df2016_q4 = utils.split_by_date(df2016_q4, '2016-11-06')
+    df_nov_validate, df2016_q4 = utils.split_by_date(df2016_q4, '2016-12-01')
+    df_dec_train, df_dec_validate = utils.split_by_date(df2016_q4, '2016-12-06')
+    df_train2016 = pd.concat([df2016_q1_q3, df_oct_train, df_nov_train, df_dec_train])
+    df_validate2016 = pd.concat([df_oct_validate, df_nov_validate, df_dec_validate])
+
     df_train2016.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
     df_validate2016.drop('transactiondate', axis=1, inplace=True)
     X_train2016, y_train2016 = utils.get_features_target(df_train2016)
     X_validate2016, y_validate2016 = utils.get_features_target(df_validate2016)
 
-    mae_validate2016, pred_validate2016, pred_test2016, model2016 = train(
+    mae_validate2016, pred_validate2016, pred_test_months2016, model2016 = train(
         X_train2016, y_train2016, X_validate2016, y_validate2016, prop2016,
         Model, **params,
         submit=submit)
@@ -545,7 +585,7 @@ def train_wrapper(df2016, df_all, Model, params,
     X_train_all, y_train_all = utils.get_features_target(df_train_all)
     X_validate_all, y_validate_all = utils.get_features_target(df_validate_all)
 
-    mae_validate_all, pred_validate_all, pred_test_all, model_all = train(
+    mae_validate_all, pred_validate_all, pred_test_months_all, model_all = train(
         X_train_all, y_train_all, X_validate_all, y_validate_all, prop2017,
         Model, **params,
         submit=submit)
@@ -563,17 +603,47 @@ def train_wrapper(df2016, df_all, Model, params,
         validate_folder = 'data/ensemble/csv/validate/'
         if not os.path.exists(validate_folder):
             os.makedirs(validate_folder)
-        pred_validate2016.to_csv('data/ensemble/csv/validate/%s2016.csv' %config_name)
-        pred_validate_all.to_csv('data/ensemble/csv/validate/%s_all.csv' %config_name)
+        pred_validate2016.to_csv('data/ensemble/csv/validate/%s2016.csv' %config_name, header=True)
+        pred_validate_all.to_csv('data/ensemble/csv/validate/%s_all.csv' %config_name, header=True)
 
     # TODO: add transactiondate features to the generatio of submission
     if submit:
+        df_test, sample_submission = utils.load_test_data()
+        pred_test2016 = df_test
+        for pred_test in pred_test_months2016:
+            pred_test2016 = pred_test2016.join(pred_test, 'parcelid', 'left')
+        pred_test_all = df_test
+        for pred_test in pred_test_months_all:
+            pred_test_all = pred_test_all.join(pred_test, 'parcelid', 'left')
         test_folder = 'data/ensemble/csv/test/'
         if not os.path.exists(test_folder):
             os.makedirs(test_folder)
-        pred_test2016.to_csv('data/ensemble/csv/test/%s2016.csv' %config_name)
-        pred_test_all.to_csv('data/ensemble/csv/test/%s_all.csv' %config_name)
+        pred_test2016.to_csv('data/ensemble/csv/test/%s2016.csv' %config_name, index=False)
+        pred_test_all.to_csv('data/ensemble/csv/test/%s_all.csv' %config_name, index=False)
         # TODO: generate another copy for submission use
+        time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        submission_folder = 'data/submissions'
+        if not os.path.exists(submission_folder):
+            os.makedirs(submission_folder)
+        submission = pred_test2016.rename(columns={'parcelId': 'Parcelid'})
+        submission.to_csv(
+            '%s/Submission_%s_%s.csv' %(submission_folder, time, config_name),
+            index=False, float_format='%.6f')
+        print("Prediction made.")
+
+        exp_record_folder = 'data/experiments'
+        if not os.path.exists(exp_record_folder):
+            os.makedirs(exp_record_folder)
+        with open('%s/%s.txt' %(exp_record_folder, 'experiments'), 'a') as record:
+             # Time is the same across submission csv, pickle and record for easy search
+            record.write('\n\nTime: %s\n' %time)
+            record.write('Config: %s\n' %config_name)
+            record.write('Model: %s\n' %Model.__name__)
+            record.write('params: %s\n' %params)
+            record.write('2016 validate mae: %f' %mae_validate2016)
+            record.write('all validate mae: %f' %mae_validate_all)
+            record.write('average mae: %f' %average_mae)
+            record.write('leaderboard:________________PLEASE FILL____________________\n')
 
     if mode == 'return_models':
         return [model2016, model_all]
@@ -589,16 +659,17 @@ def get_dfs(config_dict, include_properties=False):
 
     prop2016 = prepare_features(2016, feature_list, clean_na)
     df2016 = prepare_training_data(2016, prop2016)
+    if not include_properties:
+        prop2016 = None
+        gc.collect()
 
     prop2017 = prepare_features(2017, feature_list, clean_na)
     df2017 = prepare_training_data(2017, prop2017)
-
-    df_all = pd.concat([df2016, df2017])
-
     if not include_properties:
-        prop2016 = None
         prop2017 = None
         gc.collect()
+
+    df_all = pd.concat([df2016, df2017])
 
     return df2016, df_all, prop2016, prop2017
 
@@ -610,6 +681,7 @@ if __name__ == '__main__':
     parser = OptionParser()
     # add options to parser, currently only config file
     parser.add_option('-c', '--config', action='store', type='string', dest='config_file')
+    parser.add_option('-m', '--mode', action='store', type='string', dest='mode', default='tune')
     parser.add_option('-s', '--submit', action='store_true', dest='submit', default=False)
     # parse cmd line arguments
     (options, args) = parser.parse_args()
@@ -617,6 +689,8 @@ if __name__ == '__main__':
     config_file = options.config_file
     # if generate a submission
     submit = options.submit
+    # mode of train process, default is tune, which prints the mean abosolute errors
+    mode = options.mode
 
     # Configuration:
     config_dict = getattr(config, config_file)
@@ -635,8 +709,8 @@ if __name__ == '__main__':
     # # model
     Model = config_dict['Model']
     params = config_dict['training_params']
-    train_wrapper(df2016, df_all, Model, params,
-        'stacking', submit, prop2016, prop2017, config_dict['name'])
+    train_process(df2016, df_all, Model, params,mode, submit,
+        prop2016, prop2017, config_dict['name'])
 
     t2 = time.time()
     print((t2 - t1) / 60)

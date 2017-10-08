@@ -24,12 +24,8 @@ config_linearridge = {
             'random_state': 42,
             'tol': 0.001
         },
-        'FOLDS': 3,
-        'record': False,
         'outliers_up_pct': 97,
         'outliers_lw_pct': 5,
-        # 'resale_offset': 0.012
-        'pca_components': -1, # clean_na needs to be True to use PCA
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS

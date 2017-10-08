@@ -34,12 +34,12 @@ config_xgboost = {
         'model_params': {
             'alpha': 0.3,
             'colsample_bylevel': 1.0,
-            'colsample_bytree': 0.7,
+            'colsample_bytree': 0.2,
             'eta': 0.23350979706978167,
             'eval_metric': 'mae',
             'gamma': 0.04379710673998437,
             'lambda': 0.4,
-            'max_depth': 5,
+            'max_depth': 1,
             'min_child_weight': 3.193139219626233,
             'objective': 'reg:linear',
             'silent': 1,
@@ -47,25 +47,6 @@ config_xgboost = {
         },
         'outliers_lw_pct': 5,
         'outliers_up_pct': 96
-    },
-    'stacking_params': {
-        'model_params': {
-            'alpha': 0.6,
-            'colsample_bylevel': 0.7,
-            'colsample_bytree': 0.7,
-            'eta': 0.07901772316032044,
-            'eval_metric': 'rmse',
-            'gamma': 0.0018188912716341973,
-            'lambda': 0.4,
-            'max_depth': 4,
-            'min_child_weight': 4.4156043204121,
-            'objective': 'reg:linear',
-            'silent': 1,
-            'subsample': 0.6
-        },
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
-        'FOLDS': 5
     },
     'tuning_params': {
         'parameter_space': {
@@ -88,7 +69,7 @@ config_xgboost = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
         },
-        'max_evals': 500
+        'max_evals': 2
     }
 }
 

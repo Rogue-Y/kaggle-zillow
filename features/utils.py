@@ -58,17 +58,18 @@ def load_properties_data_raw(year, data_folder='data/', force_read=False):
     if not force_read and os.path.exists(prop_data_pickle):
         prop = pd.read_pickle(prop_data_pickle)
     else:
-        prop = pd.read_csv('%sproperties_2017.csv' %data_folder)
-        # Should still use 2016's tax data to prevent leakage
-        if year == 2016:
-            prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
-            tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
-                'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
-                'taxdelinquencyflag' ,'taxdelinquencyyear']
-            prop.drop(tax_columns, axis=1, inplace=True)
-            tax2016 = prop2016[['parcelid', *tax_columns]]
-            prop = prop.merge(tax2016, 'left', 'parcelid')
-            del prop2016; del tax2016; gc.collect()
+        prop = pd.read_csv('%sproperties_%s.csv' %(data_folder, year))
+        # prop = pd.read_csv('%sproperties_2017.csv' %data_folder)
+        # # Should still use 2016's tax data to prevent leakage
+        # if year == 2016:
+        #     prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
+        #     tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
+        #         'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
+        #         'taxdelinquencyflag' ,'taxdelinquencyyear']
+        #     prop.drop(tax_columns, axis=1, inplace=True)
+        #     tax2016 = prop2016[['parcelid', *tax_columns]]
+        #     prop = prop.merge(tax2016, 'left', 'parcelid')
+        #     del prop2016; del tax2016; gc.collect()
         for col in prop.columns:
             if prop[col].dtype == 'float64':
                 prop[col] = prop[col].astype('float32')
@@ -92,17 +93,18 @@ def load_properties_data(year, data_folder='data/', force_read=False):
     if not force_read and os.path.exists(prop_data_pickle):
         prop = pd.read_pickle(prop_data_pickle)
     else:
-        prop = pd.read_csv('%sproperties_2017.csv' %data_folder, dtype=infered_type)
-        # Should still use 2016's tax data to prevent leakage
-        if year == 2016:
-            prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
-            tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
-                'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
-                'taxdelinquencyflag' ,'taxdelinquencyyear']
-            prop.drop(tax_columns, axis=1, inplace=True)
-            tax2016 = prop2016[['parcelid', *tax_columns]]
-            prop = prop.merge(tax2016, 'left', 'parcelid')
-            del prop2016; del tax2016; gc.collect()
+        prop = pd.read_csv('%sproperties_%s.csv' %(data_folder, year), dtype=infered_type)
+        # prop = pd.read_csv('%sproperties_2017.csv' %data_folder, dtype=infered_type)
+        # # Should still use 2016's tax data to prevent leakage
+        # if year == 2016:
+        #     prop2016 = pd.read_csv('%sproperties_2016.csv' %data_folder)
+        #     tax_columns = ['taxvaluedollarcnt', 'structuretaxvaluedollarcnt',
+        #         'landtaxvaluedollarcnt', 'taxamount' ,'assessmentyear',
+        #         'taxdelinquencyflag' ,'taxdelinquencyyear']
+        #     prop.drop(tax_columns, axis=1, inplace=True)
+        #     tax2016 = prop2016[['parcelid', *tax_columns]]
+        #     prop = prop.merge(tax2016, 'left', 'parcelid')
+        #     del prop2016; del tax2016; gc.collect()
         # Fill missing geo data a little bit
         prop = preprocess_geo(prop)
         prop = preprocess_add_geo_features(prop)
@@ -264,7 +266,7 @@ def load_test_data(data_folder='data/', force_read=False):
         sample = pd.read_csv(data_folder + 'sample_submission.csv')
         sample.to_pickle(test_data_pickle)
     # sample submission use "ParcelId" instead of "parcelid"
-    test = sample.rename(index=str, columns={'ParcelId': 'parcelid'})
+    test = sample.rename(columns={'ParcelId': 'parcelid'})
     # drop the month columns in sample submission
     test.drop(['201610', '201611', '201612', '201710', '201711', '201712'],
         axis=1, inplace=True)
