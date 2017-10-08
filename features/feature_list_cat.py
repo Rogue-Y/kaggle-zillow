@@ -1,6 +1,6 @@
 feature_list = {
     'before_fill': [
-        # ('missing_value_count', 'missing_value_count', {}, 'missing_value_count_pickle', False),
+        ('missing_value_count', 'missing_value_count', {}, 'missing_value_count_pickle', False),
     ],
     'original': [
         # required columns
@@ -90,13 +90,13 @@ feature_list = {
         # # ('extra_rooms', 'extra_rooms', {}, 'extra_rooms_pickle', False),
         # ('extra_space', 'extra_space', {}, 'extra_space_pickle', False),
         # #
-        # ('geo_city', 'geo_city', {}, 'geo_city_pickle', False),
-        # ('geo_county', 'geo_county', {}, 'geo_county_pickle', False),
+        ('geo_city', 'geo_city', {}, 'geo_city_pickle', False),
+        ('geo_county', 'geo_county', {}, 'geo_county_pickle', False),
         # # ('geo_lat_lon_block_features', 'geo_lat_lon_block_features', {}, 'geo_lat_lon_block_features_pickle', False),
-        # ('geo_fips_census_1', 'geo_fips_census_1', {}, 'geo_fips_census_1_pickle', False),
+        ('geo_fips_census_1', 'geo_fips_census_1', {}, 'geo_fips_census_1_pickle', False),
         # # ('geo_fips_census_block', 'geo_fips_census_block', {}, 'geo_fips_census_block_pickle', False),
         ('geo_neighborhood', 'geo_neighborhood', {}, 'geo_neighborhood_pickle', False),
-        # ('geo_zip', 'geo_zip', {}, 'geo_zip_pickle', False),
+        ('geo_zip', 'geo_zip', {}, 'geo_zip_pickle', False),
         # # ('multiply_lat_lon', 'multiply_lat_lon', {}, 'multiply_lat_lon_pickle', False),
         # # ('poly_2_structure_tax_value', 'poly_2_structure_tax_value', {}, 'poly_2_structure_tax_value_pickle', False),
         # # ('poly_3_structure_tax_value', 'poly_3_structure_tax_value', {}, 'poly_3_structure_tax_value_pickle', False),
@@ -118,13 +118,13 @@ feature_list = {
         # # ('sum_lat_lon', 'sum_lat_lon', {}, 'sum_lat_lon_pickle', False),
         # ('total_rooms', 'total_rooms', {}, 'total_rooms_pickle', False),
         # ('datetime_features', 'datetime_features', {}, 'datetime_features_pickle', False),
-        # # ('target_neighborhood_feature', 'target_region_feature', {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
-        # # ('target_zip_feature', 'target_region_feature', {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),
-        # # ('target_city_feature', 'target_region_feature', {'id_name':'regionidcity'}, 'target_city_feature_pickle', False),
-        # # ('target_county_feature', 'target_region_feature', {'id_name':'regionidcounty'}, 'target_county_feature_pickle', False),
-        # # ('target_census_feature', 'target_region_feature', {'id_name':'fips_census_1'}, 'target_census_feature_pickle', False),
-        # # ('target_censusblock_feature', 'target_region_feature', {'id_name':'fips_census_block'}, 'target_censusblock_feature_pickle', False),
-        #
+        ('target_neighborhood_feature', 'target_region_feature', {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
+        ('target_zip_feature', 'target_region_feature', {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),
+        ('target_city_feature', 'target_region_feature', {'id_name':'regionidcity'}, 'target_city_feature_pickle', False),
+        ('target_county_feature', 'target_region_feature', {'id_name':'regionidcounty'}, 'target_county_feature_pickle', False),
+        ('target_census_feature', 'target_region_feature', {'id_name':'fips_census_1'}, 'target_census_feature_pickle', False),
+        ('target_censusblock_feature', 'target_region_feature', {'id_name':'fips_census_block'}, 'target_censusblock_feature_pickle', False),
+
         # ('has_fireplace', 'has_fireplace', {}, 'has_fireplace_pickle', False),
         # ('is_garagetotalsqft_zero', 'is_garagetotalsqft_zero', {}, 'is_garagetotalsqft_zero_pickle', False),
         # ('has_partial_garagecarcnt', 'has_partial_garagecarcnt', {}, 'has_partial_garagecarcnt_pickle', False),
