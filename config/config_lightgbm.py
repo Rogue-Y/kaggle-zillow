@@ -97,8 +97,7 @@ config_lightgbm_all_regression_l2 = {
     'feature_list': feature_list_non_linear.feature_list_all,
     'Model': Lightgbm.Lightgbm,
     'training_params': {
-    },
-    'stacking_params': {
+        'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.13560810846153493, 'max_bin': 90, 'min_data': 300, 'min_hessian': 0.3329659425303045, 'num_boost_round': 300, 'num_leaves': 10, 'objective': 'regression_l2', 'sub_feature': 0.2467205146666428, 'verbose': -1}, 'outliers_lw_pct': 5, 'outliers_up_pct': 96
     },
     'tuning_params': {
         'parameter_space': {
@@ -117,7 +116,6 @@ config_lightgbm_all_regression_l2 = {
                 # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
                 'verbose': -1
             },
-            'FOLDS': 3,
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
         },
@@ -131,8 +129,7 @@ config_lightgbm_all_regression_l1 = {
     'feature_list': feature_list_non_linear.feature_list_all,
     'Model': Lightgbm.Lightgbm,
     'training_params': {
-    },
-    'stacking_params': {
+        'model_params': {'boosting_type': 'gbdt', 'learning_rate': 0.13566555825466994, 'max_bin': 50, 'min_data': 225, 'min_hessian': 0.09169556339297391, 'num_boost_round': 200, 'num_leaves': 25, 'objective': 'regression_l1', 'sub_feature': 0.14455184302330204, 'verbose': -1}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97
     },
     'tuning_params': {
         'parameter_space': {
@@ -151,11 +148,10 @@ config_lightgbm_all_regression_l1 = {
                 # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
                 'verbose': -1
             },
-            'FOLDS': 3,
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
         },
-        'max_evals': 150
+        'max_evals': 300
     }
 }
 
