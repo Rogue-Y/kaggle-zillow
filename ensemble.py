@@ -23,7 +23,7 @@ from sklearn.model_selection import KFold
 import config
 from evaluator import Evaluator
 from features import utils
-from train import prepare_features, prepare_training_data, train_process
+import train
 
 
 ### Average ensembling ###
@@ -62,89 +62,75 @@ def ensemble(prediction_list=prediction_list):
 
 
 ### Stacking ###
-
 def get_first_layer(stacking_list, submit=False, global_force_generate=False):
-    # print('Generate first layer...')
-    #
-    # first_layer_preds = []
-    # first_layer_preds_test = []
-    #
-    # configs = stacking_list['config']
-    # for config_dict, force_generate in configs:
-    #     # Read config
-    #     config_name = config_dict['name']
-    #     first_layer_pickle_folder = 'data/ensemble/first_layer'
-    #     first_layer_pickle_path_validation = '%s/%s_validation' %(first_layer_pickle_folder, config_name)
-    #     first_layer_pickle_path_test = '%s/%s_test' %(first_layer_pickle_folder, config_name)
-    #     first_layer_pickle_path_target = '%s/target' %first_layer_pickle_folder
-    #     need_generate = force_generate or global_force_generate
-    #     if not need_generate:
-    #         if os.path.exists(first_layer_pickle_path_validation):
-    #             validation_pred = pickle.load(open(first_layer_pickle_path_validation, 'rb'))
-    #         else:
-    #             need_generate = True
-    #         if os.path.exists(first_layer_pickle_path_target):
-    #             validation_target = pickle.load(open(first_layer_pickle_path_target, 'rb'))
-    #         else:
-    #             need_generate = True
-    #         if submit:
-    #             if os.path.exists(first_layer_pickle_path_test):
-    #                 test_pred = pickle.load(open(first_layer_pickle_path_test, 'rb'))
-    #             else:
-    #                 need_generate = True
-    #     if need_generate:
-    #         print('Generating first layer for config: %s ...' %config_name)
-    #         # Mandatory configurations:
-    #         # Feature list
-    #         feature_list = config_dict['feature_list']
-    #         # Model
-    #         Model = config_dict['Model']
-    #
-    #         # clean_na
-    #         clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-    #
-    #         prop = prepare_features(feature_list, clean_na)
-    #         train_df, transactions = prepare_training_data(prop)
-    #         del transactions; gc.collect()
-    #         if not submit:
-    #             prop = None
-    #             gc.collect()
-    #
-    #         validation_pred, validation_target, test_pred = train_stacking(
-    #             train_df, Model=Model,
-    #             submit=submit, config_name=config_name, prop=prop,
-    #             **config_dict['stacking_params'])
-    #
-    #         if not os.path.exists(first_layer_pickle_folder):
-    #             os.makedirs(first_layer_pickle_folder)
-    #         pickle.dump(validation_pred, open(first_layer_pickle_path_validation, 'wb'))
-    #         pickle.dump(validation_target, open(first_layer_pickle_path_target, 'wb'))
-    #         if submit:
-    #             pickle.dump(test_pred, open(first_layer_pickle_path_test, 'wb'))
-    #
-    #     first_layer_preds.append(validation_pred)
-    #     if submit:
-    #         first_layer_preds_test.append(test_pred)
+    print('Generate first layer...')
 
-    def get_validate_csv(file):
-        return 'data/ensemble/first_layer/csv/validate/%s' %file
+    first_layer_csv_folder = 'data/ensemble/csv/validate'
+    first_layer_test_csv_folder = 'data/ensemble/csv/test'
 
-    def get_test_csv(file):
-        return 'data/ensemble/first_layer/csv/test/%s' %file
-    # csv first layer predictions
-    first_layer_csv = list(map(lambda file: pd.read_csv(get_validate_csv(file)), stacking_list['csv']))
+
+    validation_csv_list = stacking_list['csv']
+    configs = stacking_list['config']
+
+    for config_dict, force_generate in configs:
+        # Read config
+        config_name = config_dict['name']
+        validation2016_csv = '%s/%s2016.csv' %(first_layer_csv_folder, config_name)
+        validation_all_csv = '%s/%s_all.csv' %(first_layer_csv_folder, config_name)
+        test_csv = '%s/%s.csv' %(first_layer_test_csv_folder, config_name)
+        need_generate = (
+            force_generate
+            or global_force_generate
+            or (not os.path.exists(validation2016_csv))
+            or (not os.path.exists(validation_all_csv))
+        )
+        if submit:
+            need_generate = need_generate or (not os.path.exists(test_csv))
+        if need_generate:
+            print('Generating first layer csv for config: %s ...' %config_name)
+            train.train_config(config_dict, mode='stacking', submit=submit)
+        validation_csv_list.append(config_name)
+
+    # get validation targets:
+    print('Loading validation target...')
+    transaction2016 = utils.load_transaction_data(2016)
+    transaction2017 = utils.load_transaction_data(2017)
+
+    _, df_validate2016, _, df_validate_all = train.get_train_validate_split(transaction2016, transaction2017)
+
+    print('Merge validation predictions...')
     if submit:
-        first_layer_csv_test = list(map(lambda file: pd.read_csv(get_test_csv(file)), stacking_list['csv']))
+        df_test, _ = utils.load_test_data()
+        test_first_layers = {}
+        test_months = ['201610', '201611', '201612', '201710', '201711', '201712']
+    for config_name in validation_csv_list:
+        validation2016_csv = '%s/%s2016.csv' %(first_layer_csv_folder, config_name)
+        validation_all_csv = '%s/%s_all.csv' %(first_layer_csv_folder, config_name)
+        validation2016 = pd.read_csv(validation2016_csv, parse_dates=['transactiondate'])
+        validation_all = pd.read_csv(validation_all_csv, parse_dates=['transactiondate'])
+        # merge each validation predictions
+        df_validate2016 = df_validate2016.merge(validation2016, 'left', ['parcelid', 'transactiondate'])
+        df_validate_all = df_validate_all.merge(validation_all, 'left', ['parcelid', 'transactiondate'])
 
-    # assemble first layer result
-    first_layer = pd.concat(first_layer_preds, axis=1)
-    if submit:
-        first_layer_test = pd.concat(first_layer_preds_test, axis=1)
-    else:
-        first_layer_test = None
+        if submit:
+            test = pd.read_csv('%s/%s.csv'  %(first_layer_test_csv_folder, config_name))
+            for month in test_months:
+                if month not in test_first_layers:
+                    test_first_layers[month] = df_test
+                pred = test[['parcelid', month]].rename(columns={month: config_name})
+                test_first_layers[month] = test_first_layers[month].merge(pred, 'left', 'parcelid')
+
+    df_validate2016.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
+    df_validate_all.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
+
+    first_layer2016, target2016 = utils.get_features_target(df_validate2016)
+    first_layer_all, target_all = utils.get_features_target(df_validate_all)
+
+    if not submit:
+        test_first_layers = None
 
     print('First layer generated.')
-    return first_layer, validation_target, first_layer_test
+    return first_layer2016, target2016, first_layer_all, target_all, test_first_layers
 
 def stacking(first_layer, target, meta_model, outliers_lw_pct = 0, outliers_up_pct = 100):
     print(first_layer.shape)
@@ -186,9 +172,12 @@ def stacking(first_layer, target, meta_model, outliers_lw_pct = 0, outliers_up_p
     print("average cross validation mean error", avg_cv_errors)
     return avg_cv_errors
 
+def stacking_wrapper(first_layer2016, target2016, first_layer_all, target_all, meta_model, outliers_lw_pct = 0, outliers_up_pct = 100):
+    stacking(first_layer2016, target2016, meta_model, outliers_lw_pct, outliers_up_pct)
+    stacking(first_layer_all, target_all, meta_model, outliers_lw_pct, outliers_up_pct)
+
 def stacking_submit(first_layer, target, first_layer_test, meta_model,
-        outliers_lw_pct = 0, outliers_up_pct = 100,
-        config_dict={'name': 'fake_stacking_config'}, resale_offset=0.012):
+        outliers_lw_pct = 0, outliers_up_pct = 100):
     print(first_layer.shape, target.shape)
     assert len(first_layer) == len(target)
 
@@ -210,37 +199,68 @@ def stacking_submit(first_layer, target, first_layer_test, meta_model,
     print("fold train mean error: ", train_error)
 
     print('predictions...')
-    pred = meta_model.predict(first_layer_test)
+    return meta_model.predict(first_layer_test)
+
+def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target_all, test_first_layers, meta_model,
+        outliers_lw_pct, outliers_up_pct, config_dict, resale_offset=0.012):
+    months = ['10', '11', '12']
 
     # Generate submission
     print("loading submission data...")
-    predict_df, sample = utils.load_test_data()
-    print(predict_df.shape)
+    _, sample = utils.load_test_data()
     print(sample.shape)
 
+    # 2016
+    for month in months:
+        year_month = '2016' + month
+        first_layer_test = test_first_layers[year_month].drop('parcelid', axis=1)
+        pred = stacking_submit(first_layer2016, target2016, first_layer_test, meta_model, outliers_lw_pct, outliers_up_pct)
+        sample[year_month] = pred
+
     # make prediction
-    print("make prediction...")
-    transactions = utils.load_transaction_data()
-    # add resale
-    sales = transactions[['parcelid', 'logerror']].groupby('parcelid').mean()
-    predict_df = predict_df.join(sales, on='parcelid', how='left')
-    predict_df['predict'] = pred
-    predict = predict_df['predict'].where(
-        predict_df['logerror'].isnull(), predict_df['predict'] + resale_offset)
+    # print("Add resale 2016...")
+    # transactions2016 = utils.load_transaction_data(2016)
+    # # add resale
+    # sales2016 = transactions2016[['parcelid', 'logerror']].groupby('parcelid').mean()
+    # sample = sample.join(sales, on='ParcelId', how='left')
+    # for month in months:
+    #     year_month = '2016' + month
+    #     sample[year_month] = sample[year_month].where(
+    #         sample['logerror'].isnull(),  sample[year_month] + resale_offset)
+    # sample.drop('logerror', axis=1, inplace=True)
+
+
+    for month in months:
+        year_month = '2017' + month
+        first_layer_test = test_first_layers[year_month].drop('parcelid', axis=1)
+        pred = stacking_submit(first_layer_all, target_all, first_layer_test, meta_model, outliers_lw_pct, outliers_up_pct)
+        sample[year_month] = pred
+
+    # make prediction
+    # print("Add resale 2017...")
+    # transactions2017 = utils.load_transaction_data(2017)
+    # # add resale
+    # sales2017 = transactions2017[['parcelid', 'logerror']].groupby('parcelid').mean()
+    # sample = sample.join(sales, on='ParcelId', how='left')
+    # for month in months:
+    #     year_month = '2017' + month
+    #     sample[year_month] = sample[year_month].where(
+    #         sample['logerror'].isnull(),  sample[year_month] + resale_offset)
+    # sample.drop('logerror', axis=1, inplace=True)
+
     # Sanity check, should not have nan
-    print(predict.isnull().sum())
+    print('Prediction sanity check')
+    for col in sample:
+        print(col, sample[col].isnull().sum())
 
     # generate submission
     print("generating submission...")
-    for c in sample.columns[sample.columns != 'ParcelId']:
-        # sample[c] = avg_pred
-        sample[c] = predict.as_matrix()
     time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     submission_folder = 'data/submissions'
     if not os.path.exists(submission_folder):
         os.makedirs(submission_folder)
     sample.to_csv(
-        '%s/Submission_%s_%s.csv' %(submission_folder, time, config_dict['name']), index=False, float_format='%.4f')
+        '%s/Submission_%s_%s.csv' %(submission_folder, time, config_dict['name']), index=False, float_format='%.6f')
     print("Prediction made.")
 
     # Record the generated submissions for future comparison.
@@ -252,7 +272,7 @@ def stacking_submit(first_layer, target, first_layer_test, meta_model,
         record.write('\n\nTime: %s\n' %time)
         record.write('Config: %s\n' %config_dict)
         # TODO: add cross validation step in stacking submission.
-        record.write('train_error:%s\n' %train_error)
+        # record.write('train_error:%s\n' %train_error)
         record.write('leaderboard:________________PLEASE FILL____________________\n')
 
 
@@ -295,11 +315,11 @@ if __name__ == '__main__':
 
         # whether force generate all first layer
         global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
-        first_layer, first_layer_target, first_layer_test = get_first_layer(stacking_list, submit, global_force_generate)
+        first_layer2016, target2016, first_layer_all, target_all, test_first_layers = get_first_layer(stacking_list, submit, global_force_generate)
         if submit:
-            stacking_submit(first_layer, first_layer_target, first_layer_test, meta_model, outliers_lw_pct, outliers_up_pct, config_dict)
+            stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target_all, test_first_layers, meta_model, outliers_lw_pct, outliers_up_pct, config_dict)
         else:
-            stacking(first_layer, first_layer_target, meta_model, outliers_lw_pct, outliers_up_pct)
+            stacking_wrapper(first_layer2016, target2016, first_layer_all, target_all, meta_model, outliers_lw_pct, outliers_up_pct)
 
     t2 = time.time()
     print((t2 - t1) / 60)
