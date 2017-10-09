@@ -228,7 +228,7 @@ def tune_stacking_wrapper(config_dict, trials=None):
     tune_stacking(stacking_list, Meta_model, force_generate, config_name, **config_dict['tuning_params'], trials=trials)
 
 def tune_stacking(stacking_list, Meta_model, force_generate, config_name, parameter_space, max_evals=100, trials=None):
-    first_layer2016, target2016, first_layer_all, target_all = get_first_layer(stacking_list, global_force_generate=force_generate)
+    first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, global_force_generate=force_generate)
 
     def train_wrapper(params):
         meta_model = Meta_model(model_params=params['model_params'])

@@ -517,8 +517,8 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
         # validate on 2016 q4 and 2017 q3
         months = [10, 11, 12]
         quarter = 4
-        X_test['transaction_year'] = year
         for month in months:
+            X_test['transaction_year'] = year
             X_test['transaction_month'] = month
             X_test['transaction_quarter'] = quarter
             if scaling:
