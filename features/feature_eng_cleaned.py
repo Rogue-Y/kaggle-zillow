@@ -838,3 +838,12 @@ def clip_create_outlier_bool_helper(feature, name, lo_pct=0, up_pct=1, lo_cap=No
         result[name + '_overcap'] = feature > uplimit
         result.loc[feature > uplimit, name] = uplimit
     return result
+
+
+def kernel_density(df):
+    newdf = pd.DataFrame()
+    for bw in [300, 1000, 3000, 10000]:
+        parcelDensity = generate_pde_test(df, bw)
+        parcelDensity = parcelDensity/np.max(parcelDensity)
+        newdf['parcel_density_' + str(bw)] = parcelDensity
+    return newdf

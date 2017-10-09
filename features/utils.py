@@ -449,8 +449,13 @@ def dump_aux(obj, name):
 
 def read_aux(name):
     folder =  'features/aux_pickles'
-    print('Object load from %s/%s.pickle' % (folder, name))
-    return pickle.load(open(os.path.join(folder, '%s.pickle' % name), 'rb'))
+    print('Loading from %s/%s.pickle' % (folder, name))
+    path = os.path.join(folder, '%s.pickle' % name)
+    if os.path.exists(path):
+        return pickle.load(open(path, 'rb'))
+    else:
+        print('File not exists')
+        return None
 
 
 def aggregate_by_region(id_name, column='logerror', force_generate=False):
@@ -566,3 +571,34 @@ def fillna_knn_inplace(df, base, target, fraction=1, threshold=10):
         print('num of unperdictable data: ', numunperdicted)
     else:
         print('out of threshold: {}% > {}%'.format(numunperdicted / nummiss * 100, threshold))
+
+
+# kernel density helper
+from sklearn.neighbors import KDTree
+
+def generate_pde_train(train, bandwidth):
+    x = train['longitude'].values
+    y = train['latitude'].values
+    X = np.transpose(np.vstack([x, y]))
+    print('Generating tree for bandwidth %s' % bandwidth)
+    tree = KDTree(X, leaf_size=20)
+    dump_aux(tree, 'pdf_tree_%s' % str(bandwidth))
+    return tree
+
+
+def generate_pde_test(test, bandwidth, force_generate=False):
+    tree_name = 'pdf_tree_%s' % str(bandwidth)
+    tree = read_aux(tree_name)
+    if tree is None:
+        train, prop = load_train_data()
+        train = train.merge(prop, how='left', on='parcelid')
+        train = train.dropna(subset=['longitude', 'latitude'])
+        tree = generate_pde_train(train, bandwidth)
+    test = test.dropna(subset=['longitude', 'latitude'])
+    x_test = test['longitude'].values
+    y_test = test['latitude'].values
+    X_test = np.transpose(np.vstack([x_test, y_test]))
+
+    print('Generating PDE on test data for bandwidth %s' % bandwidth)
+    parcelDensity = tree.kernel_density(X_test, h=bandwidth, kernel='gaussian', rtol=0.00001)
+    return parcelDensity
