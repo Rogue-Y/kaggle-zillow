@@ -51,7 +51,7 @@ config_xgboost = {
     'tuning_params': {
         'parameter_space': {
             'model_params': {
-                'eta': hp.loguniform('eta', -2, 0),
+                'eta': hp.loguniform('eta', -2, -1),
                 'gamma': hp.loguniform('gamma', -4, -1),
                 'max_depth': hp.choice('max_depth', list(range(2, 7))),
                 'min_child_weight': hp.uniform('min_child_weight', 3, 6),
@@ -69,7 +69,7 @@ config_xgboost = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
         },
-        'max_evals': 2
+        'max_evals': 100
     }
 }
 
@@ -80,23 +80,7 @@ config_xgboost_fi = {
     'feature_list': feature_list_feature_importance.feature_list,
     'clean_na': False,
     'training_params': {
-        'model_params': {
-            'alpha': 0.6,
-            'colsample_bylevel': 0.7,
-            'colsample_bytree': 0.7,
-            'eta': 0.07901772316032044,
-            'eval_metric': 'rmse',
-            'gamma': 0.0018188912716341973,
-            'lambda': 0.4,
-            'max_depth': 4,
-            'min_child_weight': 4.4156043204121,
-            'objective': 'reg:linear',
-            'silent': 1,
-            'subsample': 0.6
-        },
-        'FOLDS': 3,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
+        'model_params': {'alpha': 0.5, 'colsample_bylevel': 0.5, 'colsample_bytree': 0.7, 'eta': 0.1498378171464992, 'eval_metric': 'rmse', 'gamma': 0.028430685832544367, 'lambda': 0.2, 'max_depth': 2, 'min_child_weight': 5.7702332347547785, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.8}, 'outliers_lw_pct': 3, 'outliers_up_pct': 97
     },
     'tuning_params': {
         'parameter_space': {
@@ -119,7 +103,7 @@ config_xgboost_fi = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
         },
-        'max_evals': 100
+        'max_evals': 250
     },
 }
 
