@@ -5,7 +5,7 @@ if module_path not in sys.path:
     sys.path.append(module_path)
 
 # Feature list
-from features import feature_list_non_linear
+from features import feature_list_non_linear, feature_list_feature_importance
 # model
 from models import Ensemble
 # for defining tunning parameters
@@ -180,3 +180,29 @@ config_gb = {
         'max_evals': 200
     }
 }
+
+config_rf_hf_v1 = {
+    'name': 'config_rf_hf_v1',
+    'Model': Ensemble.RandomForest,
+    'feature_list': feature_list_feature_importance.feature_list,
+    'clean_na': True,
+    'training_params': {'FOLDS': 3, 'model_params': {'criterion': 'mse', 'max_depth': 7, 'max_features': 0.12971442987259302, 'min_samples_leaf': 0.00022513223523109907, 'n_estimators': 800, 'n_jobs': -1}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97},
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'n_estimators': hp.choice('n_estimators', [800]),
+                'criterion': 'mse',
+                'max_features': hp.loguniform('max_features', -3.5, -2),
+                'max_depth': hp.choice('max_depth', list(range(3, 8))),
+                #'min_samples_split': hp.loguniform('min_samples_split', -9, -6),
+                'min_samples_leaf': hp.loguniform('min_samples_leaf', -9, -6),
+                'n_jobs': -1
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [96,97,98]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [4,3,2]),
+            'FOLDS': 3 #RF takes long time to train
+        },
+        'max_evals': 500
+    }
+}
+
