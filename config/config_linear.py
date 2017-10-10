@@ -6,7 +6,7 @@ if module_path not in sys.path:
     sys.path.append(module_path)
 
 # Feature list
-from features import feature_list_linear, feature_list_linearridge, feature_list_linearlasso
+from features import feature_list_linear, feature_list_linearridge, feature_list_linearlasso, feature_list_all
 # model
 from models import LinearModel
 # for defining tunning parameters
@@ -185,5 +185,32 @@ config_linearRANSAC = {
             'pca_components': hp.choice('pca_components', [-1, 150, 200]),
         },
         'max_evals': 500
+    }
+}
+
+
+# Configuration 10/10
+config_elasticnet_hf_v2 = {
+    'name': 'config_elasticnet_hf_v2',
+    'Model': LinearModel.ElasticNetRegressor,
+    'feature_list': feature_list_all.feature_list,
+    'clean_na': True,
+    'training_params': {'FOLDS': 3, 'model_params': {'alpha': 0.018413356207095926, 'fit_intercept': False, 'l1_ratio': 0.00674597027256981, 'random_state': 66, 'tol': 0.08190025295659385}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97, 'pca_components': -1, 'scaling': True},
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'alpha': hp.loguniform('alpha', -4, 5),
+                'l1_ratio': hp.loguniform('l1_ratio', -5, 0 ),
+                'fit_intercept': hp.choice('fit_intercept', [True, False]),
+                'tol': hp.loguniform('tol', -6, -2),
+                'random_state': 66
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+            'FOLDS': 3,
+            'scaling': True,
+            'pca_components': hp.choice('pca_components', [-1,150, 200]),
+        },
+        'max_evals': 800
     }
 }

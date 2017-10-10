@@ -5,7 +5,7 @@ if module_path not in sys.path:
     sys.path.append(module_path)
 
 # Feature list
-from features import feature_list_non_linear, feature_list_feature_importance
+from features import feature_list_non_linear
 # model
 from models import Ensemble
 # for defining tunning parameters
@@ -184,7 +184,7 @@ config_gb = {
 config_rf_hf_v1 = {
     'name': 'config_rf_hf_v1',
     'Model': Ensemble.RandomForest,
-    'feature_list': feature_list_feature_importance.feature_list,
+#    'feature_list': feature_list_feature_importance.feature_list,
     'clean_na': True,
     'training_params': {'FOLDS': 3, 'model_params': {'criterion': 'mse', 'max_depth': 7, 'max_features': 0.12971442987259302, 'min_samples_leaf': 0.00022513223523109907, 'n_estimators': 800, 'n_jobs': -1}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97},
     'tuning_params': {
