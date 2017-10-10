@@ -200,7 +200,7 @@ config_xgboost_all_dart = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [99, 98, 97, 96, 95]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [1, 2, 3, 4, 5]),
         },
-        'max_evals': 250
+        'max_evals': 300
     },
 }
 
