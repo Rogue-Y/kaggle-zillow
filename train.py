@@ -610,11 +610,11 @@ def train_process(df2016, df_all, Model, params,
     print('2016 validate mae: %f' %mae_validate2016)
     print('all validate mae: %f' %mae_validate_all)
 
-    average_mae = (mae_validate2016 + mae_validate_all) / 2
+    average_mae = (mae_validate2016 + 2 * mae_validate_all) / 3
     print('average mae: %f' %average_mae)
 
     if mode == 'tune':
-        return average_mae
+        return mae_validate2016, mae_validate_all
 
     if mode == 'stacking':
         validate_folder = 'data/ensemble/csv/validate'

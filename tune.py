@@ -173,10 +173,12 @@ def tune_single_model(config_dict, trials=None):
 
     def train_wrapper(params):
         print(params)
-        loss = train_process(df2016, df_all, Model, params, 'tune')
+        loss2016q4, loss2017q3 = train_process(df2016, df_all, Model, params, 'tune')
         # return an object to be recorded in hyperopt trials for future uses
         return {
-            'loss': loss,
+            'loss': (loss2016q4 + 2 * loss2017q3) / 3,
+            'loss2016q4': loss2016q4,
+            'loss2017q3': loss2017q3,
             'status': STATUS_OK,
             'eval_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'params': params
@@ -238,7 +240,7 @@ def tune_stacking(stacking_list, Meta_model, force_generate, config_name, parame
         loss_all = stacking(first_layer_all, target_all, meta_model, outliers_lw_pct, outliers_up_pct)
         # return an object to be recorded in hyperopt trials for future uses
         return {
-            'loss': (loss2016 + loss_all) / 2,
+            'loss': (loss2016 + 2 * loss_all) / 3,
             'loss2016': loss2016,
             'loss_all': loss_all,
             'status': STATUS_OK,
