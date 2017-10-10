@@ -103,10 +103,11 @@ def ratio_living_area(df):
         df['calculatedfinishedsquarefeet'],
         df['lotsizesquarefeet'])
 
-def ratio_living_area_2(df):
-    return ratio_helper(
-        df['finishedsquarefeet12'],
-        df['finishedsquarefeet15'])
+# This seems actually a constant ratio * finishedsquarefeet12 in the cleaned data
+# def ratio_living_area_2(df):
+#     return ratio_helper(
+#         df['finishedsquarefeet12'],
+#         df['finishedsquarefeet15'])
 
 def ratio_bedroom_bathroom(df):
     return ratio_helper(

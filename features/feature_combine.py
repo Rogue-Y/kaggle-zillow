@@ -64,7 +64,7 @@ def list_features(feature_module):
 # feature_list should be a dictionary with key: before_fill, original, generated,
 # and values are lists of features.
 # filled feature pickes are put in a different folder
-def feature_combine(feature_list, clean, pickle_folder, global_force_generate):
+def feature_combine(year, feature_list, clean, pickle_folder, global_force_generate):
 
     if clean:
         feature_eng_dict = feature_eng_no_nan_dict
@@ -76,13 +76,13 @@ def feature_combine(feature_list, clean, pickle_folder, global_force_generate):
     before_fill_feature_list = feature_list['before_fill'] if 'before_fill' in feature_list else []
     prop_raw = None
     for name, generator_name, kwparams, pickle_path, feature_force_generate in before_fill_feature_list:
-        pickle_path = pickle_folder + pickle_path
+        pickle_path = pickle_folder + pickle_path + str(year)
         if not global_force_generate and not feature_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)
         else:
             print(pickle_path)
             if prop_raw is None:
-                prop_raw = load_properties_data_raw(force_read=global_force_generate)
+                prop_raw = load_properties_data_raw(year, force_read=global_force_generate)
                 # need to remove parcels which does not have either lat or lon,
                 # to keep consistent with the following cleaned dataset.
                 if clean:
@@ -113,13 +113,13 @@ def feature_combine(feature_list, clean, pickle_folder, global_force_generate):
     # 4. shrink the size of the dataset after fill na
 
     if clean:
-        prop = load_properties_data_cleaned(force_read=global_force_generate)
+        prop = load_properties_data_cleaned(year, force_read=global_force_generate)
     else:
-        prop = load_properties_data_preprocessed(force_read=global_force_generate)
+        prop = load_properties_data_preprocessed(year, force_read=global_force_generate)
 
     generated_feature_list = feature_list['generated'] if 'generated' in feature_list else []
     for name, generator_name, kwparams, pickle_path, feature_force_generate in generated_feature_list:
-        pickle_path = pickle_folder + pickle_path
+        pickle_path = pickle_folder + pickle_path + str(year)
         if not global_force_generate and not feature_force_generate and os.path.exists(pickle_path):
             feature = pd.read_pickle(pickle_path)
         else:
@@ -140,10 +140,11 @@ def feature_combine(feature_list, clean, pickle_folder, global_force_generate):
 
     original_features = feature_list['original']
 
-    df = pd.concat([prop[original_features], *generated_features], axis=1)
+    df = pd.concat([prop[original_features], *generated_features], axis=1, copy=False)
 
     # Sanity check
     if clean:
+        print('cleaned df sanity check:')
         for col in df.columns:
             nan_count = df[col].isnull().sum()
             try:
@@ -155,15 +156,15 @@ def feature_combine(feature_list, clean, pickle_folder, global_force_generate):
     return df
 
 def feature_combine_cleaned(
-    feature_list, global_force_generate=False, pickle_folder='features/feature_pickles_cleaned/'):
+    year, feature_list, global_force_generate=False, pickle_folder='features/feature_pickles_cleaned/'):
 
-    return feature_combine(feature_list, True, pickle_folder, global_force_generate)
+    return feature_combine(year, feature_list, True, pickle_folder, global_force_generate)
 
 
 def feature_combine_with_nan(
-    feature_list, global_force_generate=False, pickle_folder='features/feature_pickles/'):
+    year, feature_list, global_force_generate=False, pickle_folder='features/feature_pickles/'):
 
-    return feature_combine(feature_list, False, pickle_folder, global_force_generate)
+    return feature_combine(year, feature_list, False, pickle_folder, global_force_generate)
 
 
 if __name__ == "__main__":

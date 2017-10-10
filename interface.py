@@ -16,12 +16,8 @@ def load_full_data(config_file):
 
     # Mandatory configurations:
     # Feature list
-    feature_list = config_dict['feature_list']
-    clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-
-    prop = prepare_features(feature_list, clean_na)
-    train_df, transactions = prepare_training_data(prop)
-    return train_df, prop, transactions
+    df2016, df_all, prop2016, prop2017 = get_dfs(config_dict, True)
+    return df2016, df_all, prop2016, prop2017
 
 def train_model(config_file):
     '''
@@ -39,16 +35,7 @@ def train_model(config_file):
         else:
             print('%s: %s' %(key, value))
 
-    # Mandatory configurations:
-    # Feature list
-    feature_list = config_dict['feature_list']
-    # # model
+    df2016, df_all, _, _ = get_dfs(config_dict)
     Model = config_dict['Model']
-    # clean_na
-    clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-
-    prop = prepare_features(feature_list, clean_na)
-
-    train_df, transactions = prepare_training_data(prop)
-    del transactions; del prop; gc.collect()
-    return train(train_df, Model=Model, submit=False, return_models=True, **config_dict['training_params'])
+    params = config_dict['training_params']
+    return train_process(df2016, df_all, Model, params, 'return_models')

@@ -7,7 +7,7 @@
 from hyperopt import hp, fmin, tpe, space_eval, STATUS_OK, Trials
 
 import config
-from train import train, prepare_features, prepare_training_data
+from train import train_process, get_dfs
 from ensemble import get_first_layer, stacking
 
 import datetime
@@ -154,24 +154,26 @@ def tune_models():
         tune_single_model_wrapper(config_dict)
 
 # wrapper of tune_single_model that takes a config dict
-def tune_single_model_wrapper(config_dict, trials=None):
-    config_name = config_dict['name']
-    # Feature list
-    feature_list = config_dict['feature_list']
-    # Model
-    Model = config_dict['Model']
-    # clean_na
-    clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
-    tune_single_model(Model, feature_list, clean_na, config_name, **config_dict['tuning_params'], trials=trials)
+# def tune_single_model_wrapper(config_dict, trials=None):
+#     config_name = config_dict['name']
+#     # Feature list
+#     feature_list = config_dict['feature_list']
+#     # Model
+#     Model = config_dict['Model']
+#     # clean_na
+#     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
+#     tune_single_model(Model, feature_list, clean_na, config_name, **config_dict['tuning_params'], trials=trials)
 
-def tune_single_model(Model, feature_list, clean_na, config_name, parameter_space, max_evals=100, trials=None):
-    prop = prepare_features(feature_list, clean_na)
-    train_df, transactions = prepare_training_data(prop)
-    del transactions; del prop; gc.collect()
+def tune_single_model(config_dict, trials=None):
+    df2016, df_all, _, _ = get_dfs(config_dict)
+    Model = config_dict['Model']
+    config_name = config_dict['name']
+    parameter_space = config_dict['tuning_params']['parameter_space']
+    max_evals = config_dict['tuning_params']['max_evals']
 
     def train_wrapper(params):
         print(params)
-        loss = train(train_df, Model, **params)
+        loss = train_process(df2016, df_all, Model, params, 'tune')
         # return an object to be recorded in hyperopt trials for future uses
         return {
             'loss': loss,
@@ -226,16 +228,19 @@ def tune_stacking_wrapper(config_dict, trials=None):
     tune_stacking(stacking_list, Meta_model, force_generate, config_name, **config_dict['tuning_params'], trials=trials)
 
 def tune_stacking(stacking_list, Meta_model, force_generate, config_name, parameter_space, max_evals=100, trials=None):
-    first_layer, target, _ = get_first_layer(stacking_list, global_force_generate=force_generate)
+    first_layer2016, target2016, first_layer_all, target_all = get_first_layer(stacking_list, global_force_generate=force_generate)
 
     def train_wrapper(params):
         meta_model = Meta_model(model_params=params['model_params'])
         outliers_up_pct = params['outliers_up_pct'] if 'outliers_up_pct' in params else 100
         outliers_lw_pct = params['outliers_lw_pct'] if 'outliers_lw_pct' in params else 0
-        loss = stacking(first_layer, target, meta_model, outliers_lw_pct, outliers_up_pct)
+        loss2016 = stacking(first_layer2016, target2016, meta_model, outliers_lw_pct, outliers_up_pct)
+        loss_all = stacking(first_layer_all, target_all, meta_model, outliers_lw_pct, outliers_up_pct)
         # return an object to be recorded in hyperopt trials for future uses
         return {
-            'loss': loss,
+            'loss': (loss2016 + loss_all) / 2,
+            'loss2016': loss2016,
+            'loss_all': loss_all,
             'status': STATUS_OK,
             'eval_time': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             'params': params
@@ -301,7 +306,7 @@ if __name__ == '__main__':
             tune_models()
         else:
             print('Tune config: %s...' %config_dict['name'])
-            tune_single_model_wrapper(config_dict, trials)
+            tune_single_model(config_dict, trials)
     else:
         print('Tune stacking...')
         if config_dict is None:
