@@ -526,8 +526,8 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
         # validate on 2016 q4 and 2017 q3
         months = [10, 11, 12]
         quarter = 4
-        X_test['transaction_year'] = year
         for month in months:
+            X_test['transaction_year'] = year
             X_test['transaction_month'] = month
             X_test['transaction_quarter'] = quarter
             if scaling:
@@ -597,6 +597,9 @@ def train_process(df2016, df_all, Model, params,
         X_train2016, y_train2016, X_validate2016, y_validate2016, prop2016,
         Model, **params,
         submit=submit, year = 2016)
+    del df_train2016; del df_validate2016; del X_train2016;
+    del y_train2016; del X_validate2016; del y_validate2016; del prop2016;
+    gc.collect()
 
     # 2016 - 2017 training
     # validation set need parcelid and transactiondate as unqiue identifier of rows
@@ -609,15 +612,18 @@ def train_process(df2016, df_all, Model, params,
         X_train_all, y_train_all, X_validate_all, y_validate_all, prop2017,
         Model, **params,
         submit=submit, year = 2017)
+    del df_train_all; del df_validate_all; del X_train_all;
+    del y_train_all; del X_validate_all; del y_validate_all; del prop2017;
+    gc.collect()
 
     print('2016 validate mae: %f' %mae_validate2016)
     print('all validate mae: %f' %mae_validate_all)
 
-    average_mae = (mae_validate2016 + mae_validate_all) / 2
+    average_mae = (mae_validate2016 + 2 * mae_validate_all) / 3
     print('average mae: %f' %average_mae)
 
     if mode == 'tune':
-        return average_mae
+        return mae_validate2016, mae_validate_all
 
     if mode == 'stacking':
         validate_folder = 'data/ensemble/csv/validate'
@@ -664,248 +670,8 @@ def train_process(df2016, df_all, Model, params,
 
     if mode == 'return_models':
         return [model2016, model_all]
-    #
-    #
-    # return_models=False, add_date=True):
-    # # Optional dimension reduction.
-    # if pca_components > 0:
-    #     print('PCA...')
-    #     pca = PCA(n_components=pca_components)
-    #     feature_df, non_feature_df = utils.get_dimension_reduction_df(train_df)
-    #     # Note that the features pca produces is some combination of the original features, not retain/discard some columns
-    #     feature_df = pca.fit_transform(feature_df)
-    #     train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
-    #
-    #
-    # sqr_ft = []
-    # for c in train_df.columns:
-    #     if 'bath' in c:
-    #         sqr_ft.append(c)
-    # df2 = train_df[sqr_ft].apply(np.square)
-    # print(df2.columns)
-    # train_df = train_df.join(df2, rsuffix='_sqr')
-    #
-    #
-    # # If need to generate submission, prepare prop df for testing
-    # if submit:
-    #     # When we clean data, we removed the rows where lat and lon are null,
-    #     # so we have to preserve the parcelid of the prop here to join with that
-    #     # of the sample submission
-    #     # training data(transactions) don't have this problem as all of them
-    #     # have valid lat and lon
-    #     df_test_parcelid = prop['parcelid']
-    #     df_test = data_clean.drop_id_column(prop)
-    #     df2 = df_test[sqr_ft].apply(np.square)
-    #     df_test = df_test.join(df2, rsuffix='_sqr')
-    #     del df2; gc.collect()
-    # else:
-    #     del prop; gc.collect()
-    #
-    # # Scaling train and test features if needed
-    # if scaling:
-    #     for col in train_df.columns:
-    #         if col in scaling_columns:
-    #             # fit and transform training data
-    #             train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
-    #             if submit:
-    #                 df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
-    #
-    # print('Train df dimensions: ' + str(train_df.shape))
-    # # split by date
-    # # train_q1_q3, train_q4 = utils.split_by_date(train_df)
-    # # # train_q4.to_csv('test_train_q4.csv')
-    # # del train_df; gc.collect()
-    #
-    # if add_date:
-    #     train_df = utils.add_date_features(train_df)
-    #
-    # train_df = data_clean.drop_training_only_column(train_df)
-    # # train_q4 = data_clean.drop_training_only_column(train_q4)
-    # X_train, y_train = utils.get_features_target(train_df)
-    # # X_train_q4, y_train_q4 = utils.get_features_target(train_q4)
-    # # del train_q1_q3; del train_q4; gc.collect()
-    #
-    # # file handler used to record training
-    # time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    # if record:
-    #     train_recorder = open('data/error/%s_%s_params.txt' %(Model.__name__, time), 'w')
-    #     train_recorder.write(Model.__name__ + '\n')
-    #
-    # # split train_q4 into k folds, each time combine k-1 folds with train_q1_q3
-    # # to train model and validate on the left out fold
-    # # mean_errors = []
-    # model_preds = []
-    # # if return_models:
-    # #     models = []
-    # # kf = KFold(n_splits=FOLDS, shuffle=True, random_state=42)
-    # # X_train_q4.to_csv('test_train_q4.csv')
-    # # for i, (train_index, validate_index) in enumerate(kf.split(X_train_q4)):
-    # #     X_train = pd.concat([X_train_q1_q3, X_train_q4.iloc[train_index]], ignore_index=True)
-    # #     y_train = pd.concat([y_train_q1_q3, y_train_q4.iloc[train_index]], ignore_index=True)
-    # #     TODO(hzn): add training preprocessing, like remove outliers, resampling
-    #     #
-    #     # X_validate = X_train_q4.loc[validate_index]
-    #     # y_validate = y_train_q4.loc[validate_index]
-    #     #
-    #     # try remove outliers
-    # print(X_train.shape, y_train.shape)
-    # ulimit = np.percentile(y_train.values, outliers_up_pct)
-    # llimit = np.percentile(y_train.values, outliers_lw_pct)
-    # mask = (y_train >= llimit) & (y_train <= ulimit)
-    # print(llimit, ulimit)
-    # X_train = X_train[mask]
-    # y_train = y_train[mask]
-    # print(X_train.shape, y_train.shape)
-    #
-    # print('training...')
-    # model = Model(model_params = model_params)
-    # model.fit(X_train, y_train)
-    # train_pred = model.predict(X_train)
-    # print("fold train mean error: ", Evaluator.mean_error(train_pred, y_train))
-    #
-    #     # print('validating...')
-    #     # y_pred = model.predict(X_validate)
-    #     # # TODO(hzn): add output training records
-    #     # mae = Evaluator.mean_error(y_pred, y_validate)
-    #     # mean_errors.append(mae)
-    #     # print("fold validation mean error: ", mae)
-    #     # # Record this fold:
-    # if record:
-    #     train_recorder.write('\nFold %d\n' %i)
-    #     train_recorder.write('Parameters: %s\n' %model.get_params())
-    #     feature_importances = model.get_features_importances()
-    #     if feature_importances is not None:
-    #         train_recorder.write('Feature importances:\n%s\n' %feature_importances)
-    #         # feature_importances_map = list(zip(X_train.columns, feature_importances))
-    #         # feature_importances_map.sort(key=lambda x: -x[1])
-    #         # for fi in feature_importances_map:
-    #         #     train_recorder.write('%s\n' %fi)
-    #     record_train(train_recorder, y_train, train_pred, None, None)
-    # # Predict on testing data if needed to generate submission
-    # if submit:
-    #     if add_date:
-    #         df_test['transactiondate'] = pd.Timestamp('2016-12-01')  # Dummy
-    #         df_test = utils.add_date_features(df_test)
-    #         df_test.drop(["transactiondate"], inplace=True, axis=1)
-    #     print('predicting on testing data...')
-    #     test_preds = []
-    #     # Split testing dataframe
-    #     for df_test_split in np.array_split(df_test, 30):
-    #         test_preds.append(model.predict(df_test_split))
-    #     print(pd.DataFrame(np.concatenate(test_preds)).describe())
-    #     model_preds.append(np.concatenate(test_preds))
-    # # if return_models:
-    # #     models.append(model)
-    # print("--------------------------------------------------------")
-    #
-    # # avg_cv_errors = np.mean(mean_errors)
-    # # if record:
-    # #     train_recorder.write("\nAverage cross validation mean error: %f\n" %avg_cv_errors)
-    # #     train_recorder.close()
-    # # print("average cross validation mean error", avg_cv_errors)
-    #
-    # if submit:
-    #     print("loading submission data...")
-    #     predict_df, sample = utils.load_test_data()
-    #     print(predict_df.shape)
-    #     print(sample.shape)
-    #
-    #     # make prediction
-    #     print("make prediction...")
-    #     # model_preds = list(map(lambda model: model.predict(df_test), models))
-    #     avg_pred = pd.Series(np.mean(model_preds, axis=0), name='predict', index=df_test_parcelid)
-    #     print('prediction length: %d' %len(avg_pred))
-    #
-    #     # add resale
-    #     sales = transactions[['parcelid', 'logerror']].groupby('parcelid').mean()
-    #     predict_df = predict_df.join(sales, on='parcelid', how='left')
-    #     predict_df = predict_df.join(avg_pred, on='parcelid', how='left')
-    #     # predict = predict_df['predict'].where(predict_df['logerror'].isnull(), predict_df['logerror'])
-    #     predict = predict_df['predict'].where(
-    #         predict_df['logerror'].isnull(), predict_df['predict'] + resale_offset)
-    #     # Sanity check
-    #     print('nan in predictions: %d' %predict.isnull().sum())
-    #     # For those we do not predict (parcels whose lat and lon are nan), fill
-    #     # the median logerror
-    #     predict.fillna(0.011, inplace=True)
-    #     # Scaling could cause the model to have some wiredly large predictions
-    #     # cap them with largest abs in the trainning logerror
-    #     if scaling:
-    #         predict = predict_cap(predict, y_train.abs().max())
-    #
-    #     # Save prediction(a Series object) to a pickle for later use
-    #     # Save one in history
-    #     sub_history_folder = 'data/predictions/history'
-    #     if not os.path.exists(sub_history_folder):
-    #         os.makedirs(sub_history_folder)
-    #     predict.to_pickle('%s/%s_%s_pickle' %(sub_history_folder, time, Model.__name__))
-    #     # # Update the most recent pickle for this model
-    #     # predict.to_pickle('data/predictions/%s_latest_pickle' %Model.__name__)
-    #
-    #     # generate submission
-    #     print("generating submission...")
-    #     for c in sample.columns[sample.columns != 'ParcelId']:
-    #         # sample[c] = avg_pred
-    #         sample[c] = predict.as_matrix()
-    #     # time = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    #     submission_folder = 'data/submissions'
-    #     if not os.path.exists(submission_folder):
-    #         os.makedirs(submission_folder)
-    #     sample.to_csv(
-    #         '%s/Submission_%s_%s.csv' %(submission_folder, time, config_dict['name']), index=False, float_format='%.4f')
-    #     print("Prediction made.")
-    #
-    #     exp_record_folder = 'data/experiments'
-    #     if not os.path.exists(exp_record_folder):
-    #         os.makedirs(exp_record_folder)
-    #     with open('%s/%s.txt' %(exp_record_folder, 'experiments'), 'a') as record:
-    #          # Time is the same across submission csv, pickle and record for easy search
-    #         record.write('\n\nTime: %s\n' %time)
-    #         record.write('Config: %s\n' %config_dict)
-    #         # record.write('cv_error:%s\n' %avg_cv_errors)
-    #         record.write('leaderboard:________________PLEASE FILL____________________\n')
-    #
-    # # if return models for investigation
-    # if return_models:
-    #     return None, model
-    #
-    # return None
 
 
-def train_stacking(train_df, Model, model_params = None, FOLDS = 5,
-    outliers_up_pct = 100, outliers_lw_pct = 0,
-    submit=False, config_name='', prop = None,  # if submit is true, than must provide prop and config_name
-    pca_components=-1, scaling=False, scaler=RobustScaler(quantile_range=(0, 99)),
-    scaling_columns=SCALING_COLUMNS):
-    # Optional dimension reduction.
-    if pca_components > 0:
-        print('PCA...')
-        pca = PCA(n_components=pca_components)
-        feature_df, non_feature_df = utils.get_dimension_reduction_df(train_df)
-        # Note that the features pca produces is some combination of the original features, not retain/discard some columns
-        feature_df = pca.fit_transform(feature_df)
-        train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
-
-    # If need to generate submission, prepare prop df for testing
-    if submit:
-        # When we clean data, we removed the rows where lat and lon are null,
-        # so we have to preserve the parcelid of the prop here to join with that
-        # of the sample submission
-        # training data(transactions) don't have this problem as all of them
-        # have valid lat and lon
-        df_test_parcelid = prop['parcelid']
-        df_test = data_clean.drop_id_column(prop)
-    else:
-        del prop; gc.collect()
-
-    # Scale train and test features if needed.
-    if scaling:
-        for col in train_df.columns:
-            if col in scaling_columns:
-                # fit and transform training data
-                train_df[col] = scaler.fit_transform(train_df[col].values.reshape(-1, 1))
-                if submit:
-                    df_test[col] = scaler.transform(df_test[col].values.reshape(-1, 1))
 
 def get_dfs(config_dict, include_properties=False):
 

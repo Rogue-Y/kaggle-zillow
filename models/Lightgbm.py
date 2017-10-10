@@ -28,9 +28,11 @@ class Lightgbm():
         self.model=None
 
     def fit(self, X_train, y_train):
-
-        d_train = lgb.Dataset(X_train, label=y_train)
-        self.model = lgb.train(self.model_params, d_train)
+        params = self.model_params.copy()
+        categorical_feature = params['categorical_feature']
+        del params['categorical_feature']
+        d_train = lgb.Dataset(X_train, label=y_train, categorical_feature=categorical_feature)
+        self.model = lgb.train(params, d_train)
 
     def predict(self, X):
         """ Predict on the given X, need to call fit first
