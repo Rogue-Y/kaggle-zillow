@@ -199,7 +199,7 @@ geo_grouping_columns_all = [
     'bedroomcnt',
     'buildingqualitytypeid',
     'calculatedfinishedsquarefeet',
-    'fullbathcnt',
+    # 'fullbathcnt',
     # 'garagecarcnt',
     # 'garagetotalsqft',
     'lotsizesquarefeet',
@@ -210,7 +210,7 @@ geo_grouping_columns_all = [
     'landtaxvaluedollarcnt',
     'taxamount',
     'taxvaluedollarcnt',
-    'assessmentyear'
+    # 'assessmentyear'
 ]
 
 geo_grouping_columns_fi = [

@@ -75,7 +75,7 @@ feature_list = {
         ('boolean_has_garage_pool_and_ac', 'boolean_has_garage_pool_and_ac', {}, 'boolean_has_garage_pool_and_ac_pickle', False),
         ('boolean_has_heat', 'boolean_has_heat', {}, 'boolean_has_heat_pickle', False),
         ('building_age', 'building_age', {}, 'building_age_pickle', False),
-        # ('built_before_year', 'built_before_year', {}, 'built_before_year_pickle', False),
+        ('built_before_year', 'built_before_year', {}, 'built_before_year_pickle', False),
         #
         # # # ('category_land_use_code', category_land_use_code, {}, 'category_land_use_code_pickle', False),
         # ('category_land_use_code_encode', 'category_land_use_code_encode', {}, 'category_land_use_code_encode_pickle', False),

@@ -588,6 +588,9 @@ def train_process(df2016, df_all, Model, params,
         X_train2016, y_train2016, X_validate2016, y_validate2016, prop2016,
         Model, **params,
         submit=submit, year = 2016)
+    del df_train2016; del df_validate2016; del X_train2016;
+    del y_train2016; del X_validate2016; del y_validate2016; del prop2016;
+    gc.collect()
 
     # 2016 - 2017 training
     # validation set need parcelid and transactiondate as unqiue identifier of rows
@@ -600,6 +603,9 @@ def train_process(df2016, df_all, Model, params,
         X_train_all, y_train_all, X_validate_all, y_validate_all, prop2017,
         Model, **params,
         submit=submit, year = 2017)
+    del df_train_all; del df_validate_all; del X_train_all;
+    del y_train_all; del X_validate_all; del y_validate_all; del prop2017;
+    gc.collect()
 
     print('2016 validate mae: %f' %mae_validate2016)
     print('all validate mae: %f' %mae_validate_all)
