@@ -436,6 +436,15 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         feature_df = pca.fit_transform(feature_df)
         train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
 
+    sqr_ft = []
+    for c in train_df.columns:
+        if 'bath' in c:
+            sqr_ft.append(c)
+    df2 = train_df[sqr_ft].apply(np.square)
+    print(df2.columns)
+    train_df = train_df.join(df2, rsuffix='_sqr')
+
+
     # If need to generate submission, prepare prop df for testing
     if submit:
         # When we clean data, we removed the rows where lat and lon are null,
@@ -445,6 +454,9 @@ def train(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # have valid lat and lon
         df_test_parcelid = prop['parcelid']
         df_test = data_clean.drop_id_column(prop)
+        df2 = df_test[sqr_ft].apply(np.square)
+        df_test = df_test.join(df2, rsuffix='_sqr')
+        del df2; gc.collect()
     else:
         del prop; gc.collect()
 
@@ -627,6 +639,16 @@ def train_no_val(train_df, Model, model_params = None, FOLDS = 5, record=False,
         feature_df = pca.fit_transform(feature_df)
         train_df = pd.concat([pd.DataFrame(feature_df), non_feature_df], axis=1)
 
+
+    sqr_ft = []
+    for c in train_df.columns:
+        if 'bath' in c:
+            sqr_ft.append(c)
+    df2 = train_df[sqr_ft].apply(np.square)
+    print(df2.columns)
+    train_df = train_df.join(df2, rsuffix='_sqr')
+
+
     # If need to generate submission, prepare prop df for testing
     if submit:
         # When we clean data, we removed the rows where lat and lon are null,
@@ -636,6 +658,9 @@ def train_no_val(train_df, Model, model_params = None, FOLDS = 5, record=False,
         # have valid lat and lon
         df_test_parcelid = prop['parcelid']
         df_test = data_clean.drop_id_column(prop)
+        df2 = df_test[sqr_ft].apply(np.square)
+        df_test = df_test.join(df2, rsuffix='_sqr')
+        del df2; gc.collect()
     else:
         del prop; gc.collect()
 

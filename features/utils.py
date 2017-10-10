@@ -271,6 +271,9 @@ def add_date_features(df):
     df['transaction_month'] = df['transactiondate'].dt.month
     df['transaction_day'] = df['transactiondate'].dt.day
     df['transaction_quarter'] = df['transactiondate'].dt.quarter
+    df['sin_dateofyear'] = np.sin(df['transactiondate'].dt.dayofyear)
+    df['cos_dateofyear'] = np.cos(df['transactiondate'].dt.dayofyear)
+
     return df
 
 def get_features_target(df):
@@ -595,10 +598,12 @@ def generate_pde_test(test, bandwidth, force_generate=False):
         train = train.dropna(subset=['longitude', 'latitude'])
         tree = generate_pde_train(train, bandwidth)
     test = test.dropna(subset=['longitude', 'latitude'])
+    testidx = test.index
     x_test = test['longitude'].values
     y_test = test['latitude'].values
     X_test = np.transpose(np.vstack([x_test, y_test]))
 
     print('Generating PDE on test data for bandwidth %s' % bandwidth)
     parcelDensity = tree.kernel_density(X_test, h=bandwidth, kernel='gaussian', rtol=0.00001)
-    return parcelDensity
+    print('Finished Generating')
+    return pd.Series(parcelDensity, index=testidx)

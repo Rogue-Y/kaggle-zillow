@@ -845,5 +845,7 @@ def kernel_density(df):
     for bw in [300, 1000, 3000, 10000]:
         parcelDensity = generate_pde_test(df, bw)
         parcelDensity = parcelDensity/np.max(parcelDensity)
-        newdf['parcel_density_' + str(bw)] = parcelDensity
+        newdf['parcel_density_' + str(bw)] = parcelDensity.reindex(index=df.index)
+    newdf.fillna(value=0, inplace=True)
+    print(len(newdf))
     return newdf
