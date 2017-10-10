@@ -21,7 +21,6 @@ config_catboost = {
     'training_params': {
         'model_params': {'iterations': 200, 'learning_rate': 0.03, 'depth': 6, 'l2_leaf_reg': 3, 'loss_function': 'MAE',
                          'eval_metric': 'MAE', 'random_seed':42},
-        'FOLDS': 5,
         # 'record': False,
         'outliers_lw_pct': 4,
         'outliers_up_pct': 100,
@@ -34,7 +33,6 @@ config_catboost = {
     'stacking_params': {
         'model_params': {'iterations':200, 'learning_rate':0.026546125048271585, 'depth':7, 'l2_leaf_reg':3, 'loss_function':'MAE',
                          'eval_metric':'MAE', 'random_seed':42},
-        'FOLDS': 3,
         # 'record': False,
         'outliers_lw_pct': 0,
         'outliers_up_pct': 100,
@@ -73,7 +71,6 @@ config_manycatsboost = {
         # 'model_params': {'iterations': 300, 'learning_rate': 0.021788752145849327, 'depth': 6, 'l2_leaf_reg': 3,
         #                  'loss_function': 'MAE',
         #                  'eval_metric': 'MAE'},
-        'FOLDS': 5,
         # 'record': False,
         'outliers_lw_pct': 0,
         'outliers_up_pct': 100,
@@ -86,7 +83,6 @@ config_manycatsboost = {
     'stacking_params': {
         'model_params': {'iterations': 200, 'learning_rate': 0.03, 'depth': 6, 'l2_leaf_reg': 3, 'loss_function': 'MAE',
                          'eval_metric': 'MAE'},
-        'FOLDS': 3,
         # 'record': False,
         'outliers_lw_pct': 0,
         'outliers_up_pct': 100,
