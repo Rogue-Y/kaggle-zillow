@@ -44,6 +44,6 @@ config_kneighbors = {
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [3, 2, 1]),
             'scaling': True,
         },
-        'max_evals': 2
+        'max_evals': 150
     }
 }
