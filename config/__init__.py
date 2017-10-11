@@ -7,6 +7,8 @@ from .config_ensembles import config_rf, config_extra_tree, config_gb
 from .config_gaussian_process import config_gaussian_process
 from .config_catboost import config_catboost, config_manycatsboost
 
+from .config_neighbors import config_kneighbors
+
 
 # stacking configurations
 from .stacking_config_test import stacking_config_test, stacking_config_linear, stacking_config_ridge
