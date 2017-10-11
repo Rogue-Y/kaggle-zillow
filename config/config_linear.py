@@ -20,11 +20,7 @@ config_linearridge = {
     'feature_list': feature_list_linearridge.feature_list,
     'clean_na': True,
     'training_params': {
-        'model_params': {
-            'alpha': 7.375287218066115,
-            'random_state': 42,
-            'tol': 0.001
-        },
+        'model_params': {'alpha': 0.331085679103563, 'fit_intercept': False, 'random_state': 42, 'solver': 'sag', 'tol': 0.06706734195514508},
         'outliers_up_pct': 97,
         'outliers_lw_pct': 5,
         'scaling': True,
@@ -33,11 +29,9 @@ config_linearridge = {
     },
     'stacking_params': {
         'model_params': {'alpha': 7.375287218066115, 'random_state': 42, 'tol': 0.001},
-        'FOLDS': 3,
         'outliers_up_pct': 97,
         'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
-        'pca_components': -1, # clean_na needs to be True to use PCA
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS
@@ -54,7 +48,6 @@ config_linearridge = {
             'outliers_up_pct': 97, # hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': 5,  #hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            'pca_components': -1, #hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
         },
         'max_evals': 500
     }
@@ -67,7 +60,6 @@ config_linear_huber = {
     'feature_list': feature_list_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        'FOLDS': 3,
         'model_params': {
             'alpha': 0.0337035513301721,
             'epsilon': 2.787714318716998,
@@ -79,7 +71,7 @@ config_linear_huber = {
         'scaling': True
     },
     'stacking_params': {
-        'FOLDS': 3, 'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True
+        'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True
     },
     'tuning_params': {
         'parameter_space': {
@@ -92,7 +84,6 @@ config_linear_huber = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            'FOLDS': 3,
         },
         'max_evals': 1000
     }
@@ -112,7 +103,6 @@ config_linearlasso = {
             'normalize': False, 'random_state': 42,
             'tol': 0.0025155077434141472
         },
-        'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 3,
@@ -125,7 +115,6 @@ config_linearlasso = {
     'stacking_params': {
         'model_params': {'alpha': 1.0693486250127264, 'fit_intercept': False, 'normalize': False, 'random_state': 42,
                          'tol': 0.0025155077434141472},
-        'FOLDS': 3,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 3,
         # 'resale_offset': 0.012
@@ -162,7 +151,6 @@ config_linearRANSAC = {
     'training_params': {
         'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
                          'min_samples': 0.9697366469576226, 'random_state': 42},
-        'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 5,
@@ -175,7 +163,6 @@ config_linearRANSAC = {
     'stacking_params': {
         'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
                          'min_samples': 0.9697366469576226, 'random_state': 42},
-        'FOLDS': 3,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
@@ -208,7 +195,6 @@ config_linearRANSAC2 = {
     'training_params': {
         'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=2.22721163144679, random_state=42),
                          'min_samples': 0.6305959242246917, 'random_state': 42},
-        'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 97,
         'outliers_lw_pct': 4,
@@ -221,7 +207,6 @@ config_linearRANSAC2 = {
     'stacking_params': {
         'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=2.22721163144679, random_state=42),
                          'min_samples': 0.9697366469576226, 'random_state': 42},
-        'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 97,
         'outliers_lw_pct': 4,

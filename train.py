@@ -412,9 +412,10 @@ def prepare_training_data(year, prop):
     train_df = transactions.merge(prop, how='inner', on='parcelid')
 
     # Add transactiondate feature
-    train_df['transaction_year'] = train_df['transactiondate'].map(lambda x: x.date().year)
-    train_df['transaction_month'] = train_df['transactiondate'].map(lambda x: x.date().month)
-    train_df['transaction_quarter'] = train_df['transaction_month'].map({1:1, 2:1, 3:1, 4:2, 5:2, 6:2, 7:3, 8:3, 9:3, 10:4, 11:4, 12:4})
+    train_df = utils.add_date_features(train_df)
+    # train_df['transaction_year'] = train_df['transactiondate'].map(lambda x: x.date().year)
+    # train_df['transaction_month'] = train_df['transactiondate'].map(lambda x: x.date().month)
+    # train_df['transaction_quarter'] = train_df['transaction_month'].map({1:1, 2:1, 3:1, 4:2, 5:2, 6:2, 7:3, 8:3, 9:3, 10:4, 11:4, 12:4})
 
     return train_df
 
@@ -525,11 +526,11 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
         # Add transactiondate features
         # validate on 2016 q4 and 2017 q3
         months = [10, 11, 12]
-        quarter = 4
+        # quarter = 4
         for month in months:
-            X_test['transaction_year'] = year
-            X_test['transaction_month'] = month
-            X_test['transaction_quarter'] = quarter
+            X_test['transactiondate'] = '%s-%s-30' % (year, month)
+            X_test = utils.add_date_features(X_test)
+            X_test.drop(['transactiondate'], inplace=True, axis=1)
             if scaling:
                 X_test = scale_transactiondate_features(X_test)
 
@@ -568,8 +569,11 @@ def get_train_validate_split(df2016, df_all):
     df_train2016 = pd.concat([df2016_q1_q3, df_oct_train, df_nov_train, df_dec_train])
     df_validate2016 = pd.concat([df_oct_validate, df_nov_validate, df_dec_validate])
 
-    # 2016 - 2017 training
-    df_train_all, df_validate_all = utils.split_by_date(df_all, '2017-07-01')
+    # 201   6 - 2017 training
+    _, df_2017 = utils.split_by_date(df_all, '2017-01-01')
+
+    df_train_all, df_validate_all = utils.split_by_date(df_2017, '2017-07-01')
+    # df_train_all, df_validate_all = utils.split_by_date(df_all, '2017-07-01')
 
     return df_train2016, df_validate2016, df_train_all, df_validate_all
 

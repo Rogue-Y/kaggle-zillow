@@ -29,6 +29,8 @@ class CatBoost():
                     and not 'logerror' in c \
                     and not 'lat_lon_block' in c \
                     and not '_count' in c \
+                    and not 'sin_' in c \
+                    and not 'cos_' in c \
                     and not 'ratio' in c:
                 cat_feature_inds.append(i)
         print("Cat features are: %s" % [X_train.columns[ind] for ind in cat_feature_inds])
@@ -80,11 +82,9 @@ class ManyCatsBoost():
                     and not 'logerror' in c \
                     and not 'lat_lon_block' in c \
                     and not '_count' in c \
+                    and not 'sin_' in c \
+                    and not 'cos_' in c \
                     and not 'ratio' in c:
-                    # and not 'sqft' in c \
-                    # and not 'cnt' in c \
-                    # and not 'nbr' in c \
-                    # and not 'number' in c:
                 cat_feature_inds.append(i)
         print("Cat features are: %s" % [X_train.columns[ind] for ind in cat_feature_inds])
         print("Cat features length is: %s" % len(cat_feature_inds))

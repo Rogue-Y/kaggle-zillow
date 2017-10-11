@@ -305,12 +305,12 @@ def train_valid_split(X, y, test_size):
 def add_date_features(df):
     print('Converting transaction features...')
     df['transactiondate'] = pd.to_datetime(df['transactiondate'])
-    # df['transaction_year'] = df['transactiondate'].dt.year
+    df['transaction_year'] = df['transactiondate'].dt.year
     df['transaction_month'] = df['transactiondate'].dt.month
-    df['transaction_day'] = df['transactiondate'].dt.day
+    # df['transaction_day'] = df['transactiondate'].dt.day
     df['transaction_quarter'] = df['transactiondate'].dt.quarter
-    df['sin_dateofyear'] = np.sin(df['transactiondate'].dt.dayofyear)
-    df['cos_dateofyear'] = np.cos(df['transactiondate'].dt.dayofyear)
+    df['sin_dateofyear'] = np.sin(df['transactiondate'].dt.dayofyear / 365 * 2 * 3.1416)
+    df['cos_dateofyear'] = np.cos(df['transactiondate'].dt.dayofyear / 365 * 2 * 3.1416)
 
     return df
 
