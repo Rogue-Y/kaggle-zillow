@@ -53,7 +53,7 @@ config_linearridge = {
             'outliers_up_pct': 97, # hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': 5,  #hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            'pca_components': -1, #hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
+            # 'pca_components': -1, #hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
         },
         'max_evals': 500
     }

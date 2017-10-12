@@ -171,7 +171,10 @@ def tune_single_model(config_dict, trials=None):
     parameter_space = config_dict['tuning_params']['parameter_space']
     max_evals = config_dict['tuning_params']['max_evals']
 
+    rounds = {'round': 0}
     def train_wrapper(params):
+        print('round %d' %rounds['round'])
+        rounds['round']+= 1
         print(params)
         loss2016q4, loss2017q3 = train_process(df2016, df_all, Model, params, 'tune')
         # return an object to be recorded in hyperopt trials for future uses
