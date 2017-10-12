@@ -294,6 +294,22 @@ config_lightgbm_all_huber = {
     'feature_list': feature_list_non_linear.feature_list_all,
     'Model': Lightgbm.Lightgbm,
     'training_params': {
+        'model_params': {
+            'boosting_type': 'gbdt',
+            'categorical_feature': feature_list_all_categorical_feature,
+            'huber_delta': 0.9749051722058703,
+            'learning_rate': 0.18732176823592758,
+            'max_bin': 150,
+            'max_cat_group': 32,
+            'min_data': 255,
+            'num_boost_round': 300,
+            'num_leaves': 10,
+            'objective': 'huber',
+            'sub_feature': 0.2200301632589602,
+            'verbose': -1
+        },
+        'outliers_lw_pct':4,
+        'outliers_up_pct': 95
     },
     'stacking_params': {
     },
@@ -323,7 +339,7 @@ config_lightgbm_all_huber = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
         },
-        'max_evals': 150
+        'max_evals': 260
     }
 }
 
