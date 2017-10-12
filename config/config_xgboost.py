@@ -165,14 +165,22 @@ config_xgboost_all_dart = {
     'clean_na': False,
     'training_params': {
         'model_params': {
-             'booster': 'dart',
-             'max_depth': 1, 'learning_rate': 0.1,
-             'objective': 'reg:linear', 'silent': True,
-             'sample_type': 'uniform',
-             'normalize_type': 'tree',
-             'rate_drop': 0.1,
-             'skip_drop': 0.5
-            }
+            'booster': 'dart',
+            'colsample_bytree': 0.2401600076800145,
+            'eta': 0.19925410580590489,
+            'eval_metric': 'mae',
+            'gamma': 0.06311673227200827,
+            'lambda': 0.9930018682926046,
+            'max_depth': 5,
+            'min_child_weight': 5.495744027022825,
+            'objective': 'reg:linear',
+            'rate_drop': 0.1515032500403155,
+            'silent': 1,
+            'skip_drop': 0.5,
+            'subsample': 0.945420720822875
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 96
     },
     'tuning_params': {
         'parameter_space': {

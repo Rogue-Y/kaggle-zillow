@@ -344,8 +344,8 @@ config_lightgbm_all_huber = {
 }
 
 # Configuration:
-config_lightgbm_all_fair = {
-    'name': 'config_lightgbm_all_fair',
+config_lightgbm_all_fair_dart = {
+    'name': 'config_lightgbm_all_fair_dart',
     'feature_list': feature_list_non_linear.feature_list_all,
     'Model': Lightgbm.Lightgbm,
     'training_params': {
@@ -356,7 +356,10 @@ config_lightgbm_all_fair = {
         'parameter_space': {
             'model_params': {
                 'learning_rate': hp.loguniform('learning_rate', -2, -1),
-                'boosting_type': 'gbdt',
+                'boosting_type': 'dart',
+                # dart parameters
+                'drop_rate': hp.choice('drop_rate', [0.05, 0.1, 0.2]),
+                # 'skip_drop': hp.choice('skip_drop', [0.3, 0.5, 0.7]),
                 'objective': 'fair',
                 # fair parameters
                 'fair_c': hp.uniform('fair_c', 0.5, 2),
