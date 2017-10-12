@@ -180,6 +180,61 @@ config_lightgbm_all_regression_l2 = {
 }
 
 # Configuration:
+config_lightgbm_all_regression_l2_dart = {
+    'name': 'config_lightgbm_all_regression_l2_dart',
+    'feature_list': feature_list_non_linear.feature_list_all,
+    'Model': Lightgbm.Lightgbm,
+    'training_params': {
+        'model_params': {
+            'boosting_type': 'dart',
+            'categorical_feature': feature_list_all_categorical_feature,
+            'drop_rate': 0.2,
+            'learning_rate': 0.23545397539882804,
+            'max_bin': 200,
+            'max_cat_group': 64,
+            'min_data': 150,
+            'num_boost_round': 300,
+            'num_leaves': 55,
+            'objective': 'regression_l2',
+            'skip_drop': 0.3,
+            'sub_feature': 0.12389332144221579,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'learning_rate': hp.loguniform('learning_rate', -2, -1),
+                'boosting_type': 'dart',
+                # dart parameters
+                'drop_rate': hp.choice('drop_rate', [0.1, 0.2]),
+                'skip_drop': hp.choice('skip_drop', [0.3, 0.5, 0.7]),
+                # 'max_drop': 60,
+                'objective': 'regression_l2',
+                # 'metric': hp.choice('metric', ['mae', 'mse']),
+                'sub_feature': hp.uniform('sub_feature', 0.1, 0.5),
+                'num_leaves': hp.choice('num_leaves', list(range(10, 151, 15))),
+                'min_data': hp.choice('min_data', list(range(150, 301, 15))),
+                # 'min_hessian': hp.loguniform('min_hessian', -2, -1),
+                'num_boost_round': hp.choice('num_boost_round', [300, 350, 500]),
+                'max_bin': hp.choice('max_bin', list(range(100, 351, 50))),
+                # 'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
+                # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
+                'verbose': -1,
+                # categorical features
+                'categorical_feature': feature_list_all_categorical_feature,
+                'max_cat_group': hp.choice('max_cat_group', [32, 64]),
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
+        },
+        'max_evals': 250
+    }
+}
+
+# Configuration:
 config_lightgbm_all_regression_l1 = {
     'name': 'config_lightgbm_all_regression_l1',
     'feature_list': feature_list_non_linear.feature_list_all,
@@ -260,6 +315,10 @@ config_lightgbm_all_regression_l1_dart = {
             'model_params': {
                 'learning_rate': hp.loguniform('learning_rate', -2, -1),
                 'boosting_type': 'dart',
+                # dart parameters
+                'drop_rate': hp.choice('drop_rate', [0.1, 0.2]),
+                'skip_drop': hp.choice('skip_drop', [0.3, 0.5, 0.7]),
+                # 'max_drop': 60,
                 'objective': 'regression_l1',
                 # l1 parameters
                 # 'gaussian_eta': hp.loguniform('gaussian_eta', -1, 0),
@@ -273,10 +332,6 @@ config_lightgbm_all_regression_l1_dart = {
                 # 'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
                 # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
                 'verbose': -1,
-                # dart parameters
-                'drop_rate': hp.choice('drop_rate', [0.1, 0.2]),
-                'skip_drop': hp.choice('skip_drop', [0.3, 0.5, 0.7]),
-                # 'max_drop': 60,
                 # categorical features
                 'categorical_feature': feature_list_all_categorical_feature,
                 'max_cat_group': hp.choice('max_cat_group', [32, 64]),
