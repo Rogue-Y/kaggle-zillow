@@ -297,19 +297,19 @@ config_lightgbm_all_huber = {
         'model_params': {
             'boosting_type': 'gbdt',
             'categorical_feature': feature_list_all_categorical_feature,
-            'huber_delta': 0.9749051722058703,
-            'learning_rate': 0.18732176823592758,
-            'max_bin': 150,
-            'max_cat_group': 32,
-            'min_data': 255,
+            'huber_delta': 0.7488767276099735,
+            'learning_rate': 0.14281189673856454,
+            'max_bin': 250,
+            'max_cat_group': 64,
+            'min_data': 285,
             'num_boost_round': 300,
             'num_leaves': 10,
             'objective': 'huber',
-            'sub_feature': 0.2200301632589602,
+            'sub_feature': 0.11370170376248807,
             'verbose': -1
         },
-        'outliers_lw_pct':4,
-        'outliers_up_pct': 95
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
     },
     'stacking_params': {
     },
