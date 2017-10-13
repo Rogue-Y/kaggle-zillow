@@ -7,6 +7,7 @@ from .config_ensembles import config_rf, config_extra_tree, config_gb
 from .config_gaussian_process import config_gaussian_process
 
 from .config_neighbors import config_kneighbors
+from .config_neural_network import config_neural_network
 
 
 # stacking configurations
