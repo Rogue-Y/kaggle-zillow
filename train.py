@@ -643,6 +643,7 @@ def train_process(df2016, df_all, Model, params,
             df_test = df_test.join(pred_test, 'parcelid', 'left')
         for pred_test in pred_test_months_all:
             df_test = df_test.join(pred_test, 'parcelid', 'left')
+            df_test.fillna(0.0167, inplace=True)
         test_folder = 'data/ensemble/csv/test'
         if not os.path.exists(test_folder):
             os.makedirs(test_folder)
