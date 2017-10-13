@@ -142,7 +142,7 @@ def stacknet_prepare_test():
     prop2016_id.to_csv("%s/test2016_id.csv" %test_folder, index=False)
     X_train2016 = X_train2016.values.astype(np.float32, copy=False)
     y_train2016 = y_train2016.values.astype(np.float32, copy=False)
-    fromsparsetofile("%s/train2016.txt" %test_folder, X_train2016, deli1=" ", deli2=":",ytarget=y_train2016)
+    fromsparsetofile("%s/train2016_test.txt" %test_folder, X_train2016, deli1=" ", deli2=":",ytarget=y_train2016)
 
     year = 2016
     quarter = 4
@@ -169,7 +169,7 @@ def stacknet_prepare_test():
     prop2017_id.to_csv("%s/test2017_id.csv" %test_folder, index=False)
     X_train_all = X_train_all.values.astype(np.float32, copy=False)
     y_train_all = y_train_all.values.astype(np.float32, copy=False)
-    fromsparsetofile("%s/train_all.txt" %test_folder, X_train_all, deli1=" ", deli2=":",ytarget=y_train_all)
+    fromsparsetofile("%s/train2017_test.txt" %test_folder, X_train_all, deli1=" ", deli2=":",ytarget=y_train_all)
 
     year = 2017
     quarter = 4

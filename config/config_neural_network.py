@@ -20,15 +20,17 @@ config_neural_network = {
     'clean_na': True,
     'training_params': {
         'model_params': {
-            'hidden_layer_sizes': (250, 100),
+            'hidden_layer_sizes': (20, 10),
             'activation': 'relu',
-            'solver': 'adam',
-            'alpha': 0.01,
+            'solver': 'sgd',
+            'alpha': 0.0001,
             'batch_size': 1000,
-            'learning_rate_init': 0.001,
+            # 'learning_rate': 'constant'
+            'learning_rate_init': 0.005,
+            'tol': 0.01
             'max_iter': 20000,
-            'beta_1': 0.9,
-            'beta_2': 0.999
+            # 'beta_1': 0.9,
+            # 'beta_2': 0.999
             # 'epsilon':
         },
         'outliers_up_pct': 97,

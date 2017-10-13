@@ -19,16 +19,25 @@ config_kneighbors = {
     'feature_list': feature_list_neighbors.feature_list,
     'clean_na': True,
     'training_params': {
-        'model_params': {'algorithm': 'ball_tree', 'leaf_size': 300, 'n_jobs': -1, 'n_neighbors': 150, 'p': 1, 'weights': 'uniform'}, 'outliers_lw_pct': 3, 'outliers_up_pct': 97, 'scaling': True
+        'model_params': {
+            'algorithm': 'ball_tree',
+            'leaf_size': 300,
+            'n_jobs': -1,
+            'n_neighbors': 150,
+            'p': 1,
+            'weights': 'uniform'
+        },
+        'outliers_lw_pct': 3,
+        'outliers_up_pct': 97,
+        'scaling': True
     },
     'tuning_params': {
         'parameter_space': {
             'model_params': {
-                'n_neighbors':  hp.choice('n_neighbors', [5, 15, 50, 150]),
+                'n_neighbors':  hp.choice('n_neighbors', [100, 150, 200]),
                 'weights':  hp.choice('weights', ['uniform', 'distance']),
-                'algorithm':  hp.choice('algorithm', ['ball_tree', 'kd_tree']),
-                'leaf_size':  hp.choice('leaf_size', [30, 100, 300]),
-                'p':  hp.choice('p', [1, 2, 3]),
+                'leaf_size':  hp.choice('leaf_size', [200, 300, 350]),
+                'p':  hp.choice('p', [1, 2]),
                 'n_jobs': -1
             },
             'outliers_up_pct': hp.choice('outliers_up_pct', [97, 98, 99]),
