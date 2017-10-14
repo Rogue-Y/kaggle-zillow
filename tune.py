@@ -236,11 +236,10 @@ def tune_stacking(stacking_list, Meta_model, force_generate, config_name, parame
     first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, global_force_generate=force_generate)
 
     def train_wrapper(params):
-        meta_model = Meta_model(model_params=params['model_params'])
         outliers_up_pct = params['outliers_up_pct'] if 'outliers_up_pct' in params else 100
         outliers_lw_pct = params['outliers_lw_pct'] if 'outliers_lw_pct' in params else 0
-        loss2016 = stacking(first_layer2016, target2016, meta_model, outliers_lw_pct, outliers_up_pct)
-        loss_all = stacking(first_layer_all, target_all, meta_model, outliers_lw_pct, outliers_up_pct)
+        loss2016 = stacking(first_layer2016, target2016, Meta_model, params['model_params'], outliers_lw_pct, outliers_up_pct)
+        loss_all = stacking(first_layer_all, target_all, Meta_model, params['model_params'], outliers_lw_pct, outliers_up_pct)
         # return an object to be recorded in hyperopt trials for future uses
         return {
             'loss': (loss2016 + 2 * loss_all) / 3,

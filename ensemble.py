@@ -132,10 +132,13 @@ def get_first_layer(stacking_list, submit=False, global_force_generate=False):
     print('First layer generated.')
     return first_layer2016, target2016, first_layer_all, target_all, test_first_layers
 
-def stacking(first_layer, target, meta_model, outliers_lw_pct = 0, outliers_up_pct = 100):
+def stacking(first_layer, target, Meta_model, model_params, outliers_lw_pct = 0, outliers_up_pct = 100):
     print(first_layer.shape)
     print(target.shape)
     assert len(first_layer) == len(target)
+
+    meta_model = Meta_model(model_params=model_params)
+
 
     print('second layer...')
     mean_errors = []
@@ -172,16 +175,41 @@ def stacking(first_layer, target, meta_model, outliers_lw_pct = 0, outliers_up_p
     print("average cross validation mean error", avg_cv_errors)
     return avg_cv_errors
 
-def stacking_wrapper(first_layer2016, target2016, first_layer_all, target_all, meta_model, outliers_lw_pct = 0, outliers_up_pct = 100):
-    stacking(first_layer2016, target2016, meta_model, outliers_lw_pct, outliers_up_pct)
-    stacking(first_layer_all, target_all, meta_model, outliers_lw_pct, outliers_up_pct)
+def stacking_wrapper(first_layer2016, target2016, first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct = 0, outliers_up_pct = 100):
+    stacking(first_layer2016, target2016, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
+    stacking(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
 
-def stacking_submit(first_layer, target, first_layer_test, meta_model,
+# def stacking_submit(first_layer, target, first_layer_test, meta_model,
+#         outliers_lw_pct = 0, outliers_up_pct = 100):
+#     print(first_layer.shape, target.shape)
+#     assert len(first_layer) == len(target)
+#
+#     print(first_layer_test.shape)
+#
+#     ulimit = np.percentile(target.values, outliers_up_pct)
+#     llimit = np.percentile(target.values, outliers_lw_pct)
+#     mask = (target >= llimit) & (target <= ulimit)
+#     print(llimit, ulimit)
+#     first_layer = first_layer[mask]
+#     target = target[mask]
+#     print(first_layer.shape, target.shape)
+#
+#     print('second layer...')
+#     print('training...')
+#     meta_model.fit(first_layer, target)
+#     train_pred = meta_model.predict(first_layer)
+#     train_error = Evaluator.mean_error(train_pred, target)
+#     print("fold train mean error: ", train_error)
+#
+#     print('predictions...')
+#     return meta_model.predict(first_layer_test)
+
+def train_meta_model(first_layer, target, Meta_model, model_params,
         outliers_lw_pct = 0, outliers_up_pct = 100):
     print(first_layer.shape, target.shape)
     assert len(first_layer) == len(target)
 
-    print(first_layer_test.shape)
+    meta_model = Meta_model(model_params=model_params)
 
     ulimit = np.percentile(target.values, outliers_up_pct)
     llimit = np.percentile(target.values, outliers_lw_pct)
@@ -191,18 +219,21 @@ def stacking_submit(first_layer, target, first_layer_test, meta_model,
     target = target[mask]
     print(first_layer.shape, target.shape)
 
-    print('second layer...')
-    print('training...')
+    print('training meta model...')
     meta_model.fit(first_layer, target)
     train_pred = meta_model.predict(first_layer)
     train_error = Evaluator.mean_error(train_pred, target)
     print("fold train mean error: ", train_error)
+    return meta_model, train_error
 
-    print('predictions...')
-    return meta_model.predict(first_layer_test)
-
-def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target_all, test_first_layers, meta_model,
+def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target_all,
+        test_first_layers, Meta_model, model_params,
         outliers_lw_pct, outliers_up_pct, config_dict, resale_offset=0.012):
+    # Get the cross validation error
+    loss2016 = stacking(first_layer2016, target2016, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
+    loss_all = stacking(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
+    avg_cv_errors = (loss2016 + 2 * loss_all) / 3
+
     months = ['10', '11', '12']
 
     # Generate submission
@@ -211,11 +242,12 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
     print(sample.shape)
 
     # 2016
+    print('predicting 2016')
+    meta_model2016, train_loss2016 = train_meta_model(first_layer2016, target2016, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
     for month in months:
         year_month = '2016' + month
         first_layer_test = test_first_layers[year_month].drop('parcelid', axis=1)
-        pred = stacking_submit(first_layer2016, target2016, first_layer_test, meta_model, outliers_lw_pct, outliers_up_pct)
-        sample[year_month] = pred
+        sample[year_month] = meta_model2016.predict(first_layer_test)
 
     # make prediction
     # print("Add resale 2016...")
@@ -229,12 +261,12 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
     #         sample['logerror'].isnull(),  sample[year_month] + resale_offset)
     # sample.drop('logerror', axis=1, inplace=True)
 
-
+    print('predicting 2017')
+    meta_model2017, train_loss_all = train_meta_model(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
     for month in months:
         year_month = '2017' + month
         first_layer_test = test_first_layers[year_month].drop('parcelid', axis=1)
-        pred = stacking_submit(first_layer_all, target_all, first_layer_test, meta_model, outliers_lw_pct, outliers_up_pct)
-        sample[year_month] = pred
+        sample[year_month] = meta_model2017.predict(first_layer_test)
 
     # make prediction
     # print("Add resale 2017...")
@@ -272,7 +304,9 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
         record.write('\n\nTime: %s\n' %time)
         record.write('Config: %s\n' %config_dict)
         # TODO: add cross validation step in stacking submission.
-        # record.write('train_error:%s\n' %train_error)
+        record.write('avg cv error:%s\n' %avg_cv_errors)
+        record.write('train_error 2016:%s\n' %train_loss2016)
+        record.write('train_error all:%s\n' %train_loss_all)
         record.write('leaderboard:________________PLEASE FILL____________________\n')
 
 
@@ -308,7 +342,6 @@ if __name__ == '__main__':
         # meta model
         Meta_model = config_dict['Meta_model']
         model_params = config_dict['model_params']
-        meta_model = Meta_model(model_params=model_params)
 
         outliers_up_pct = config_dict['outliers_up_pct'] if 'outliers_up_pct' in config_dict else 100
         outliers_lw_pct = config_dict['outliers_lw_pct'] if 'outliers_lw_pct' in config_dict else 0
@@ -317,9 +350,9 @@ if __name__ == '__main__':
         global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
         first_layer2016, target2016, first_layer_all, target_all, test_first_layers = get_first_layer(stacking_list, submit, global_force_generate)
         if submit:
-            stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target_all, test_first_layers, meta_model, outliers_lw_pct, outliers_up_pct, config_dict)
+            stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target_all, test_first_layers, Meta_model, model_params, outliers_lw_pct, outliers_up_pct, config_dict)
         else:
-            stacking_wrapper(first_layer2016, target2016, first_layer_all, target_all, meta_model, outliers_lw_pct, outliers_up_pct)
+            stacking_wrapper(first_layer2016, target2016, first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
 
     t2 = time.time()
     print((t2 - t1) / 60)

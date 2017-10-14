@@ -165,3 +165,41 @@ config_gb = {
         'max_evals': 200
     }
 }
+
+config_rf_hf_v1 = {
+    'name': 'config_rf_hf_v1',
+    'Model': Ensemble.RandomForest,
+    'feature_list': feature_list_non_linear.feature_list,
+    'clean_na': True,
+    'training_params': {
+        'model_params': {
+            'criterion': 'mse',
+            'max_depth': 7,
+            'max_features': 0.12971442987259302,
+            'min_samples_leaf': 0.00022513223523109907,
+            'n_estimators': 800,
+            'n_jobs': -1
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97
+    },
+}
+
+config_gb_hf_v1 = {
+    'name': 'config_gb_hf_v1',
+    'Model': Ensemble.GradientBoosting,
+    'feature_list': feature_list_non_linear.feature_list,
+    'clean_na': True,
+    'training_params':{
+        'model_params': {
+            'criterion': 'mse',
+            'learning_rate': 0.06879978673483064,
+            'max_depth': 5,
+            'max_features': 0.08427270313525888,
+            'min_samples_leaf': 0.005305578610437726,
+            'n_estimators': 300
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97
+    },
+}

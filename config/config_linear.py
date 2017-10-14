@@ -6,7 +6,7 @@ if module_path not in sys.path:
     sys.path.append(module_path)
 
 # Feature list
-from features import feature_list_linear, feature_list_linearridge, feature_list_linearlasso
+from features import feature_list_linear, feature_list_linearridge, feature_list_linearlasso, feature_list_all
 # model
 from models import LinearModel
 # for defining tunning parameters
@@ -14,16 +14,13 @@ from hyperopt import hp
 
 # Configuration
 config_linearridge = {
+    # Focus on Geo
     'name': 'config_linearridge',
     'Model': LinearModel.RidgeRegressor,
-    'feature_list': feature_list_linearridge.feature_list2,
+    'feature_list': feature_list_linearridge.feature_list,
     'clean_na': True,
     'training_params': {
-        'model_params': {
-            'alpha': 7.375287218066115,
-            'random_state': 42,
-            'tol': 0.001
-        },
+        'model_params': {'alpha': 0.331085679103563, 'fit_intercept': False, 'random_state': 42, 'solver': 'sag', 'tol': 0.06706734195514508},
         'outliers_up_pct': 97,
         'outliers_lw_pct': 5,
         'scaling': True,
@@ -32,11 +29,9 @@ config_linearridge = {
     },
     'stacking_params': {
         'model_params': {'alpha': 7.375287218066115, 'random_state': 42, 'tol': 0.001},
-        'FOLDS': 3,
         'outliers_up_pct': 97,
         'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
-        'pca_components': -1, # clean_na needs to be True to use PCA
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS
@@ -53,7 +48,6 @@ config_linearridge = {
             'outliers_up_pct': 97, # hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': 5,  #hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            # 'pca_components': -1, #hp.choice('pca_components', [-1, 30, 50, 100, 150, 200]),
         },
         'max_evals': 500
     }
@@ -106,30 +100,20 @@ config_linearlasso = {
     'feature_list': feature_list_linearlasso.feature_list,
     'clean_na': True,
     'training_params': {
-        'model_params': {
-            'alpha': 1.0693486250127264,
-            'fit_intercept': False,
-            'normalize': False, 'random_state': 42,
-            'tol': 0.0025155077434141472
-        },
-        'FOLDS': 3,
-        'record': False,
-        'outliers_up_pct': 98,
-        'outliers_lw_pct': 3,
-        # 'resale_offset': 0.012
-        'pca_components': -1, # clean_na needs to be True to use PCA
-        'scaling': True,
+        # new data
+        'model_params': {'alpha': 0.16103211556426375, 'fit_intercept': False, 'normalize': False, 'random_state': 42,
+                          'tol': 0.0856334900560885},
+        'outliers_lw_pct': 5, 'outliers_up_pct': 96, 'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS
     },
     'stacking_params': {
         'model_params': {'alpha': 1.0693486250127264, 'fit_intercept': False, 'normalize': False, 'random_state': 42,
                          'tol': 0.0025155077434141472},
-        'FOLDS': 3,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 3,
         # 'resale_offset': 0.012
-        'pca_components': -1,  # clean_na needs to be True to use PCA
+        # 'pca_components': -1,  # clean_na needs to be True to use PCA
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS
@@ -146,7 +130,7 @@ config_linearlasso = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            'pca_components': hp.choice('pca_components', [-1, 150, 200]),
+            # 'pca_components': hp.choice('pca_components', [-1, 150, 200]),
         },
         'max_evals': 500
     }
@@ -197,5 +181,42 @@ config_linearRANSAC = {
             'pca_components': hp.choice('pca_components', [-1, 150, 200]),
         },
         'max_evals': 500
+    }
+}
+
+# Configuration 10/10, from mhf
+config_elasticnet_hf_v2 = {
+    'name': 'config_elasticnet_hf_v2',
+    'Model': LinearModel.ElasticNetRegressor,
+    'feature_list': feature_list_all.feature_list,
+    'clean_na': True,
+    'training_params': {
+        'model_params': {
+            'alpha': 0.018413356207095926,
+            'fit_intercept': False,
+            'l1_ratio': 0.00674597027256981,
+            'random_state': 66,
+            'tol': 0.08190025295659385
+        },
+        'outliers_lw_pct': 4,
+        'outliers_up_pct': 97,
+        'scaling': True
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'alpha': hp.loguniform('alpha', -4, 5),
+                'l1_ratio': hp.loguniform('l1_ratio', -5, 0 ),
+                'fit_intercept': hp.choice('fit_intercept', [True, False]),
+                'tol': hp.loguniform('tol', -6, -2),
+                'random_state': 66
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+            'FOLDS': 3,
+            'scaling': True,
+            'pca_components': hp.choice('pca_components', [-1,150, 200]),
+        },
+        'max_evals': 800
     }
 }
