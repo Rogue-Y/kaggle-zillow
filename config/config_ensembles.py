@@ -206,3 +206,29 @@ config_rf_hf_v1 = {
     }
 }
 
+onfig_gb_hf_v1 = {
+    'name': 'onfig_gb_hf_v1',
+    'Model': Ensemble.GradientBoosting,
+    'feature_list': feature_list_non_linear.feature_list,
+    'clean_na': True,
+    'training_params':{
+        'FOLDS': 3, 'model_params': {'criterion': 'mse', 'learning_rate': 0.06879978673483064, 'max_depth': 5, 'max_features': 0.08427270313525888, 'min_samples_leaf': 0.005305578610437726, 'n_estimators': 300}, 'outliers_lw_pct': 4, 'outliers_up_pct': 97
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'n_estimators': hp.choice('n_estimators', [300]),
+                'learning_rate': hp.loguniform('learning_rate', -3,-2),
+                'criterion': 'mse',
+                'max_features': hp.loguniform('max_features', -3.5, -1.5),
+                'max_depth': hp.choice('max_depth', list(range(3, 7))),
+                #'min_samples_split': hp.loguniform('min_samples_split', -9, -6),
+                'min_samples_leaf': hp.loguniform('min_samples_leaf', -9, -4)
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [96,97,98,99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [4,3,2,1]),
+            'FOLDS': 3 #RF takes long time to train
+        },
+        'max_evals': 300
+    }
+}
