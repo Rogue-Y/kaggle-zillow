@@ -82,7 +82,7 @@ config_xgboost = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [3, 2, 1]),
         },
-        'max_evals': 150
+        'max_evals': 300
     }
 }
 
