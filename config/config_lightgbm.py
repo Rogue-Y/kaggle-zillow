@@ -352,19 +352,19 @@ config_lightgbm_all_huber = {
         'model_params': {
             'boosting_type': 'gbdt',
             'categorical_feature': feature_list_all_categorical_feature,
-            'huber_delta': 0.9749051722058703,
-            'learning_rate': 0.18732176823592758,
-            'max_bin': 150,
-            'max_cat_group': 32,
-            'min_data': 255,
+            'huber_delta': 0.7488767276099735,
+            'learning_rate': 0.14281189673856454,
+            'max_bin': 250,
+            'max_cat_group': 64,
+            'min_data': 285,
             'num_boost_round': 300,
             'num_leaves': 10,
             'objective': 'huber',
-            'sub_feature': 0.2200301632589602,
+            'sub_feature': 0.11370170376248807,
             'verbose': -1
         },
-        'outliers_lw_pct':4,
-        'outliers_up_pct': 95
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 96
     },
     'stacking_params': {
     },
@@ -404,6 +404,23 @@ config_lightgbm_all_fair_dart = {
     'feature_list': feature_list_non_linear.feature_list_all,
     'Model': Lightgbm.Lightgbm,
     'training_params': {
+        'model_params': {
+            'boosting_type': 'dart',
+            'categorical_feature': feature_list_all_categorical_feature,
+            'drop_rate': 0.1,
+            'fair_c': 0.8517025964425281,
+            'learning_rate': 0.14241013083925486,
+            'max_bin': 200,
+            'max_cat_group': 64,
+            'min_data': 270,
+            'num_boost_round': 300,
+            'num_leaves': 25,
+            'objective': 'fair',
+            'sub_feature': 0.1357760875118941,
+            'verbose': -1
+        },
+        'outliers_lw_pct': 5,
+        'outliers_up_pct': 97
     },
     'stacking_params': {
     },
@@ -412,15 +429,13 @@ config_lightgbm_all_fair_dart = {
             'model_params': {
                 'learning_rate': hp.loguniform('learning_rate', -2, -1),
                 'boosting_type': 'dart',
+                'categorical_feature': feature_list_all_categorical_feature,
                 # dart parameters
                 'drop_rate': hp.choice('drop_rate', [0.05, 0.1, 0.2]),
                 # 'skip_drop': hp.choice('skip_drop', [0.3, 0.5, 0.7]),
                 'objective': 'fair',
                 # fair parameters
                 'fair_c': hp.uniform('fair_c', 0.5, 2),
-                # huber parameters
-                'huber_delta': hp.uniform('huber_delta', 0.2, 1),
-                'gaussian_eta': hp.loguniform('gaussian_eta', -1, 0),
                 # 'metric': hp.choice('metric', ['mae', 'mse']),
                 'sub_feature': hp.uniform('sub_feature', 0.1, 0.5),
                 'num_leaves': hp.choice('num_leaves', list(range(10, 151, 15))),
@@ -438,7 +453,7 @@ config_lightgbm_all_fair_dart = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1])
         },
-        'max_evals': 150
+        'max_evals': 250
     }
 }
 

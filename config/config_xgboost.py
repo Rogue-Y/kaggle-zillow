@@ -18,11 +18,11 @@ config_xgboost = {
     'feature_list': feature_list_non_linear.feature_list,
     'clean_na': False,
     'training_params': {
-        'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
-            'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
-            'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 97,
+        # 'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
+        #     'eval_metric': 'rmse', 'gamma': 0.0018188912716341973, 'lambda': 0.4, 'max_depth': 4,
+        #     'min_child_weight': 4.4156043204121, 'objective': 'reg:linear', 'silent': 1, 'subsample': 0.6},
+        # 'outliers_lw_pct': 4,
+        # 'outliers_up_pct': 97,
         # 'pca_components': -1, # clean_na needs to be True to use PCA
         # 'scaling': False,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
@@ -44,6 +44,22 @@ config_xgboost = {
         # },
         # 'outliers_lw_pct': 5,
         # 'outliers_up_pct': 96
+        'model_params': {
+            'alpha': 0.8,
+            'colsample_bylevel': 1.0,
+            'colsample_bytree': 0.3155271695428432,
+            'eta': 0.06192714352482734,
+            'eval_metric': 'mae',
+            'gamma': 0.018778158935602297,
+            'lambda': 0.4,
+            'max_depth': 4,
+            'min_child_weight': 4.212143071249094,
+            'objective': 'reg:linear',
+            'silent': 1,
+            'subsample': 0.8
+        },
+        'outliers_lw_pct': 3,
+        'outliers_up_pct': 97
     },
     'tuning_params': {
         'parameter_space': {
@@ -66,7 +82,7 @@ config_xgboost = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [3, 2, 1]),
         },
-        'max_evals': 100
+        'max_evals': 300
     }
 }
 
