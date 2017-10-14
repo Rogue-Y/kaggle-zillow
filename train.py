@@ -449,7 +449,7 @@ def train(X_train, y_train, X_validate, y_validate, X_test,
     # df2 = train_df[sqr_ft].apply(np.square)
     # print(df2.columns)
     # train_df = train_df.join(df2, rsuffix='_sqr')
-    
+
     X_validate_id = X_validate['parcelid']
     X_validate_date = X_validate['transactiondate']
     X_validate.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
@@ -569,12 +569,9 @@ def get_train_validate_split(df2016, df_all):
     df_train2016 = pd.concat([df2016_q1_q3, df_oct_train, df_nov_train, df_dec_train])
     df_validate2016 = pd.concat([df_oct_validate, df_nov_validate, df_dec_validate])
 
-    # 201   6 - 2017 training
-    _, df_2017 = utils.split_by_date(df_all, '2017-01-01')
+    df_train_all, df_validate_all = utils.split_by_date(df_all, '2017-07-01')
 
-    df_train_all, df_validate_all = utils.split_by_date(df_2017, '2017-07-01')
-    # df_train_all, df_validate_all = utils.split_by_date(df_all, '2017-07-01')
-
+    # 2016 - 2017 training
     return df_train2016, df_validate2016, df_train_all, df_validate_all
 
 
