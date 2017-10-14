@@ -53,7 +53,6 @@ config_linearridge = {
     }
 }
 
-
 # Configuration
 config_linear_huber = {
     'name': 'config_linear_huber',
@@ -61,7 +60,6 @@ config_linear_huber = {
     'feature_list': feature_list_linear.feature_list,
     'clean_na': True,
     'training_params': {
-        'FOLDS': 3,
         'model_params': {
             'alpha': 0.0337035513301721,
             'epsilon': 2.787714318716998,
@@ -73,7 +71,7 @@ config_linear_huber = {
         'scaling': True
     },
     'stacking_params': {
-        'FOLDS': 3, 'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True
+        'model_params': {'alpha': 0.0337035513301721, 'epsilon': 2.787714318716998, 'fit_intercept': True, 'max_iter': 500}, 'outliers_lw_pct': 5, 'outliers_up_pct': 97, 'scaling': True
     },
     'tuning_params': {
         'parameter_space': {
@@ -86,7 +84,6 @@ config_linear_huber = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            'FOLDS': 3,
         },
         'max_evals': 1000
     }
@@ -141,12 +138,11 @@ config_linearlasso = {
 config_linearRANSAC = {
     'name': 'config_linearRANSAC',
     'Model': LinearModel.RANSAC,
-    'feature_list': feature_list_linearlasso.feature_list,
+    'feature_list': feature_list_linearridge.feature_list,
     'clean_na': True,
     'training_params': {
         'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
                          'min_samples': 0.9697366469576226, 'random_state': 42},
-        'FOLDS': 3,
         'record': False,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 5,
@@ -159,7 +155,6 @@ config_linearRANSAC = {
     'stacking_params': {
         'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
                          'min_samples': 0.9697366469576226, 'random_state': 42},
-        'FOLDS': 3,
         'outliers_up_pct': 98,
         'outliers_lw_pct': 5,
         # 'resale_offset': 0.012
@@ -171,16 +166,61 @@ config_linearRANSAC = {
     'tuning_params': {
         'parameter_space': {
             'model_params': {
-                'base_estimator': sklearn.linear_model.Ridge(alpha=7.375287218066115, random_state=42),
+                'base_estimator': sklearn.linear_model.Ridge(alpha=2.22721163144679, random_state=42),
                 'min_samples': hp.uniform('min_samples', 0, 1),
                 'random_state': 42,
             },
             'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
             'scaling': True,
-            'pca_components': hp.choice('pca_components', [-1, 150, 200]),
+            'pca_components': -1,
         },
-        'max_evals': 500
+        'max_evals': 100
+    }
+}
+
+config_linearRANSAC2 = {
+    'name': 'config_linearRANSAC2',
+    'Model': LinearModel.RANSAC,
+    'feature_list': feature_list_linearridge.feature_list2,
+    'clean_na': True,
+    'training_params': {
+        'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=2.22721163144679, random_state=42),
+                         'min_samples': 0.6305959242246917, 'random_state': 42},
+        'record': False,
+        'outliers_up_pct': 97,
+        'outliers_lw_pct': 4,
+        # 'resale_offset': 0.012
+        'pca_components': -1,  # clean_na needs to be True to use PCA
+        'scaling': True,
+        # 'scaler': RobustScaler(quantile_range=(0, 99)),
+        # 'scaling_columns': SCALING_COLUMNS
+    },
+    'stacking_params': {
+        'model_params': {'base_estimator': sklearn.linear_model.Ridge(alpha=2.22721163144679, random_state=42),
+                         'min_samples': 0.9697366469576226, 'random_state': 42},
+        'record': False,
+        'outliers_up_pct': 97,
+        'outliers_lw_pct': 4,
+        # 'resale_offset': 0.012
+        'pca_components': -1,  # clean_na needs to be True to use PCA
+        'scaling': True,
+        # 'scaler': RobustScaler(quantile_range=(0, 99)),
+        # 'scaling_columns': SCALING_COLUMNS
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'base_estimator': sklearn.linear_model.Ridge(alpha=2.22721163144679, random_state=42),
+                'min_samples': hp.uniform('min_samples', 0, 1),
+                'random_state': 42,
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [95, 96, 97, 98, 99]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [5, 4, 3, 2, 1]),
+            'scaling': True,
+            'pca_components': -1,
+        },
+        'max_evals': 100
     }
 }
 

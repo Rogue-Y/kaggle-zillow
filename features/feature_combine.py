@@ -147,8 +147,11 @@ def feature_combine(year, feature_list, clean, pickle_folder, global_force_gener
         print('cleaned df sanity check:')
         for col in df.columns:
             nan_count = df[col].isnull().sum()
-            if nan_count > 0:
-                print(col + ' : ' + str(nan_count))
+            try:
+                if nan_count > 0:
+                    print(col + ' : ' + str(nan_count))
+            except:
+                print(col)
 
     return df
 
