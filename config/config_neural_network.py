@@ -27,7 +27,7 @@ config_neural_network = {
             'batch_size': 1000,
             # 'learning_rate': 'constant'
             'learning_rate_init': 0.005,
-            'tol': 0.01
+            'tol': 0.01,
             'max_iter': 20000,
             # 'beta_1': 0.9,
             # 'beta_2': 0.999
