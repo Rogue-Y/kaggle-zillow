@@ -15,7 +15,7 @@ from hyperopt import hp
 config_xgboost = {
     'name': 'config_xgboost',
     'Model': XGBoost.XGBoost,
-    'feature_list': feature_list_non_linear.feature_list_all,
+    'feature_list': feature_list_non_linear.feature_list,
     'clean_na': False,
     'training_params': {
         'model_params': {'alpha': 0.6, 'colsample_bylevel': 0.7, 'colsample_bytree': 0.7, 'eta': 0.07901772316032044,
