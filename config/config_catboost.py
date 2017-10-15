@@ -20,11 +20,13 @@ config_catboost = {
     'clean_na': False,
     'training_params': {
         # New Full data
-        'model_params': {'depth': 5, 'eval_metric': 'MAE', 'iterations': 200, 'l2_leaf_reg': 4, 'learning_rate': 0.018995235001009962,
-                         'loss_function': 'MAE', 'random_seed': 42},
+        # 'model_params': {'depth': 5, 'eval_metric': 'MAE', 'iterations': 200, 'l2_leaf_reg': 4, 'learning_rate': 0.018995235001009962,
+        #                  'loss_function': 'MAE', 'random_seed': 42},
         # 'record': False,
-        'outliers_lw_pct': 4,
-        'outliers_up_pct': 100,
+        # 'outliers_lw_pct': 4,
+        # 'outliers_up_pct': 100,
+        'model_params': {'depth': 6, 'eval_metric': 'MAE', 'iterations': 300, 'l2_leaf_reg': 3, 'learning_rate': 0.02118306337399935, 'loss_function': 'MAE', 'random_seed': 42}, 'outliers_lw_pct': 1, 'outliers_up_pct': 100
+        
     },
     'stacking_params': {
         'model_params': {'iterations':200, 'learning_rate':0.026546125048271585, 'depth':7, 'l2_leaf_reg':3, 'loss_function':'MAE',
@@ -52,7 +54,7 @@ config_catboost = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [98, 99, 100]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [2, 1, 0]),
         },
-        'max_evals': 1
+        'max_evals': 200
     }
 }
 
