@@ -37,6 +37,7 @@ def fromsparsetofile(filename, array, deli1=" ", deli2=":",ytarget=None):
         counter_row+=1
         if counter_row%10000==0:
             print(" row : %d " % (counter_row))
+    print('finish')
     f.close()
 
 #creates the main dataset abd prints 2 files to dataset2_train.txt and  dataset2_test.txt
@@ -243,12 +244,16 @@ def stacknet_prepare_test2016():
     #     print(prop2016.shape)
     #     fromsparsetofile("%s/test2016%d.txt" %(test_folder, month), prop2016, deli1=" ", deli2=":",ytarget=None)
 
+    print('2016 prop data')
     prop2016['transaction_year'] = 0
     prop2016['transaction_quarter'] = 4
-    prop2016 = prop2016.values.astype(np.float32, copy=False)
+    print('finish adding time')
+    for col in prop2016.columns:
+        if prop2016[col].dtype != 'float32':
+            prop2016[col] = prop2016[col].astype('float32')
     print('2016 prop shape')
     print(prop2016.shape)
-    fromsparsetofile("%s/test2016%d.txt" %(test_folder, month), prop2016, deli1=" ", deli2=":",ytarget=None)
+    fromsparsetofile("%s/test2016.txt" %(test_folder), prop2016, deli1=" ", deli2=":",ytarget=None)
 
     print (" finished with 2016 train test data" )
 
