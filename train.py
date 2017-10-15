@@ -654,6 +654,9 @@ def train_process(df2016, df_all, Model, params,
         if not os.path.exists(submission_folder):
             os.makedirs(submission_folder)
         df_test.rename(columns={'parcelid': 'ParcelId'}, inplace=True)
+        print('Submission sanity check:')
+        print(df_test.isnull().sum().sum())
+        df_test.fillna(0.016755, inplace=True)
         df_test.to_csv(
             '%s/Submission_%s_%s.csv' %(submission_folder, time, config_name),
             index=False, float_format='%.6f')
