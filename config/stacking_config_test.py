@@ -4,6 +4,7 @@ from .config_xgboost import config_xgboost
 from .config_ensembles import config_rf_hf_v1, config_gb_hf_v1
 from .config_linear import config_linearlasso, config_linearridge, config_elasticnet_hf_v2
 from .config_neighbors import config_kneighbors
+from .config_catboost import *
 
 from hyperopt import hp
 
@@ -11,8 +12,12 @@ stacking_config_test = {
     'name': 'stacking_config_test',
     'stacking_list': {
         'config': [
-            (config_linearridge, True),
-            (config_linearlasso, True),
+            # catboost
+            (config_catboost, False),
+            (config_manycatsboost, False),
+            # linear
+            (config_linearridge, False),
+            (config_linearlasso, False),
             (config_elasticnet_hf_v2, False),
             # lightgbm
             (config_lightgbm_all_regression_l2_dart, False),
