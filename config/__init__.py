@@ -6,7 +6,7 @@ from .config_xgboost import *
 from .config_ensembles import *
 from .config_gaussian_process import *
 
-from .config_catboost import config_catboost, config_manycatsboost
+from .config_catboost import *
 
 
 from .config_neighbors import *

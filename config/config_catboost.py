@@ -25,20 +25,17 @@ config_catboost = {
         # 'record': False,
         # 'outliers_lw_pct': 4,
         # 'outliers_up_pct': 100,
-        'model_params': {'depth': 6, 'eval_metric': 'MAE', 'iterations': 300, 'l2_leaf_reg': 3, 'learning_rate': 0.02118306337399935, 'loss_function': 'MAE', 'random_seed': 42}, 'outliers_lw_pct': 1, 'outliers_up_pct': 100
-        
-    },
-    'stacking_params': {
-        'model_params': {'iterations':200, 'learning_rate':0.026546125048271585, 'depth':7, 'l2_leaf_reg':3, 'loss_function':'MAE',
-                         'eval_metric':'MAE', 'random_seed':42},
-        # 'record': False,
-        'outliers_lw_pct': 0,
-        'outliers_up_pct': 100,
-        # 'resale_offset': 0.012
-        # 'pca_components': -1, # clean_na needs to be True to use PCA
-        # 'scaling': False,
-        # 'scaler': RobustScaler(quantile_range=(0, 99)),
-        # 'scaling_columns': SCALING_COLUMNS
+        'model_params': {
+            'depth': 6,
+            'eval_metric': 'MAE',
+            'iterations': 300,
+            'l2_leaf_reg': 3,
+            'learning_rate': 0.02118306337399935,
+            'loss_function': 'MAE',
+            'random_seed': 42
+        },
+        'outliers_lw_pct': 1,
+        'outliers_up_pct': 100
     },
     'tuning_params': {
         'parameter_space': {
@@ -55,6 +52,45 @@ config_catboost = {
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [2, 1, 0]),
         },
         'max_evals': 200
+    }
+}
+
+# Configuration
+config_catboost_clean = {
+    'name': 'config_catboost_clean',
+    'Model': CatBoost.CatBoost,
+    'feature_list': feature_list_cat.feature_list,
+    'clean_na': True,
+    'training_params': {
+        # New Full data
+        'model_params':  {
+            'depth': 4,
+            'eval_metric': 'MAE',
+            'iterations': 300,
+            'l2_leaf_reg': 4,
+            'learning_rate': 0.023875439091624318,
+            'loss_function': 'MAE',
+            'random_seed': 42
+        },
+        # 'record': False,
+        'outliers_lw_pct': 0,
+        'outliers_up_pct': 100,
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'iterations': hp.choice('iterations', [200, 250, 300]),
+                'learning_rate': hp.loguniform('learning_rate', -4, -2),
+                'depth': hp.choice('depth', list(range(4, 8))),
+                'l2_leaf_reg': hp.choice('l2_leaf_reg', list(range(3, 6))),
+                'loss_function': 'MAE',
+                'eval_metric' : 'MAE',
+                'random_seed' : 42,
+            },
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [0, 1, 2, 3, 4]),
+            'outliers_up_pct': hp.choice('outliers_up_pct', [96, 97, 98, 99, 100]),
+        },
+        'max_evals': 30
     }
 }
 

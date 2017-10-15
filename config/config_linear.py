@@ -20,18 +20,15 @@ config_linearridge = {
     'feature_list': feature_list_linearridge.feature_list,
     'clean_na': True,
     'training_params': {
-        'model_params': {'alpha': 0.331085679103563, 'fit_intercept': False, 'random_state': 42, 'solver': 'sag', 'tol': 0.06706734195514508},
-        'outliers_up_pct': 97,
+        'model_params': {
+            'alpha': 7.3876593237849635,
+            'fit_intercept': True,
+            'random_state': 42,
+            'solver': 'auto',
+            'tol': 0.05789923387169963
+        },
         'outliers_lw_pct': 5,
-        'scaling': True,
-        # 'scaler': RobustScaler(quantile_range=(0, 99)),
-        # 'scaling_columns': SCALING_COLUMNS
-    },
-    'stacking_params': {
-        'model_params': {'alpha': 7.375287218066115, 'random_state': 42, 'tol': 0.001},
         'outliers_up_pct': 97,
-        'outliers_lw_pct': 5,
-        # 'resale_offset': 0.012
         'scaling': True,
         # 'scaler': RobustScaler(quantile_range=(0, 99)),
         # 'scaling_columns': SCALING_COLUMNS

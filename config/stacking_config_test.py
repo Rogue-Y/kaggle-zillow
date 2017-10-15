@@ -14,10 +14,10 @@ stacking_config_test = {
         'config': [
             # catboost
             (config_catboost, False),
-            (config_manycatsboost, False),
+            (config_catboost_clean, False),
             # linear
             (config_linearridge, False),
-            (config_linearlasso, False),
+            # (config_linearlasso, False),
             (config_elasticnet_hf_v2, False),
             # lightgbm
             (config_lightgbm_all_regression_l2_dart, False),
