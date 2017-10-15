@@ -570,10 +570,10 @@ def get_train_validate_split(df2016, df_all):
     df_validate2016 = pd.concat([df_oct_validate, df_nov_validate, df_dec_validate])
 
     # 201   6 - 2017 training
-    _, df_2017 = utils.split_by_date(df_all, '2017-01-01')
+    # _, df_2017 = utils.split_by_date(df_all, '2017-01-01')
 
-    df_train_all, df_validate_all = utils.split_by_date(df_2017, '2017-07-01')
-    # df_train_all, df_validate_all = utils.split_by_date(df_all, '2017-07-01')
+    # df_train_all, df_validate_all = utils.split_by_date(df_2017, '2017-07-01')
+    df_train_all, df_validate_all = utils.split_by_date(df_all, '2017-07-01')
 
     return df_train2016, df_validate2016, df_train_all, df_validate_all
 

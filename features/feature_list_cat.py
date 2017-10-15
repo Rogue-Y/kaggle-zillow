@@ -105,7 +105,7 @@ feature_list = {
         ('ratio_fireplace', 'ratio_fireplace', {}, 'ratio_fireplace_pickle', False),
         ('ratio_floor_shape', 'ratio_floor_shape', {}, 'ratio_floor_shape_pickle', False),
         ('ratio_living_area', 'ratio_living_area', {}, 'ratio_living_area_pickle', False),
-        ('ratio_living_area_2', 'ratio_living_area_2', {}, 'ratio_living_area_2_pickle', False),
+        # ('ratio_living_area_2', 'ratio_living_area_2', {}, 'ratio_living_area_2_pickle', False),
         ('ratio_pool_shed', 'ratio_pool_shed', {}, 'ratio_pool_shed_pickle', False),
         ('ratio_pool_yard', 'ratio_pool_yard', {}, 'ratio_pool_yard_pickle', False),
         ('ratio_structure_tax_value_to_land_tax_value', 'ratio_structure_tax_value_to_land_tax_value', {}, 'ratio_structure_tax_value_to_land_tax_value_pickle', False),
