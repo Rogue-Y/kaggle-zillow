@@ -49,10 +49,10 @@ config_catboost = {
                 'eval_metric' : 'MAE',
                 'random_seed' : 42,
             },
-            'outliers_up_pct': 100,
-            'outliers_lw_pct': 0,
+            'outliers_up_pct': [98, 99, 100],
+            'outliers_lw_pct': [2, 1, 0],
         },
-        'max_evals': 50
+        'max_evals': 1
     }
 }
 
