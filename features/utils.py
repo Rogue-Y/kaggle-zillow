@@ -22,8 +22,8 @@ def load_train_data(data_folder='data/', force_read=False):
         Returns:
             (train_df, properties_df)
     """
-    train = load_transaction_data(data_folder, force_read)
-    prop = load_properties_data(data_folder, force_read)
+    train = load_transaction_data(2016, data_folder, force_read)
+    prop = load_properties_data(2016, data_folder, force_read)
 
     return (train, prop)
 
