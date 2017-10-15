@@ -3,6 +3,7 @@ from .config_lightgbm import config_lightgbm, config_lightgbm_new, config_lightg
 from .config_xgboost import config_xgboost, config_xgboost_new
 from .config_ensembles import config_rf, config_extra_tree, config_gb
 from .config_linear import config_linear_huber, config_linearlasso, config_linearridge, config_linearRANSAC
+from .config_catboost import *
 
 from hyperopt import hp
 
@@ -12,12 +13,14 @@ stacking_config_test = {
         'config': [
             # (config_linearRANSAC, False),
             (config_linearridge, False),
+            (config_linearlasso, False),
+            (config_catboost_clean, False),
             # (config_linear_huber, False),
             # (config_linearlasso, False),
             # (config_lightgbm, False),
             # (config_lightgbm_geo, False),
-            (config_xgboost, False),
-            (config_rf, False),
+            # (config_xgboost, False),
+            # (config_rf, False),
             # (config_extra_tree, False),
             # (config_gb, False),
         ],

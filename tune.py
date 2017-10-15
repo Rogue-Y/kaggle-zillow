@@ -199,7 +199,6 @@ def tune_single_model(config_dict, trials=None):
         print('best loss: ' + str(trials.best_trial['result']['loss']))
         best = trials.best_trial['result']
         print(best)
-        print(space_eval(parameter_space, best))
 
     t2 = time.time()
     print('best trial get at round: ' + str(trials.best_trial['tid']))
@@ -265,7 +264,13 @@ def tune_stacking(stacking_list, Meta_model, force_generate, config_name, parame
     # tuning parameters
     t1 = time.time()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
+    try:
+        best = fmin(train_wrapper, parameter_space, algo=tpe.suggest, max_evals=max_evals, trials=trials)
+    except KeyboardInterrupt:
+        print('best trial get at round: ' + str(trials.best_trial['tid']))
+        print('best loss: ' + str(trials.best_trial['result']['loss']))
+        best = trials.best_trial['result']
+        print(best)
     t2 = time.time()
     print('best trial get at round: ' + str(trials.best_trial['tid']))
     print('best loss: ' + str(trials.best_trial['result']['loss']))
