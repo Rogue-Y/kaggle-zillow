@@ -93,14 +93,14 @@ config_linearlasso = {
     'clean_na': True,
     'training_params': {
         # new data
-        {'model_params': {'alpha': 0.20379257521578062, 'fit_intercept': False, 'normalize': True, 'random_state': 42,
+        'model_params': {'alpha': 0.20379257521578062, 'fit_intercept': False, 'normalize': True, 'random_state': 42,
                           'tol': 0.017284189969998448},
-         'outliers_lw_pct': 4, 'outliers_up_pct': 97, 'scaling': True}
+        'outliers_lw_pct': 4, 'outliers_up_pct': 97, 'scaling': True
     },
     'stacking_params': {
-        {'model_params': {'alpha': 0.20379257521578062, 'fit_intercept': False, 'normalize': True, 'random_state': 42,
+        'model_params': {'alpha': 0.20379257521578062, 'fit_intercept': False, 'normalize': True, 'random_state': 42,
                           'tol': 0.017284189969998448},
-         'outliers_lw_pct': 4, 'outliers_up_pct': 97, 'scaling': True}
+        'outliers_lw_pct': 4, 'outliers_up_pct': 97, 'scaling': True
 
     },
     'tuning_params': {
@@ -117,7 +117,7 @@ config_linearlasso = {
             'scaling': True,
             # 'pca_components': hp.choice('pca_components', [-1, 150, 200]),
         },
-        'max_evals': 500
+        'max_evals': 100
     }
 }
 
