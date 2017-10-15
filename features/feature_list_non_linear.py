@@ -128,7 +128,7 @@ feature_list = {
         # # ('round_multiply_lat_lon', round_multiply_lat_lon, {}, 'round_multiply_lat_lon_pickle', False),
         # ('sum_lat_lon', 'sum_lat_lon', {}, 'sum_lat_lon_pickle', False),
         ('total_rooms', 'total_rooms', {}, 'total_rooms_pickle', False),
-        ('kernel_density', 'kernel_density', {}, 'kernel_density_pickle', True),
+        # ('kernel_density', 'kernel_density', {}, 'kernel_density_pickle', True),
 
         # ('target_neighborhood_feature', 'target_region_feature', {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
         # ('target_zip_feature', 'target_region_feature', {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),
