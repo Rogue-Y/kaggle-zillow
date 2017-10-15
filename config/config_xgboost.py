@@ -45,15 +45,15 @@ config_xgboost = {
         # 'outliers_lw_pct': 5,
         # 'outliers_up_pct': 96
         'model_params': {
-            'alpha': 0.8,
+            'alpha': 0.6,
             'colsample_bylevel': 1.0,
-            'colsample_bytree': 0.3155271695428432,
-            'eta': 0.06192714352482734,
+            'colsample_bytree': 0.12977519593794906,
+            'eta': 0.0571636954557342,
             'eval_metric': 'mae',
-            'gamma': 0.018778158935602297,
+            'gamma': 0.014642902433595135,
             'lambda': 0.4,
             'max_depth': 4,
-            'min_child_weight': 4.212143071249094,
+            'min_child_weight': 4.337115887082636,
             'objective': 'reg:linear',
             'silent': 1,
             'subsample': 0.8

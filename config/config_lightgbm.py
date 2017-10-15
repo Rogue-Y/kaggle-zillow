@@ -292,23 +292,21 @@ config_lightgbm_all_regression_l1_dart = {
     'training_params': {
         'model_params': {
             'boosting_type': 'dart',
-            'learning_rate': 0.13566555825466994,
-            'max_bin': 50,
-            'min_data': 225,
-            'min_hessian': 0.09169556339297391,
-            'num_boost_round': 500,
-            'num_leaves': 25,
-            'objective': 'regression_l1',
-            'sub_feature': 0.14455184302330204,
-            'verbose': -1,
-            'drop_rate': 0.2,
-            'skip_drop': 0.6,
-            'max_drop': 60,
             'categorical_feature': feature_list_all_categorical_feature,
+            'drop_rate': 0.1,
+            'learning_rate': 0.22600454797830483,
+            'max_bin': 150,
             'max_cat_group': 32,
+            'min_data': 165,
+            'num_boost_round': 500,
+            'num_leaves': 70,
+            'objective': 'regression_l1',
+            'skip_drop': 0.3,
+            'sub_feature': 0.10878831524583965,
+            'verbose': -1
         },
-        'outliers_lw_pct': 5,
-        'outliers_up_pct': 97
+        'outliers_lw_pct': 1,
+        'outliers_up_pct': 99
     },
     'tuning_params': {
         'parameter_space': {
@@ -407,20 +405,20 @@ config_lightgbm_all_fair_dart = {
         'model_params': {
             'boosting_type': 'dart',
             'categorical_feature': feature_list_all_categorical_feature,
-            'drop_rate': 0.1,
-            'fair_c': 0.8517025964425281,
-            'learning_rate': 0.14241013083925486,
-            'max_bin': 200,
-            'max_cat_group': 64,
-            'min_data': 270,
-            'num_boost_round': 300,
-            'num_leaves': 25,
+            'drop_rate': 0.05,
+            'fair_c': 0.8539046739442404,
+            'learning_rate': 0.15666164191727722,
+            'max_bin': 100,
+            'max_cat_group': 32,
+            'min_data': 225,
+            'num_boost_round': 500,
+            'num_leaves': 10,
             'objective': 'fair',
-            'sub_feature': 0.1357760875118941,
+            'sub_feature': 0.10051852535617242,
             'verbose': -1
         },
         'outliers_lw_pct': 5,
-        'outliers_up_pct': 97
+        'outliers_up_pct': 96
     },
     'stacking_params': {
     },
