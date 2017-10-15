@@ -16,7 +16,7 @@ from hyperopt import hp
 config_catboost_clean = {
     'name': 'config_catboost_clean',
     'Model': CatBoost.CatBoost,
-    'feature_list': feature_list_cat.feature_list,
+    'feature_list': feature_list_cat.feature_list2,
     'clean_na': True,
     'training_params': {
         # New Full data

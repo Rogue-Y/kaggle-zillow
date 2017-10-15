@@ -5,7 +5,7 @@ from .config_lightgbm import config_lightgbm, config_lightgbm_geo, config_lightg
 from .config_xgboost import config_xgboost, config_xgboost_fi, config_xgboost_all, config_xgboost_all_dart
 from .config_ensembles import config_rf, config_extra_tree, config_gb
 from .config_gaussian_process import config_gaussian_process
-from .config_catboost import config_catboost, config_manycatsboost
+from .config_catboost import config_catboost_clean, config_manycatsboost_clean
 
 from .config_neighbors import config_kneighbors
 

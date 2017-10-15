@@ -93,22 +93,15 @@ config_linearlasso = {
     'clean_na': True,
     'training_params': {
         # new data
-        'model_params': {'alpha': 0.16103211556426375, 'fit_intercept': False, 'normalize': False, 'random_state': 42,
-                          'tol': 0.0856334900560885},
-        'outliers_lw_pct': 5, 'outliers_up_pct': 96, 'scaling': True,
-        # 'scaler': RobustScaler(quantile_range=(0, 99)),
-        # 'scaling_columns': SCALING_COLUMNS
+        {'model_params': {'alpha': 0.20379257521578062, 'fit_intercept': False, 'normalize': True, 'random_state': 42,
+                          'tol': 0.017284189969998448},
+         'outliers_lw_pct': 4, 'outliers_up_pct': 97, 'scaling': True}
     },
     'stacking_params': {
-        'model_params': {'alpha': 1.0693486250127264, 'fit_intercept': False, 'normalize': False, 'random_state': 42,
-                         'tol': 0.0025155077434141472},
-        'outliers_up_pct': 98,
-        'outliers_lw_pct': 3,
-        # 'resale_offset': 0.012
-        # 'pca_components': -1,  # clean_na needs to be True to use PCA
-        'scaling': True,
-        # 'scaler': RobustScaler(quantile_range=(0, 99)),
-        # 'scaling_columns': SCALING_COLUMNS
+        {'model_params': {'alpha': 0.20379257521578062, 'fit_intercept': False, 'normalize': True, 'random_state': 42,
+                          'tol': 0.017284189969998448},
+         'outliers_lw_pct': 4, 'outliers_up_pct': 97, 'scaling': True}
+
     },
     'tuning_params': {
         'parameter_space': {
