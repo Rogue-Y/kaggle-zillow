@@ -103,7 +103,7 @@ feature_list = {
 
         ('geo_city', 'geo_city', {}, 'geo_city_pickle', False),
         ('geo_county', 'geo_county', {}, 'geo_county_pickle', False),
-        # ('geo_lat_lon_block_features', 'geo_lat_lon_block_features', {}, 'geo_lat_lon_block_features_pickle', False),
+        ('geo_lat_lon_block_features', 'geo_lat_lon_block_features', {}, 'geo_lat_lon_block_features_pickle', False),
         ('geo_fips_census_1', 'geo_fips_census_1', {}, 'geo_fips_census_1_pickle', False),
         ('geo_fips_census_block', 'geo_fips_census_block', {}, 'geo_fips_census_block_pickle', False),
         ('geo_neighborhood', 'geo_neighborhood', {}, 'geo_neighborhood_pickle', False),
@@ -128,7 +128,7 @@ feature_list = {
         # # ('round_multiply_lat_lon', round_multiply_lat_lon, {}, 'round_multiply_lat_lon_pickle', False),
         # ('sum_lat_lon', 'sum_lat_lon', {}, 'sum_lat_lon_pickle', False),
         ('total_rooms', 'total_rooms', {}, 'total_rooms_pickle', False),
-        ('kernel_density', 'kernel_density', {}, 'kernel_density_pickle', False),
+        ('kernel_density', 'kernel_density', {}, 'kernel_density_pickle', True),
 
         # ('target_neighborhood_feature', 'target_region_feature', {'id_name':'regionidneighborhood'}, 'target_neighborhood_feature_pickle', False),
         # ('target_zip_feature', 'target_region_feature', {'id_name':'regionidzip'}, 'target_zip_feature_pickle', False),

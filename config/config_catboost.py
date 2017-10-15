@@ -112,4 +112,3 @@ config_manycatsboost = {
         'max_evals': 100
     }
 }
-
