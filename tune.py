@@ -229,11 +229,13 @@ def tune_stacking_wrapper(config_dict, trials=None):
     Meta_model = config_dict['Meta_model']
     # whether force generate all first layer
     force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
+    # if fill na
+    clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
     # Tune
-    tune_stacking(stacking_list, Meta_model, force_generate, config_name, **config_dict['tuning_params'], trials=trials)
+    tune_stacking(stacking_list, Meta_model, force_generate, config_name, clean_na, **config_dict['tuning_params'], trials=trials)
 
-def tune_stacking(stacking_list, Meta_model, force_generate, config_name, parameter_space, max_evals=100, trials=None):
-    first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, global_force_generate=force_generate)
+def tune_stacking(stacking_list, Meta_model, force_generate, config_name, clean_na, parameter_space, max_evals=100, trials=None):
+    first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, clean_na=clean_na, global_force_generate=force_generate)
 
     def train_wrapper(params):
         outliers_up_pct = params['outliers_up_pct'] if 'outliers_up_pct' in params else 100
