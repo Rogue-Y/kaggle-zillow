@@ -134,7 +134,8 @@ def get_first_layer(stacking_list, submit=False, clean_na = False, global_force_
         test_first_layers = None
     else:
         if clean_na:
-            test_first_layers.fillna(0.0167, inplace=True)
+            for key, item in test_first_layers.items():
+                item.fillna(0.0167, inplace=True)
 
     print('First layer generated.')
     return first_layer2016, target2016, first_layer_all, target_all, test_first_layers
