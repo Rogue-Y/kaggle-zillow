@@ -171,11 +171,11 @@ stacking_config_ridge = {
     'Meta_model': LinearModel.RidgeRegressor,
     # predicting parameters
     'model_params': {
-        'alpha': 0.30519954258504006,
+        'alpha': 0.35479842518622096,
         'fit_intercept': True,
         'random_state': 42,
-        'solver': 'cholesky',
-        'tol': 0.008175474514191572
+        'solver': 'sparse_cg',
+        'tol': 0.00711606311467554
     },
     'outliers_lw_pct': 2,
     'outliers_up_pct': 97,

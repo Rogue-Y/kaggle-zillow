@@ -183,8 +183,9 @@ def stacking(first_layer, target, Meta_model, model_params, outliers_lw_pct = 0,
     return avg_cv_errors
 
 def stacking_wrapper(first_layer2016, target2016, first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct = 0, outliers_up_pct = 100):
-    stacking(first_layer2016, target2016, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
-    stacking(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
+    loss2016 = stacking(first_layer2016, target2016, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
+    loss_all = stacking(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
+    print('weighted mean average error %s' %((loss2016 + 2*loss_all)/3))
 
 # def stacking_submit(first_layer, target, first_layer_test, meta_model,
 #         outliers_lw_pct = 0, outliers_up_pct = 100):
