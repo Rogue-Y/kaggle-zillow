@@ -1,10 +1,12 @@
 import numpy as np
 import pandas as pd
 from scipy.sparse import csr_matrix
+from sklearn.preprocessing import LabelEncoder
 from train import *
 
 import os
 
+from features import utils
 from features import feature_list_stacknet
 feature_list = feature_list_stacknet.feature_list_minimum
 
@@ -44,6 +46,100 @@ def fromsparsetofile(filename, array, deli1=" ", deli2=":",ytarget=None):
     f.close()
 
 #creates the main dataset abd prints 2 files to dataset2_train.txt and  dataset2_test.txt
+
+def stacknet_prepare_validate_raw():
+    # 2016 train, validation
+    prop2016 = utils.load_properties_data_raw(2016)
+    prop2016.fillna(-1, inplace=True)
+    for c in prop2016.columns:
+        if prop2016[c].dtype == 'object':
+            lbl = LabelEncoder()
+            lbl.fit(list(prop2016[c].values))
+            prop2016[c] = lbl.transform(list(prop2016[c].values))
+
+    transactions = utils.load_transaction_data(2016)
+    # merge transaction and prop data
+    df2016 = transactions.merge(prop2016, how='inner', on='parcelid')
+    df2016['transaction_year'] = 0
+    df2016['transaction_month'] = df2016['transactiondate'].map(lambda x: x.date().month)
+    df2016['transaction_quarter'] = df2016['transaction_month'].map({1:1, 2:1, 3:1, 4:2, 5:2, 6:2, 7:3, 8:3, 9:3, 10:4, 11:4, 12:4})
+    df2016.drop('transaction_month', axis=1, inplace=True)
+
+    transactions = None
+    prop2016 = None
+    gc.collect()
+
+    prop2017 = utils.load_properties_data_raw(2017)
+    prop2017.fillna(-1, inplace=True)
+    for c in prop2017.columns:
+        if prop2017[c].dtype == 'object':
+            lbl = LabelEncoder()
+            lbl.fit(list(prop2017[c].values))
+            prop2017[c] = lbl.transform(list(prop2017[c].values))
+
+    transactions = utils.load_transaction_data(2017)
+    # merge transaction and prop data
+    df2017 = transactions.merge(prop2017, how='inner', on='parcelid')
+    df2017['transaction_year'] = 1
+    df2017['transaction_month'] = df2017['transactiondate'].map(lambda x: x.date().month)
+    df2017['transaction_quarter'] = df2017['transaction_month'].map({1:1, 2:1, 3:1, 4:2, 5:2, 6:2, 7:3, 8:3, 9:3, 10:4, 11:4, 12:4})
+    df2017.drop('transaction_month', axis=1, inplace=True)
+
+    transactions = None
+    prop2017 = None
+    gc.collect()
+
+    df_all = pd.concat([df2016, df2017])
+
+    df_train2016, df_validate2016, df_train_all, df_validate_all = get_train_validate_split(df2016, df_all)
+
+    df_train2016 = df_train2016[(df_train2016.logerror > -0.4) & (df_train2016.logerror < 0.419)]
+    df_train_all = df_train_all[(df_train_all.logerror > -0.4) & (df_train_all.logerror < 0.419)]
+
+    # 2016
+    # validation set need parcelid and transactiondate as unqiue identifier of rows
+    df_train2016.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
+    X_validate2016_id_date = df_validate2016[['parcelid', 'transactiondate']]
+    df_validate2016.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
+    X_train2016, y_train2016 = utils.get_features_target(df_train2016)
+    X_validate2016, _ = utils.get_features_target(df_validate2016)
+    print('train 2016')
+    print(X_train2016.shape, y_train2016.shape)
+    print('validate 2016')
+    print(X_validate2016.shape)
+    # for col in X_train2016:
+    #     print(col, X_train2016[col].dtype)
+
+    validate_folder = 'data/stacknet/validation'
+    if not os.path.exists(validate_folder):
+        os.makedirs(validate_folder)
+    X_validate2016_id_date.to_csv("%s/validate2016_id_date.csv" %validate_folder, index=False)
+    X_train2016 = X_train2016.values.astype(np.float32, copy=False)
+    X_validate2016 = X_validate2016.values.astype(np.float32, copy=False)
+    y_train2016 = y_train2016.values.astype(np.float32, copy=False)
+    fromsparsetofile("%s/train2016.txt" %validate_folder, X_train2016, deli1=" ", deli2=":",ytarget=y_train2016)
+    fromsparsetofile("%s/validate2016.txt" %validate_folder, X_validate2016, deli1=" ", deli2=":",ytarget=None)
+    print (" finished with 2016 train validation data" )
+
+    # 2016 - 2017
+    # validation set need parcelid and transactiondate as unqiue identifier of rows
+    df_train_all.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
+    X_validate_all_id_date = df_validate_all[['parcelid', 'transactiondate']]
+    df_validate_all.drop(['parcelid', 'transactiondate'], axis=1, inplace=True)
+    X_train_all, y_train_all = utils.get_features_target(df_train_all)
+    X_validate_all, _ = utils.get_features_target(df_validate_all)
+    print('train all')
+    print(X_train_all.shape, y_train_all.shape)
+    print('validate all')
+    print(X_validate_all.shape)
+
+    X_validate_all_id_date.to_csv("%s/validate_all_id_date.csv" %validate_folder, index=False)
+    X_train_all = X_train_all.values.astype(np.float32, copy=False)
+    X_validate_all = X_validate_all.values.astype(np.float32, copy=False)
+    y_train_all = y_train_all.values.astype(np.float32, copy=False)
+    fromsparsetofile("%s/train_all.txt" %validate_folder, X_train_all, deli1=" ", deli2=":",ytarget=y_train_all)
+    fromsparsetofile("%s/validate_all.txt" %validate_folder, X_validate_all, deli1=" ", deli2=":",ytarget=None)
+    print (" finished with all train validation data" )
 
 def stacknet_prepare_validate():
     # 2016 train, validation
@@ -258,5 +354,5 @@ def stacknet_prepare_test2016():
     print (" finished with 2016 train test data" )
 
 if __name__ == '__main__':
-    # stacknet_prepare_validate()
-    stacknet_prepare_test2017()
+    stacknet_prepare_validate_raw()
+    # stacknet_prepare_test2017()

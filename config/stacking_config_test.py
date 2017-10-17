@@ -137,7 +137,7 @@ stacking_config_linear = {
     }
 }
 
-
+# 0.0637986604067, 0.0685674588323, 0.0669778593571
 stacking_config_ridge = {
     'name': 'stacking_config_ridge',
     'stacking_list': {
@@ -195,5 +195,70 @@ stacking_config_ridge = {
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [6, 5, 4, 3, 2, 1, 0]),
         },
         'max_evals': 3000
+    }
+}
+
+# 0.0637807268378, 0.0684604519817, 0.0669005436004
+from features import stacking_feature_list
+stacking_config_ridge_with_feature = {
+    'name': 'stacking_config_ridge_with_feature',
+    'stacking_list': {
+        'config': [
+            # catboost
+            (config_catboost, False),
+            (config_catboost_clean, False),
+            # linear
+            (config_linearridge, False),
+            (config_linearlasso, False),
+            (config_elasticnet_hf_v2, False),
+            # lightgbm
+            (config_lightgbm_all_regression_l2_dart, False),
+            (config_lightgbm_all_regression_l1_dart, False),
+            (config_lightgbm_all_huber, False),
+            (config_lightgbm_all_fair_dart, False),
+            # xgboost
+            (config_xgboost, False),
+            # knn
+            (config_kneighbors, False),
+            (config_rf_hf_v1, False),
+            # (config_extra_tree, False),
+            (config_gb_hf_v1, False),
+        ],
+        'csv': [
+
+        ]
+    },
+    'global_force_generate': False,
+    'feature_list': stacking_feature_list.feature_list_ridge1,
+    'clean_na': True,
+    'Meta_model': LinearModel.RidgeRegressor,
+    # predicting parameters
+    # 'resale_offset': 0.012,
+    'model_params': {
+        'alpha': 0.21679100712172433,
+        'fit_intercept': True,
+        'normalize': True,
+        'random_state': 42,
+        'solver': 'sparse_cg',
+        'tol': 0.006812842662686247
+    },
+    'outliers_lw_pct': 3,
+    'outliers_up_pct': 96,
+
+    # tuning parameters
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'alpha': hp.loguniform('alpha', -3, 2),
+                'fit_intercept': hp.choice('fit_intercept', [True, False]),
+                'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
+                'tol': hp.loguniform('tol', -6, -2),
+                'normalize': hp.choice('normalize', [True, False]),
+                'random_state': 42
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [94, 95, 96, 97, 98, 99, 100]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [6, 5, 4, 3, 2, 1, 0]),
+        },
+        'max_evals': 1000
     }
 }

@@ -1,4 +1,26 @@
-feature_list_ridge = {
+feature_list_ridge1 = {
+    'original': [
+        # required columns
+        'parcelid',
+        # optional columns
+        'bathroomcnt',
+        'bedroomcnt',
+        'calculatedfinishedsquarefeet',
+        'fips',
+        'fullbathcnt',
+        'lotsizesquarefeet',
+        'roomcnt',
+        'yearbuilt',
+        'structuretaxvaluedollarcnt',
+        'taxvaluedollarcnt',
+        'assessmentyear',
+        'landtaxvaluedollarcnt',
+        'taxamount',
+    ],
+}
+
+
+feature_list_ridge2 = {
     'before_fill': [
         # ('missing_value_count', 'missing_value_count', {}, 'missing_value_count_pickle', False),
     ],
@@ -24,13 +46,13 @@ feature_list_ridge = {
         # 'finishedsquarefeet6',
         'fips',
         # 'fireplacecnt',
-        'fullbathcnt',
+        # 'fullbathcnt',
         # 'garagecarcnt',
         # 'garagetotalsqft',
         # 'hashottuborspa',
         # 'heatingorsystemtypeid',
-        # 'latitude',
-        # 'longitude',
+        'latitude',
+        'longitude',
         'lotsizesquarefeet',
         # 'poolcnt',
         # 'poolsizesum',
@@ -57,9 +79,9 @@ feature_list_ridge = {
         # 'fireplaceflag',
         'structuretaxvaluedollarcnt',
         'taxvaluedollarcnt',
-        # 'assessmentyear',
-        # 'landtaxvaluedollarcnt',
-        # 'taxamount',
+        'assessmentyear',
+        'landtaxvaluedollarcnt',
+        'taxamount',
         # 'taxdelinquencyflag',
         # 'taxdelinquencyyear',
         # 'fips_census_1',
@@ -69,7 +91,7 @@ feature_list_ridge = {
     ],
     'generated': [
         # ('average_bathroom_size', 'average_bathroom_size', {}, 'average_bathroom_size_pickle', False),
-        # ('average_bedroom_size', 'average_bedroom_size', {}, 'average_bedroom_size_pickle', False),
+        ('average_bedroom_size', 'average_bedroom_size', {}, 'average_bedroom_size_pickle', False),
         # ('average_room_size', 'average_room_size', {}, 'average_room_size_pickle', False),
         # ('boolean_has_ac', 'boolean_has_ac', {}, 'boolean_has_ac_pickle', False),
         # ('boolean_has_garage_pool_and_ac', 'boolean_has_garage_pool_and_ac', {}, 'boolean_has_garage_pool_and_ac_pickle', False),
@@ -88,7 +110,7 @@ feature_list_ridge = {
         # ('error_rate_count_bathroom', 'error_rate_count_bathroom', {}, 'error_rate_count_bathroom_pickle', False),
         # ('error_rate_first_floor_living_sqft', 'error_rate_first_floor_living_sqft', {}, 'error_rate_first_floor_living_sqft_pickle', False),
         # ('extra_rooms', 'extra_rooms', {}, 'extra_rooms_pickle', False),
-        # ('extra_space', 'extra_space', {}, 'extra_space_pickle', False),
+        ('extra_space', 'extra_space', {}, 'extra_space_pickle', False),
         #
         # ('geo_city', 'geo_city', {}, 'geo_city_pickle', False),
         # ('geo_county', 'geo_county', {}, 'geo_county_pickle', False),
@@ -104,14 +126,14 @@ feature_list_ridge = {
         # ('ratio_bedroom_bathroom', 'ratio_bedroom_bathroom', {}, 'ratio_bedroom_bathroom_pickle', False),
         # ('ratio_fireplace', 'ratio_fireplace', {}, 'ratio_fireplace_pickle', False),
         # ('ratio_floor_shape', 'ratio_floor_shape', {}, 'ratio_floor_shape_pickle', False),
-        # ('ratio_living_area', 'ratio_living_area', {}, 'ratio_living_area_pickle', False),
+        ('ratio_living_area', 'ratio_living_area', {}, 'ratio_living_area_pickle', False),
         # ('ratio_living_area_2', 'ratio_living_area_2', {}, 'ratio_living_area_2_pickle', False),
         # ('ratio_pool_shed', 'ratio_pool_shed', {}, 'ratio_pool_shed_pickle', False),
         # ('ratio_pool_yard', 'ratio_pool_yard', {}, 'ratio_pool_yard_pickle', False),
         # ('ratio_structure_tax_value_to_land_tax_value', 'ratio_structure_tax_value_to_land_tax_value', {}, 'ratio_structure_tax_value_to_land_tax_value_pickle', False),
-        # ('ratio_tax', 'ratio_tax', {}, 'ratio_tax_pickle', False),
+        ('ratio_tax', 'ratio_tax', {}, 'ratio_tax_pickle', False),
         # ('ratio_tax_value_to_land_tax_value', 'ratio_tax_value_to_land_tax_value', {}, 'ratio_tax_value_to_land_tax_value_pickle', False),
-        # ('ratio_tax_value_to_structure_value', 'ratio_tax_value_to_structure_value', {}, 'ratio_tax_value_to_structure_value_pickle', False),
+        ('ratio_tax_value_to_structure_value', 'ratio_tax_value_to_structure_value', {}, 'ratio_tax_value_to_structure_value_pickle', False),
         # ('round_lat', 'round_lat', {}, 'round_lat_pickle', False),
         # ('round_lon', 'round_lon', {}, 'round_lon_pickle', False),
         # # ('round_multiply_lat_lon', round_multiply_lat_lon, {}, 'round_multiply_lat_lon_pickle', False),
