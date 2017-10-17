@@ -225,6 +225,8 @@ def tune_stacking_wrapper(config_dict, trials=None):
     config_name = config_dict['name']
     # Feature list
     stacking_list = config_dict['stacking_list']
+    # feature list
+    feature_list = config_dict['feature_list'] if 'feature_list' in config_dict else None
     # Model
     Meta_model = config_dict['Meta_model']
     # whether force generate all first layer
@@ -232,10 +234,14 @@ def tune_stacking_wrapper(config_dict, trials=None):
     # if fill na
     clean_na = config_dict['clean_na'] if 'clean_na' in config_dict else False
     # Tune
-    tune_stacking(stacking_list, Meta_model, force_generate, config_name, clean_na, **config_dict['tuning_params'], trials=trials)
+    tune_stacking(stacking_list, feature_list, Meta_model, force_generate, config_name, clean_na, **config_dict['tuning_params'], trials=trials)
 
-def tune_stacking(stacking_list, Meta_model, force_generate, config_name, clean_na, parameter_space, max_evals=100, trials=None):
-    first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, clean_na=clean_na, global_force_generate=force_generate)
+def tune_stacking(stacking_list, feature_list, Meta_model, force_generate, config_name, clean_na, parameter_space, max_evals=100, trials=None):
+    first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, feature_list=feature_list, clean_na=clean_na, global_force_generate=force_generate)
+    print('2016 first layer and target')
+    print(first_layer2016.shape, target2016.shape)
+    print('all first layer and target')
+    print(first_layer_all.shape, target_all.shape)
 
     def train_wrapper(params):
         outliers_up_pct = params['outliers_up_pct'] if 'outliers_up_pct' in params else 100

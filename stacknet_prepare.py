@@ -5,6 +5,9 @@ from train import *
 
 import os
 
+from features import feature_list_stacknet
+feature_list = feature_list_stacknet.feature_list_minimum
+
 ## converts arrayo to sparse svmlight format
 def fromsparsetofile(filename, array, deli1=" ", deli2=":",ytarget=None):
     zsparse=csr_matrix(array)
@@ -44,8 +47,6 @@ def fromsparsetofile(filename, array, deli1=" ", deli2=":",ytarget=None):
 
 def stacknet_prepare_validate():
     # 2016 train, validation
-    from features import feature_list_non_linear
-    feature_list = feature_list_non_linear.feature_list_all
     prop2016 = prepare_features(2016, feature_list, True)
     transactions = utils.load_transaction_data(2016)
     # merge transaction and prop data
@@ -127,8 +128,6 @@ def stacknet_prepare_validate():
 
 def stacknet_prepare_test2017():
     # 2016 train, validation
-    from features import feature_list_non_linear
-    feature_list = feature_list_non_linear.feature_list_all
     prop2016 = prepare_features(2016, feature_list, True)
     transactions = utils.load_transaction_data(2016)
     # merge transaction and prop data
@@ -192,14 +191,16 @@ def stacknet_prepare_test2017():
     prop2017 = prop2017.values.astype(np.float32, copy=False)
     print('2017 prop shape')
     print(prop2017.shape)
+<<<<<<< HEAD
     fromsparsetofile("%s/test2017.txt" %test_folder, prop2017, deli1=" ", deli2=":",ytarget=None)
+=======
+    fromsparsetofile("%s/test2017%d.txt" %test_folder, prop2017, deli1=" ", deli2=":",ytarget=None)
+>>>>>>> 5bea31f4b9f7afd0f85a105078885fea873ac7e6
 
     print (" finished with 2017 train test data" )
 
 def stacknet_prepare_test2016():
     # 2016 train, validation
-    from features import feature_list_non_linear
-    feature_list = feature_list_non_linear.feature_list_all
     prop2016 = prepare_features(2016, feature_list, True)
     transactions = utils.load_transaction_data(2016)
     # merge transaction and prop data
