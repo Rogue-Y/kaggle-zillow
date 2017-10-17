@@ -5,6 +5,9 @@ from train import *
 
 import os
 
+from features import feature_list_stacknet
+feature_list = feature_list_stacknet.feature_list_minimum
+
 ## converts arrayo to sparse svmlight format
 def fromsparsetofile(filename, array, deli1=" ", deli2=":",ytarget=None):
     zsparse=csr_matrix(array)
@@ -44,8 +47,6 @@ def fromsparsetofile(filename, array, deli1=" ", deli2=":",ytarget=None):
 
 def stacknet_prepare_validate():
     # 2016 train, validation
-    from features import feature_list_non_linear
-    feature_list = feature_list_non_linear.feature_list_all
     prop2016 = prepare_features(2016, feature_list, True)
     transactions = utils.load_transaction_data(2016)
     # merge transaction and prop data
@@ -127,8 +128,6 @@ def stacknet_prepare_validate():
 
 def stacknet_prepare_test2017():
     # 2016 train, validation
-    from features import feature_list_non_linear
-    feature_list = feature_list_non_linear.feature_list_all
     prop2016 = prepare_features(2016, feature_list, True)
     transactions = utils.load_transaction_data(2016)
     # merge transaction and prop data
@@ -167,6 +166,9 @@ def stacknet_prepare_test2017():
     print('test 2017')
     print(prop2017.shape)
 
+    test_folder = 'data/stacknet/test'
+    if not os.path.exists(test_folder):
+        os.makedirs(test_folder)
     prop2017_id.to_csv("%s/test2017_id.csv" %test_folder, index=False)
     X_train_all = X_train_all.values.astype(np.float32, copy=False)
     y_train_all = y_train_all.values.astype(np.float32, copy=False)
@@ -189,14 +191,12 @@ def stacknet_prepare_test2017():
     prop2017 = prop2017.values.astype(np.float32, copy=False)
     print('2017 prop shape')
     print(prop2017.shape)
-    fromsparsetofile("%s/test2017%d.txt" %(test_folder, month), prop2017, deli1=" ", deli2=":",ytarget=None)
+    fromsparsetofile("%s/test2017%d.txt" %test_folder, prop2017, deli1=" ", deli2=":",ytarget=None)
 
     print (" finished with 2017 train test data" )
 
 def stacknet_prepare_test2016():
     # 2016 train, validation
-    from features import feature_list_non_linear
-    feature_list = feature_list_non_linear.feature_list_all
     prop2016 = prepare_features(2016, feature_list, True)
     transactions = utils.load_transaction_data(2016)
     # merge transaction and prop data
