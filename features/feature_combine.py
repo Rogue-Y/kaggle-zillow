@@ -138,7 +138,7 @@ def feature_combine(year, feature_list, clean, pickle_folder, global_force_gener
             feature.to_pickle(pickle_path)
         generated_features.append(feature)
 
-    original_features = feature_list['original']
+    original_features = feature_list['original'] if 'original' in feature_list else []
 
     df = pd.concat([prop[original_features], *generated_features], axis=1, copy=False)
 

@@ -62,7 +62,9 @@ def ensemble(prediction_list=prediction_list):
 
 
 ### Stacking ###
-def get_first_layer(stacking_list, submit=False, clean_na = False, global_force_generate=False):
+def get_first_layer(stacking_list, submit=False, clean_na = False,
+    global_force_generate=False,
+    feature_list=None):
     print('Generate first layer...')
 
     first_layer_csv_folder = 'data/ensemble/csv/validate'
@@ -95,6 +97,16 @@ def get_first_layer(stacking_list, submit=False, clean_na = False, global_force_
     print('Loading validation target...')
     transaction2016 = utils.load_transaction_data(2016)
     transaction2017 = utils.load_transaction_data(2017)
+
+    # Add features to first layer if needed.
+    if feature_list is not None:
+        prop2016 = train.prepare_features(2016, feature_list, clean_na)
+        transaction2016 = transaction2016.merge(prop2016, how='inner', on='parcelid')
+        del prop2016; gc.collect()
+
+        prop2017 = train.prepare_features(2017, feature_list, clean_na)
+        transaction2017 = transaction2017.merge(prop2017, how='inner', on='parcelid')
+        del prop2017; gc.collect()
 
     _, df_validate2016, _, df_validate_all = train.get_train_validate_split(transaction2016, transaction2017)
 
@@ -241,6 +253,8 @@ def get_meta_model(config_file):
     # Read stacking configuration
     # stacking list
     stacking_list = config_dict['stacking_list']
+    # feature list
+    feature_list = config_dict['feature_list'] if 'feature_list' in config_dict else None
     # meta model
     Meta_model = config_dict['Meta_model']
     model_params = config_dict['model_params']
@@ -253,7 +267,7 @@ def get_meta_model(config_file):
 
     # whether force generate all first layer
     global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
-    first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, False, clean_na, global_force_generate)
+    first_layer2016, target2016, first_layer_all, target_all, _ = get_first_layer(stacking_list, False, clean_na, global_force_generate, feature_list)
     meta_model2016, train_loss2016 = train_meta_model(first_layer2016, target2016, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
     meta_model2017, train_loss_all = train_meta_model(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
     return meta_model2016, train_loss2016, meta_model2017, train_loss_all
@@ -373,6 +387,8 @@ if __name__ == '__main__':
         # Read stacking configuration
         # stacking list
         stacking_list = config_dict['stacking_list']
+        # feature list
+        feature_list = config_dict['feature_list'] if 'feature_list' in config_dict else None
         # meta model
         Meta_model = config_dict['Meta_model']
         model_params = config_dict['model_params']
@@ -385,7 +401,7 @@ if __name__ == '__main__':
 
         # whether force generate all first layer
         global_force_generate = config_dict['global_force_generate'] if 'global_force_generate' in config_dict else False
-        first_layer2016, target2016, first_layer_all, target_all, test_first_layers = get_first_layer(stacking_list, submit, clean_na, global_force_generate)
+        first_layer2016, target2016, first_layer_all, target_all, test_first_layers = get_first_layer(stacking_list, submit, clean_na, global_force_generate, feature_list)
         if submit:
             stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target_all, test_first_layers, Meta_model, model_params, outliers_lw_pct, outliers_up_pct, config_dict)
         else:

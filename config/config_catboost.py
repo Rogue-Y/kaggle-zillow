@@ -94,6 +94,45 @@ config_catboost_clean = {
     }
 }
 
+# Configuration
+config_catboost_clean_long = {
+    'name': 'config_catboost_clean_long',
+    'Model': CatBoost.CatBoost,
+    'feature_list': feature_list_cat.feature_list,
+    'clean_na': True,
+    'training_params': {
+        # New Full data
+        'model_params':  {
+            'depth': 6,
+            'eval_metric': 'MAE',
+            'iterations': 630,
+            'l2_leaf_reg': 3,
+            'learning_rate': 0.03,
+            'loss_function': 'MAE',
+            'random_seed': 7
+        },
+        # 'record': False,
+        'outliers_lw_pct': 0,
+        'outliers_up_pct': 100,
+    },
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'iterations': hp.choice('iterations', [200, 250, 300]),
+                'learning_rate': hp.loguniform('learning_rate', -4, -2),
+                'depth': hp.choice('depth', list(range(4, 8))),
+                'l2_leaf_reg': hp.choice('l2_leaf_reg', list(range(3, 6))),
+                'loss_function': 'MAE',
+                'eval_metric' : 'MAE',
+                'random_seed' : 42,
+            },
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [0, 1, 2, 3, 4]),
+            'outliers_up_pct': hp.choice('outliers_up_pct', [96, 97, 98, 99, 100]),
+        },
+        'max_evals': 30
+    }
+}
+
 config_manycatsboost = {
     'name': 'config_manycatsboost',
     'Model': CatBoost.ManyCatsBoost,
