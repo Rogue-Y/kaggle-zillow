@@ -268,6 +268,8 @@ def tune_stacking(stacking_list, feature_list, Meta_model, force_generate, confi
     t2 = time.time()
     print('best trial get at round: ' + str(trials.best_trial['tid']))
     print('best loss: ' + str(trials.best_trial['result']['loss']))
+    print('loss 2016: ' + str(trials.best_trial['result']['loss2016']))
+    print('loss all: ' + str(trials.best_trial['result']['loss_all']))
     print(best)
     print(space_eval(parameter_space, best))
     print("time: %s" %((t2-t1) / 60))

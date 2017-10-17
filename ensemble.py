@@ -92,6 +92,8 @@ def get_first_layer(stacking_list, submit=False, clean_na = False,
             print('Generating first layer csv for config: %s ...' %config_name)
             train.train_config(config_dict, mode='stacking', submit=submit)
         validation_csv_list.append(config_name)
+    print('first layer using predicts of:')
+    print(validation_csv_list)
 
     # get validation targets:
     print('Loading validation target...')
