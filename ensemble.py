@@ -104,11 +104,11 @@ def get_first_layer(stacking_list, submit=False, clean_na = False,
     if feature_list is not None:
         prop2016 = train.prepare_features(2016, feature_list, clean_na)
         transaction2016 = transaction2016.merge(prop2016, how='inner', on='parcelid')
-        del prop2016; gc.collect()
+        # del prop2016; gc.collect()
 
         prop2017 = train.prepare_features(2017, feature_list, clean_na)
         transaction2017 = transaction2017.merge(prop2017, how='inner', on='parcelid')
-        del prop2017; gc.collect()
+        # del prop2017; gc.collect()
 
     _, df_validate2016, _, df_validate_all = train.get_train_validate_split(transaction2016, transaction2017)
 
@@ -131,6 +131,10 @@ def get_first_layer(stacking_list, submit=False, clean_na = False,
             for month in test_months:
                 if month not in test_first_layers:
                     test_first_layers[month] = df_test
+                    if month.startswith('2016'):
+                        test_first_layers[month] = test_first_layers[month].merge(prop2016, 'left', 'parcelid')
+                    else:
+                        test_first_layers[month] = test_first_layers[month].merge(prop2017, 'left', 'parcelid')
                 pred = test[['parcelid', month]].rename(columns={month: config_name})
                 test_first_layers[month] = test_first_layers[month].merge(pred, 'left', 'parcelid')
 
@@ -282,6 +286,10 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
     loss_all = stacking(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
     avg_cv_errors = (loss2016 + 2 * loss_all) / 3
 
+    print('first layer shapes')
+    print(first_layer2016.shape)
+    print(first_layer_all.shape)
+
     months = ['10', '11', '12']
 
     # Generate submission
@@ -301,14 +309,14 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
     # make prediction
     print("Add resale 2016...")
     transactions2016 = utils.load_transaction_data(2016)
-    # add resale
-    sales2016 = transactions2016[['parcelid', 'logerror']].groupby('parcelid').mean()
-    sample = sample.join(sales2016, on='ParcelId', how='left')
-    for month in months:
-        year_month = '2016' + month
-        sample[year_month] = sample[year_month].where(
-            sample['logerror'].isnull(),  sample[year_month] + resale_offset)
-    sample.drop('logerror', axis=1, inplace=True)
+    # # add resale
+    # sales2016 = transactions2016[['parcelid', 'logerror']].groupby('parcelid').mean()
+    # sample = sample.join(sales2016, on='ParcelId', how='left')
+    # for month in months:
+    #     year_month = '2016' + month
+    #     sample[year_month] = sample[year_month].where(
+    #         sample['logerror'].isnull(),  sample[year_month] + resale_offset)
+    # sample.drop('logerror', axis=1, inplace=True)
 
     print('predicting 2017')
     meta_model2017, train_loss_all = train_meta_model(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
@@ -321,14 +329,14 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
     # make prediction
     print("Add resale 2017...")
     transactions2017 = utils.load_transaction_data(2017)
-    # add resale
-    sales2017 = transactions2017[['parcelid', 'logerror']].groupby('parcelid').mean()
-    sample = sample.join(sales2017, on='ParcelId', how='left')
-    for month in months:
-        year_month = '2017' + month
-        sample[year_month] = sample[year_month].where(
-            sample['logerror'].isnull(),  sample[year_month] + resale_offset)
-    sample.drop('logerror', axis=1, inplace=True)
+    # # add resale
+    # sales2017 = transactions2017[['parcelid', 'logerror']].groupby('parcelid').mean()
+    # sample = sample.join(sales2017, on='ParcelId', how='left')
+    # for month in months:
+    #     year_month = '2017' + month
+    #     sample[year_month] = sample[year_month].where(
+    #         sample['logerror'].isnull(),  sample[year_month] + resale_offset)
+    # sample.drop('logerror', axis=1, inplace=True)
 
     # Sanity check, should not have nan
     print('Prediction sanity check')

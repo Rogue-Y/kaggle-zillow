@@ -198,7 +198,6 @@ stacking_config_ridge = {
     }
 }
 
-# 0.0637807268378, 0.0684604519817, 0.0669005436004
 all_configs = [
     # catboost
     (config_catboost, False),
@@ -222,6 +221,8 @@ all_configs = [
 ]
 
 from features import stacking_feature_list
+
+# 0.0637807268378, 0.0684604519817, 0.0669005436004
 stacking_config_ridge_with_feature = {
     'name': 'stacking_config_ridge_with_feature',
     'stacking_list': {
@@ -372,47 +373,49 @@ stacking_config_ridge_partial_config_with_feature = {
     }
 }
 
-# stacking_config_ridge_partial_config_with_feature = {
-#     'name': 'stacking_config_ridge_partial_config_with_feature',
-#     'stacking_list': {
-#         'config': partial_configs + [(config_catboost_clean_long, False)],
-#         'csv': []
-#     },
-#     'global_force_generate': False,
-#     'feature_list': stacking_feature_list.feature_list_ridge1,
-#     'clean_na': True,
-#     'Meta_model': LinearModel.RidgeRegressor,
-#     # predicting parameters
-#     # 'resale_offset': 0.012,
-#     'model_params': {
-#         'alpha': 0.1576368858337792,
-#         'fit_intercept': True,
-#         'normalize': True,
-#         'random_state': 42,
-#         'solver': 'sag',
-#         'tol': 0.10128973680416681
-#     },
-#     'outliers_lw_pct': 3,
-#     'outliers_up_pct': 96,
-#
-#     # tuning parameters
-#     'tuning_params': {
-#         'parameter_space': {
-#             'model_params': {
-#                 'alpha': hp.loguniform('alpha', -3, 2),
-#                 'fit_intercept': hp.choice('fit_intercept', [True, False]),
-#                 'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
-#                 'tol': hp.loguniform('tol', -6, -2),
-#                 'normalize': hp.choice('normalize', [True, False]),
-#                 'random_state': 42
-#             },
-#             'outliers_up_pct': hp.choice('outliers_up_pct', [94, 95, 96, 97, 98, 99, 100]),
-#             'outliers_lw_pct': hp.choice('outliers_lw_pct', [6, 5, 4, 3, 2, 1, 0]),
-#         },
-#         'max_evals': 3000
-#     }
-# }
+# 0.0637408563565, 0.0684353548124: 0.06687052199374166
+stacking_config_ridge_partial_config_with_feature_long = {
+    'name': 'stacking_config_ridge_partial_config_with_feature_long',
+    'stacking_list': {
+        'config': partial_configs + [(config_catboost_clean_long, False)],
+        'csv': []
+    },
+    'global_force_generate': False,
+    'feature_list': stacking_feature_list.feature_list_ridge1,
+    'clean_na': True,
+    'Meta_model': LinearModel.RidgeRegressor,
+    # predicting parameters
+    # 'resale_offset': 0.012,
+    'model_params': {
+        'alpha': 0.1603569776463936,
+        'fit_intercept': True,
+        'normalize': True,
+        'random_state': 42,
+        'solver': 'sag',
+        'tol': 0.11676574578298685
+    },
+    'outliers_lw_pct': 3,
+    'outliers_up_pct': 96,
 
+    # tuning parameters
+    'tuning_params': {
+        'parameter_space': {
+            'model_params': {
+                'alpha': hp.loguniform('alpha', -2, -1),
+                'fit_intercept': hp.choice('fit_intercept', [True, False]),
+                'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
+                'tol': hp.loguniform('tol', -4, -1),
+                'normalize': True,
+                'random_state': 42
+            },
+            'outliers_up_pct': hp.choice('outliers_up_pct', [96, 97, 98, 99, 100]),
+            'outliers_lw_pct': hp.choice('outliers_lw_pct', [4, 3, 2, 1, 0]),
+        },
+        'max_evals': 3000
+    }
+}
+
+# 0.0637929003149, 0.0684426681328, 0.06689274552684045
 stacking_config_ridge_partial_config_with_feature2 = {
     'name': 'stacking_config_ridge_partial_config_with_feature2',
     'stacking_list': {
@@ -426,12 +429,12 @@ stacking_config_ridge_partial_config_with_feature2 = {
     # predicting parameters
     # 'resale_offset': 0.012,
     'model_params': {
-        'alpha': 0.1576368858337792,
+        'alpha': 0.138140369883881,
         'fit_intercept': True,
         'normalize': True,
         'random_state': 42,
-        'solver': 'sag',
-        'tol': 0.10128973680416681
+        'solver': 'sparse_cg',
+        'tol': 0.012776912325107864
     },
     'outliers_lw_pct': 3,
     'outliers_up_pct': 96,
@@ -454,17 +457,29 @@ stacking_config_ridge_partial_config_with_feature2 = {
     }
 }
 
-stacking_config_ridge_partial_config = {
-    'name': 'stacking_config_ridge_partial_config',
+# 0.0637659790338, 0.0684294079447: 0.06687493164106624
+stacking_config_ridge_partial_config_with_feature_long2 = {
+    'name': 'stacking_config_ridge_partial_config_with_feature_long2',
     'stacking_list': {
-        'config': partial_configs,
+        'config': partial_configs + [(config_catboost_clean_long, False)],
         'csv': []
     },
     'global_force_generate': False,
+    'feature_list': stacking_feature_list.feature_list_ridge3,
     'clean_na': True,
     'Meta_model': LinearModel.RidgeRegressor,
     # predicting parameters
     # 'resale_offset': 0.012,
+    'model_params': {
+        'alpha': 0.18802452689879962,
+        'fit_intercept': True,
+        'normalize': True,
+        'random_state': 42,
+        'solver': 'sag',
+        'tol': 0.12728836824138723
+    },
+    'outliers_lw_pct': 3,
+    'outliers_up_pct': 96,
 
     # tuning parameters
     'tuning_params': {
@@ -483,3 +498,36 @@ stacking_config_ridge_partial_config = {
         'max_evals': 2000
     }
 }
+
+# # 0.063781907088, 0.0685477473751, 0.06695913394605855
+# stacking_config_ridge_partial_config = {
+#     'name': 'stacking_config_ridge_partial_config',
+#     'stacking_list': {
+#         'config': partial_configs,
+#         'csv': []
+#     },
+#     'global_force_generate': False,
+#     'clean_na': True,
+#     'Meta_model': LinearModel.RidgeRegressor,
+#     # predicting parameters
+#     # 'resale_offset': 0.012,
+#
+#     # tuning parameters
+#     'tuning_params': {
+#         'parameter_space': {
+#             'model_params': {
+#                 'alpha': hp.loguniform('alpha', -2, -1),
+#                 'fit_intercept': hp.choice('fit_intercept', [True, False]),
+#                 'solver': hp.choice('solver', ['auto', 'svd', 'cholesky', 'lsqr', 'sparse_cg', 'sag']),
+#                 'tol': hp.loguniform('tol', -4, -1),
+#                 'normalize': True,
+#                 'random_state': 42
+#             },
+#             'outliers_up_pct': hp.choice('outliers_up_pct', [96, 97, 98, 99, 100]),
+#             'outliers_lw_pct': hp.choice('outliers_lw_pct', [4, 3, 2, 1, 0]),
+#         },
+#         'max_evals': 3000
+#     }
+# }
+
+# 'model_params': {'boosting_type': 'gbdt', 'categorical_feature': (), 'learning_rate': 0.007271947435414975, 'max_bin': 210, 'metric': 'mse', 'min_data': 270, 'min_hessian': 1.5770551255125693, 'num_boost_round': 500, 'num_leaves': 5, 'objective': 'regression_l1', 'sub_feature': 0.5, 'verbose': -1}, 'outliers_lw_pct': 2, 'outliers_up_pct': 98,
