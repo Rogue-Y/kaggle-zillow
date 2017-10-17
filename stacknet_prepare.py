@@ -167,6 +167,9 @@ def stacknet_prepare_test2017():
     print('test 2017')
     print(prop2017.shape)
 
+    test_folder = 'data/stacknet/test'
+    if not os.path.exists(test_folder):
+        os.makedirs(test_folder)
     prop2017_id.to_csv("%s/test2017_id.csv" %test_folder, index=False)
     X_train_all = X_train_all.values.astype(np.float32, copy=False)
     y_train_all = y_train_all.values.astype(np.float32, copy=False)
@@ -189,7 +192,7 @@ def stacknet_prepare_test2017():
     prop2017 = prop2017.values.astype(np.float32, copy=False)
     print('2017 prop shape')
     print(prop2017.shape)
-    fromsparsetofile("%s/test2017%d.txt" %(test_folder, month), prop2017, deli1=" ", deli2=":",ytarget=None)
+    fromsparsetofile("%s/test2017.txt" %test_folder, prop2017, deli1=" ", deli2=":",ytarget=None)
 
     print (" finished with 2017 train test data" )
 
@@ -259,4 +262,4 @@ def stacknet_prepare_test2016():
 
 if __name__ == '__main__':
     # stacknet_prepare_validate()
-    stacknet_prepare_test2016()
+    stacknet_prepare_test2017()
