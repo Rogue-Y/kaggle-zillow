@@ -191,7 +191,11 @@ def stacknet_prepare_test2017():
     prop2017 = prop2017.values.astype(np.float32, copy=False)
     print('2017 prop shape')
     print(prop2017.shape)
+<<<<<<< HEAD
+    fromsparsetofile("%s/test2017.txt" %test_folder, prop2017, deli1=" ", deli2=":",ytarget=None)
+=======
     fromsparsetofile("%s/test2017%d.txt" %test_folder, prop2017, deli1=" ", deli2=":",ytarget=None)
+>>>>>>> 5bea31f4b9f7afd0f85a105078885fea873ac7e6
 
     print (" finished with 2017 train test data" )
 
@@ -259,4 +263,4 @@ def stacknet_prepare_test2016():
 
 if __name__ == '__main__':
     # stacknet_prepare_validate()
-    stacknet_prepare_test2016()
+    stacknet_prepare_test2017()

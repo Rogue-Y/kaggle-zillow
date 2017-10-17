@@ -232,8 +232,8 @@ geo_grouping_columns_fi = [
     # 'assessmentyear'
 ]
 
-# geo_grouping_columns = geo_grouping_columns_fi
-geo_grouping_columns = geo_grouping_columns_all
+geo_grouping_columns = geo_grouping_columns_fi
+# geo_grouping_columns = geo_grouping_columns_all
 
 
 def geo_fips_census_block(df, columns=None):
