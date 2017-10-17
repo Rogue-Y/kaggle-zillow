@@ -280,18 +280,19 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
         year_month = '2016' + month
         first_layer_test = test_first_layers[year_month].drop('parcelid', axis=1)
         sample[year_month] = meta_model2016.predict(first_layer_test)
+        print(sample[year_month].describe())
 
     # make prediction
-    # print("Add resale 2016...")
-    # transactions2016 = utils.load_transaction_data(2016)
-    # # add resale
-    # sales2016 = transactions2016[['parcelid', 'logerror']].groupby('parcelid').mean()
-    # sample = sample.join(sales, on='ParcelId', how='left')
-    # for month in months:
-    #     year_month = '2016' + month
-    #     sample[year_month] = sample[year_month].where(
-    #         sample['logerror'].isnull(),  sample[year_month] + resale_offset)
-    # sample.drop('logerror', axis=1, inplace=True)
+    print("Add resale 2016...")
+    transactions2016 = utils.load_transaction_data(2016)
+    # add resale
+    sales2016 = transactions2016[['parcelid', 'logerror']].groupby('parcelid').mean()
+    sample = sample.join(sales2016, on='ParcelId', how='left')
+    for month in months:
+        year_month = '2016' + month
+        sample[year_month] = sample[year_month].where(
+            sample['logerror'].isnull(),  sample[year_month] + resale_offset)
+    sample.drop('logerror', axis=1, inplace=True)
 
     print('predicting 2017')
     meta_model2017, train_loss_all = train_meta_model(first_layer_all, target_all, Meta_model, model_params, outliers_lw_pct, outliers_up_pct)
@@ -299,18 +300,19 @@ def stacking_submit_wrapper(first_layer2016, target2016, first_layer_all, target
         year_month = '2017' + month
         first_layer_test = test_first_layers[year_month].drop('parcelid', axis=1)
         sample[year_month] = meta_model2017.predict(first_layer_test)
+        print(sample[year_month].describe())
 
     # make prediction
-    # print("Add resale 2017...")
-    # transactions2017 = utils.load_transaction_data(2017)
-    # # add resale
-    # sales2017 = transactions2017[['parcelid', 'logerror']].groupby('parcelid').mean()
-    # sample = sample.join(sales, on='ParcelId', how='left')
-    # for month in months:
-    #     year_month = '2017' + month
-    #     sample[year_month] = sample[year_month].where(
-    #         sample['logerror'].isnull(),  sample[year_month] + resale_offset)
-    # sample.drop('logerror', axis=1, inplace=True)
+    print("Add resale 2017...")
+    transactions2017 = utils.load_transaction_data(2017)
+    # add resale
+    sales2017 = transactions2017[['parcelid', 'logerror']].groupby('parcelid').mean()
+    sample = sample.join(sales2017, on='ParcelId', how='left')
+    for month in months:
+        year_month = '2017' + month
+        sample[year_month] = sample[year_month].where(
+            sample['logerror'].isnull(),  sample[year_month] + resale_offset)
+    sample.drop('logerror', axis=1, inplace=True)
 
     # Sanity check, should not have nan
     print('Prediction sanity check')

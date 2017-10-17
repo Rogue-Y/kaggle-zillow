@@ -62,13 +62,13 @@ stacking_config_test = {
                 'learning_rate': hp.loguniform('learning_rate', -2, 0),
                 'boosting_type': 'gbdt',
                 'objective': hp.choice('objective', ['regression_l2', 'regression_l1', 'huber', 'fair']),
-                'metric': hp.choice('metric', ['mae', 'mse']),
+                # 'metric': hp.choice('metric', ['mae', 'mse']),
                 # 'sub_feature': hp.choice('sub_feature', [0.5, 0.6, 0.7, 0.8, 0.9, 1]),
-                'num_leaves': hp.choice('num_leaves', list(range(5, 101, 10))),
-                'min_data': hp.choice('min_data', list(range(200, 500, 15))),
+                'num_leaves': hp.choice('num_leaves', [5, 15, 45, 90, 135]),
+                'min_data': hp.choice('min_data', [30, 100, 300, 900]),
                 'min_hessian': hp.loguniform('min_hessian', -1, 1),
-                'num_boost_round': hp.choice('num_boost_round', [200, 300, 500, 1000]),
-                'max_bin': hp.choice('max_bin', list(range(10, 251, 20))),
+                'num_boost_round': hp.choice('num_boost_round', [300, 500, 1000]),
+                'max_bin': hp.choice('max_bin', [100, 300, 500, 750]),
                 # 'bagging_fraction': hp.uniform('bagging_fraction', 0.5, 1),
                 # 'bagging_freq': hp.choice('bagging_freq', list(range(0, 100, 10))),
                 'verbose': -1,
@@ -77,7 +77,7 @@ stacking_config_test = {
             'outliers_up_pct': hp.choice('outliers_up_pct', [94, 95, 96, 97, 98, 99, 100]),
             'outliers_lw_pct': hp.choice('outliers_lw_pct', [6, 5, 4, 3, 2, 1, 0]),
         },
-        'max_evals': 2,
+        'max_evals': 100,
     }
 }
 
